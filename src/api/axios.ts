@@ -1,42 +1,34 @@
 import axios from 'axios';
 
-// Different base URLs for development and production
-const API_URL = process.env.NODE_ENV === 'production'
-    ? 'http://78.40.109.172:8000/api/v1'
-    : 'http://78.40.109.172:8000/api/v1';
-
+// Create axios instance with base URL
 const axiosInstance = axios.create({
-    baseURL: API_URL,
+    baseURL: 'http://78.40.109.172:8000/api/v1',
+    timeout: 10000,
     headers: {
-        'Content-Type': 'application/json',
-    },
+        'Content-Type': 'application/json'
+    }
 });
 
-// Request interceptor
+// Add request interceptor for auth token
 axiosInstance.interceptors.request.use(
     (config) => {
-        // Get token from storage if exists
         const token = localStorage.getItem('auth_token');
-        if (token && config.headers) {
+        if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
-// Response interceptor
+// Add a response interceptor for error handling
 axiosInstance.interceptors.response.use(
-    (response) => {
-        return response;
-    },
+    (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
-            // Handle unauthorized error
+        // Handle the error case
+        if (error.response && error.response.status === 401) {
+            // Handle unauthorized access
             localStorage.removeItem('auth_token');
-            window.location.href = '/auth';
         }
         return Promise.reject(error);
     }

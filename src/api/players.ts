@@ -6,31 +6,30 @@ import type {
 } from '../types/players';
 import axiosInstance from './axios';
 
-const BASE_URL = '/players';
-
+// Remove redundant base URL prefix to prevent double paths
 export const playerApi = {
     getAll: async (): Promise<PlayerPublicResponse[]> => {
-        const response = await axiosInstance.get(`${BASE_URL}`);
+        const response = await axiosInstance.get(`/players`);
         return response.data;
     },
 
     getById: async (id: number): Promise<PlayerPublicResponse> => {
-        const response = await axiosInstance.get(`${BASE_URL}/public/${id}`);
+        const response = await axiosInstance.get(`/players/public/${id}`);
         return response.data;
     },
 
     create: async (data: PlayerCreateRequest): Promise<PlayerCreateResponse> => {
-        const response = await axiosInstance.post(`${BASE_URL}`, data);
+        const response = await axiosInstance.post(`/players`, data);
         return response.data;
     },
 
     update: async (id: number, data: PlayerUpdateRequest): Promise<PlayerCreateResponse> => {
-        const response = await axiosInstance.patch(`${BASE_URL}/${id}`, data);
+        const response = await axiosInstance.patch(`/players/${id}`, data);
         return response.data;
     },
 
     delete: async (id: number): Promise<void> => {
-        await axiosInstance.delete(`${BASE_URL}/${id}`);
+        await axiosInstance.delete(`/players/${id}`);
     },
 
     // Helper method to get players by array of IDs

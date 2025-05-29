@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import TeamForm from '../../components/teams/TeamForm';
+import Breadcrumb from '../../components/ui/Breadcrumb';
 import Modal from '../../components/ui/Modal';
 import { usePlayerStore } from '../../store/playerStore';
 import { useTeamStore } from '../../store/teamStore';
@@ -12,7 +13,7 @@ const TeamDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const teamId = id ? parseInt(id) : -1;
     const navigate = useNavigate();
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { currentTeam, isLoading: teamLoading, error: teamError, fetchTeam, updateTeam, deleteTeam } = useTeamStore();
     const { fetchPlayersByIds } = usePlayerStore();
     const [isEditing, setIsEditing] = useState(false);
@@ -20,18 +21,30 @@ const TeamDetailPage: React.FC = () => {
     const [teamPlayers, setTeamPlayers] = useState<PlayerPublicResponse[]>([]);
     const [isLoadingPlayers, setIsLoadingPlayers] = useState(false);
     const [playerError, setPlayerError] = useState<string | null>(null);
+    
+    // Check if current language is Russian for adaptive text sizing
+    const isRussian = i18n.language === 'ru';
 
-    // Fetch team data
-    useEffect(() => {
+    // Fetch team data - Fixed with useCallback and proper dependency array
+    const loadTeam = useCallback(() => {
         if (teamId > 0) {
             fetchTeam(teamId);
         }
     }, [teamId, fetchTeam]);
+
+    useEffect(() => {
+        loadTeam();
+        // Only run this effect once when the component mounts or when teamId changes
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [teamId]);
     
-    // Fetch player details when team data is loaded
+    // Fetch player details - Fixed to prevent infinite loop
     useEffect(() => {
         const getPlayerDetails = async () => {
             if (currentTeam && Array.isArray(currentTeam.players) && currentTeam.players.length > 0) {
+                // Skip if we already have the players loaded
+                if (teamPlayers.length > 0) return;
+                
                 setIsLoadingPlayers(true);
                 setPlayerError(null);
                 
@@ -65,6 +78,29 @@ const TeamDetailPage: React.FC = () => {
             const success = await updateTeam(teamId, data);
             if (success) {
                 setIsEditing(false);
+                // Explicitly refresh team data after update
+                await fetchTeam(teamId);
+                // Also reload players data if player list changed
+                if (data.players && currentTeam?.players) {
+                    const currentPlayerIds = Array.isArray(currentTeam.players) 
+                        ? currentTeam.players.map(p => typeof p === 'number' ? p : p.id)
+                        : [];
+                    
+                    // Check if player list changed
+                    if (JSON.stringify(currentPlayerIds) !== JSON.stringify(data.players)) {
+                        setTeamPlayers([]); // Clear current players to force reload
+                        setIsLoadingPlayers(true); // Show loading indicator
+                        try {
+                            const players = await fetchPlayersByIds(data.players);
+                            setTeamPlayers(players);
+                        } catch (error) {
+                            console.error("Failed to refresh players:", error);
+                            setPlayerError(t('errors.failedToLoadPlayers'));
+                        } finally {
+                            setIsLoadingPlayers(false);
+                        }
+                    }
+                }
             }
         }
     };
@@ -76,6 +112,11 @@ const TeamDetailPage: React.FC = () => {
                 navigate('/dashboard/teams');
             }
         }
+    };
+
+    // Fix the edit button handler
+    const handleEdit = () => {
+        setIsEditing(true);
     };
 
     if (teamLoading) {
@@ -104,21 +145,31 @@ const TeamDetailPage: React.FC = () => {
         );
     }
 
+    // Breadcrumb items
+    const breadcrumbItems = [
+        { label: t('sidebar.home'), path: '/dashboard' },
+        { label: t('sidebar.teams'), path: '/dashboard/teams' },
+        { label: currentTeam.name }
+    ];
+
     return (
         <div>
-            <div className="flex justify-between items-center mb-6">
+            {/* Breadcrumbs */}
+            <Breadcrumb items={breadcrumbItems} />
+
+            <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
                 <div className="flex items-center">
                     <Link to="/dashboard/teams" className="text-gray-400 hover:text-white mr-3">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                         </svg>
                     </Link>
-                    <h1 className="text-2xl font-bold">{currentTeam.name}</h1>
+                    <h1 className={`font-bold ${isRussian ? 'text-xl' : 'text-2xl'}`}>{currentTeam.name}</h1>
                 </div>
 
                 <div className="flex space-x-2">
                     <button
-                        onClick={() => setIsEditing(true)}
+                        onClick={handleEdit} // Use the explicit handler here
                         className="bg-gold text-darkest-bg px-3 py-1.5 rounded-md hover:bg-gold/90 transition-colors duration-200 flex items-center"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1">
@@ -142,9 +193,9 @@ const TeamDetailPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {/* Team Info */}
                 <div className="md:col-span-4 bg-card-bg rounded-lg shadow-md overflow-hidden">
-                    <div className="p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div className="p-4 md:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
                         <div
-                            className="w-20 h-20 rounded-full flex items-center justify-center shrink-0"
+                            className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center shrink-0"
                             style={{
                                 backgroundColor: currentTeam.primaryColor || '#ffcc00',
                                 color: currentTeam.secondaryColor || '#002b3d'
@@ -153,13 +204,13 @@ const TeamDetailPage: React.FC = () => {
                             {currentTeam.avatar ? (
                                 <img src={currentTeam.avatar} alt={currentTeam.name} className="w-full h-full object-cover rounded-full" />
                             ) : (
-                                <span className="font-bold text-3xl">
+                                <span className="font-bold text-2xl md:text-3xl">
                                     {currentTeam.name.substring(0, 2).toUpperCase()}
                                 </span>
                             )}
                         </div>
                         <div className="flex-grow">
-                            <h2 className="text-xl font-semibold mb-1">{currentTeam.name}</h2>
+                            <h2 className={`font-semibold mb-1 ${isRussian ? 'text-lg' : 'text-xl'}`}>{currentTeam.name}</h2>
                             <div className="flex items-center gap-2 mb-3">
                                 <span
                                     className="h-4 w-4 rounded-full border border-white"
@@ -172,14 +223,14 @@ const TeamDetailPage: React.FC = () => {
                                     title={t('teams.secondaryColor')}
                                 ></span>
                             </div>
-                            <p className="text-gray-300">{currentTeam.description}</p>
+                            <p className="text-gray-300 text-sm">{currentTeam.description}</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Players Header */}
                 <div className="md:col-span-4">
-                    <h3 className="text-xl font-semibold mb-4 flex items-center">
+                    <h3 className={`font-semibold mb-4 flex items-center ${isRussian ? 'text-lg' : 'text-xl'}`}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-2 text-gold">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                         </svg>
@@ -213,35 +264,35 @@ const TeamDetailPage: React.FC = () => {
                     <>
                         {teamPlayers.map(player => (
                             <div key={player.id} className="bg-card-bg rounded-lg shadow-md overflow-hidden transition-transform duration-200 hover:transform hover:scale-103 hover:shadow-lg">
-                                <div className="p-4 border-b border-darkest-bg">
+                                <div className="p-3 border-b border-darkest-bg">
                                     <div className="flex items-center">
-                                        <div className="w-10 h-10 bg-gold text-darkest-bg rounded-full flex items-center justify-center font-bold mr-3">
+                                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gold text-darkest-bg rounded-full flex items-center justify-center font-bold mr-3">
                                             {player.id}
                                         </div>
-                                        <div>
-                                            <h4 className="font-medium">{player.position}</h4>
-                                            <p className="text-sm text-gray-400">{player.club}</p>
+                                        <div className="min-w-0">
+                                            <h4 className="font-medium text-sm whitespace-nowrap overflow-hidden text-ellipsis">{player.position}</h4>
+                                            <p className="text-xs text-gray-400 whitespace-nowrap overflow-hidden text-ellipsis">{player.club}</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="p-3">
-                                    <div className="grid grid-cols-2 gap-1 text-sm">
+                                <div className="p-2 sm:p-3">
+                                    <div className="grid grid-cols-2 gap-x-1 gap-y-1 text-xs sm:text-sm">
                                         <div>
-                                            <span className="text-gray-400 text-xs">{t('players.age')}:</span>
+                                            <span className={`text-gray-400 text-xs block`}>{t('players.age')}:</span>
                                             <p>{player.age}</p>
                                         </div>
                                         <div>
-                                            <span className="text-gray-400 text-xs">{t('players.nationality')}:</span>
-                                            <p>{player.nationality}</p>
+                                            <span className={`text-gray-400 text-xs block`}>{t('players.nationality')}:</span>
+                                            <p className="truncate">{player.nationality}</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="border-t border-darkest-bg p-3">
+                                <div className="border-t border-darkest-bg p-2 sm:p-3">
                                     <Link
                                         to={`/dashboard/players/${player.id}`}
-                                        className="text-gold hover:underline text-sm transition-colors duration-200"
+                                        className="text-gold hover:underline text-xs sm:text-sm transition-colors duration-200"
                                     >
                                         {t('common.viewDetails')}
                                     </Link>
@@ -258,19 +309,22 @@ const TeamDetailPage: React.FC = () => {
                 onClose={() => setIsEditing(false)}
                 title={t('teams.editTeam')}
             >
-                <TeamForm
-                    initialData={{
-                        name: currentTeam.name,
-                        description: currentTeam.description,
-                        primaryColor: currentTeam.primaryColor,
-                        secondaryColor: currentTeam.secondaryColor,
-                        players: Array.isArray(currentTeam.players) 
-                            ? currentTeam.players.map(p => typeof p === 'number' ? p : p.id)
-                            : []
-                    }}
-                    onSubmit={handleUpdateTeam}
-                    onCancel={() => setIsEditing(false)}
-                />
+                {currentTeam && (
+                    <TeamForm
+                        initialData={{
+                            name: currentTeam.name,
+                            description: currentTeam.description,
+                            primaryColor: currentTeam.primaryColor,
+                            secondaryColor: currentTeam.secondaryColor,
+                            players: Array.isArray(currentTeam.players) 
+                                ? currentTeam.players.map(p => typeof p === 'number' ? p : p.id)
+                                : []
+                        }}
+                        currentTeamId={teamId}
+                        onSubmit={handleUpdateTeam}
+                        onCancel={() => setIsEditing(false)}
+                    />
+                )}
             </Modal>
 
             {/* Delete Confirmation Modal */}

@@ -12,7 +12,7 @@ interface TeamState {
     isLoading: boolean;
     error: string | null;
 
-    fetchTeams: () => Promise<void>;
+    fetchTeams: (forceRefresh?: boolean) => Promise<void>;
     fetchTeam: (id: number) => Promise<void>;
     createTeam: (data: CreateTeamRequest) => Promise<boolean>;
     updateTeam: (id: number, data: UpdateTeamRequest) => Promise<boolean>;
@@ -25,8 +25,13 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
     isLoading: false,
     error: null,
 
-    fetchTeams: async () => {
+    fetchTeams: async (forceRefresh = false) => {
+        // Check if we already have teams loaded and avoid redundant requests
+        const { teams } = get();
+        if (teams.length > 0 && !forceRefresh) return;
+
         set({ isLoading: true, error: null });
+
         try {
             const teams = await teamApi.getAll();
             set({ teams, isLoading: false });
@@ -39,6 +44,10 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
     },
 
     fetchTeam: async (id: number) => {
+        // Prevent redundant requests
+        const { currentTeam } = get();
+        if (currentTeam && currentTeam.id === id) return;
+
         set({ isLoading: true, error: null });
         try {
             const team = await teamApi.getById(id);
@@ -69,21 +78,29 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
 
     updateTeam: async (id: number, data: UpdateTeamRequest) => {
         set({ isLoading: true, error: null });
+        
         try {
             await teamApi.update(id, data);
-
-            // Refresh current team and team list
-            if (get().currentTeam?.id === id) {
-                await get().fetchTeam(id);
-            }
-            await get().fetchTeams();
-
-            set({ isLoading: false });
-            return true;
-        } catch (error: any) {
-            set({
-                error: error.response?.data?.message || `Failed to update team #${id}`,
+            
+            // Instead of directly merging which causes type errors,
+            // fetch the latest data to ensure proper typing
+            const updatedTeam = await teamApi.getById(id);
+            
+            // Update state with the correctly typed data from the API
+            set(state => ({
+                // Update the teams list with the correctly typed team
+                teams: state.teams.map(team => team.id === id ? updatedTeam : team),
+                // Update currentTeam if it's the one being edited
+                currentTeam: state.currentTeam?.id === id ? updatedTeam : state.currentTeam,
                 isLoading: false
+            }));
+            
+            return true;
+        } 
+        catch (error: any) {
+            set({ 
+                error: error.response?.data?.message || `Failed to update team #${id}`, 
+                isLoading: false 
             });
             return false;
         }

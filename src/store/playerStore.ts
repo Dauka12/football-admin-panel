@@ -12,7 +12,7 @@ interface PlayerState {
     isLoading: boolean;
     error: string | null;
 
-    fetchPlayers: () => Promise<PlayerPublicResponse[]>;
+    fetchPlayers: (forceRefresh?: boolean) => Promise<void>;
     fetchPlayer: (id: number) => Promise<PlayerPublicResponse | null>;
     fetchPlayersByIds: (ids: number[]) => Promise<PlayerPublicResponse[]>;
     createPlayer: (data: PlayerCreateRequest) => Promise<boolean>;
@@ -26,20 +26,22 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
     isLoading: false,
     error: null,
 
-    fetchPlayers: async () => {
+    fetchPlayers: async (forceRefresh = false) => {
+        // Check if we already have players loaded and avoid redundant requests
+        const { players } = get();
+        if (players.length > 0 && !forceRefresh) return;
+
         set({ isLoading: true, error: null });
 
         try {
             const players = await playerApi.getAll();
             set({ players, isLoading: false });
-            return players;
         }
         catch (error: any) {
             set({
                 error: error.response?.data?.message || 'Failed to fetch players',
                 isLoading: false
             });
-            return [];
         }
     },
 
@@ -77,14 +79,17 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
             const missingIds = ids.filter(id => !players.some(p => p.id === id));
 
             if (missingIds.length > 0) {
-                // We can optimize this by using Promise.all to fetch all missing players in parallel
-                const promises = missingIds.map(id => playerApi.getById(id));
-                const fetchedPlayers = await Promise.all(promises);
+                // We can optimize this to fetch only once
+                const fetchedPlayers = await Promise.all(
+                    missingIds.map(id => playerApi.getById(id))
+                );
 
-                // Update our store with the new players
-                set(state => ({
-                    players: [...state.players, ...fetchedPlayers]
-                }));
+                // Only update store once with all new players
+                if (fetchedPlayers.length > 0) {
+                    set(state => ({
+                        players: [...state.players.filter(p => !missingIds.includes(p.id)), ...fetchedPlayers]
+                    }));
+                }
 
                 // Return all requested players (both cached and newly fetched)
                 return [...cachedPlayers, ...fetchedPlayers];
@@ -101,9 +106,19 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
         set({ isLoading: true, error: null });
 
         try {
-            await playerApi.create(data);
-            await get().fetchPlayers(); // Refresh the players list
-            set({ isLoading: false });
+            const response = await playerApi.create(data);
+
+            // Immediately fetch all players to refresh the list
+            const freshPlayers = await playerApi.getAll();
+
+            // Update the store with the new list of players
+            set({
+                players: freshPlayers,
+                isLoading: false,
+                // Also set the newly created player as the current player
+                currentPlayer: freshPlayers.find(p => p.id === response.id) || null
+            });
+
             return true;
         }
         catch (error: any) {
