@@ -23,37 +23,44 @@ export const useAuthStore = create<AuthState>()(
 
             login: async (phone, password) => {
                 set({ isLoading: true, error: null });
+                
                 try {
                     const response = await authApi.login({ phone, password });
+                    
                     set({
                         user: response,
                         isAuthenticated: true,
                         isLoading: false
                     });
+                    
                     localStorage.setItem('auth_token', response.token);
-
-                    // Return success status instead of redirecting here
                     return true;
-                } catch (error: any) {
+                } 
+                catch (error: any) {
                     set({
                         error: error.response?.data?.message || 'Failed to login',
                         isLoading: false
                     });
+                    
                     return false;
                 }
             },
 
             register: async (firstname, lastname, phone, password) => {
                 set({ isLoading: true, error: null });
+                
                 try {
                     await authApi.register({ firstname, lastname, phone, password });
                     set({ isLoading: false });
+                    
                     return true;
-                } catch (error: any) {
+                } 
+                catch (error: any) {
                     set({
                         error: error.response?.data?.message || 'Failed to register',
                         isLoading: false
                     });
+                    
                     return false;
                 }
             },

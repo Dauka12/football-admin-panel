@@ -44,13 +44,41 @@ export const ru = {
     confirmDelete: "Удалить команду",
     deleteWarning: "Вы уверены, что хотите удалить эту команду? Это действие нельзя отменить.",
     deleteWarningDetail: "Вы уверены, что хотите удалить команду '{name}'? Это действие нельзя отменить.",
-    notFound: "Команда не найдена"
+    notFound: "Команда не найдена",
+    addPlayers: "Добавить игроков",
+    selectPlayers: "Выбрать игроков",
+    selectedPlayers: "Выбрано игроков",
   },
   players: {
-    name: "Имя",
+    title: "Игроки",
+    createPlayer: "Создать игрока",
+    editPlayer: "Редактировать игрока",
+    noPlayers: "Игроки не найдены",
+    createFirst: "Создайте вашего первого игрока",
     position: "Позиция",
+    club: "Клуб",
     age: "Возраст",
-    nationality: "Гражданство"
+    height: "Рост",
+    weight: "Вес",
+    nationality: "Национальность",
+    birthplace: "Место рождения",
+    preferredFoot: "Рабочая нога",
+    leftFoot: "Левая",
+    rightFoot: "Правая",
+    bothFeet: "Обе",
+    bio: "Биография",
+    noBio: "Биография отсутствует",
+    identificationNumber: "Идентификационный номер",
+    userId: "ID пользователя",
+    confirmDelete: "Удалить игрока",
+    deleteWarning: "Вы уверены, что хотите удалить этого игрока? Это действие нельзя отменить.",
+    deleteWarningDetail: "Вы уверены, что хотите удалить игрока с позицией '{position}'? Это действие нельзя отменить.",
+    notFound: "Игрок не найден",
+    playerDetails: "Игрок: {position}",
+    basicInfo: "Основная информация",
+    nationalityInfo: "Национальность",
+    additionalInfo: "Дополнительная информация",
+    biography: "Биография"
   },
   common: {
     save: "Сохранить",
@@ -70,10 +98,21 @@ export const ru = {
     nameRequired: "Необходимо указать имя",
     nameShort: "Имя должно содержать не менее 2 символов",
     descriptionRequired: "Необходимо указать описание",
-    colorRequired: "Необходимо указать цвет"
+    colorRequired: "Необходимо указать цвет",
+    positionRequired: "Необходимо указать позицию",
+    clubRequired: "Необходимо указать клуб",
+    nationalityRequired: "Необходимо указать национальность",
+    birthplaceRequired: "Необходимо указать место рождения",
+    ageInvalid: "Возраст должен быть больше 0",
+    heightInvalid: "Рост должен быть больше 0",
+    weightInvalid: "Вес должен быть больше 0",
+    identificationRequired: "Необходимо указать идентификационный номер"
   },
   languages: {
     en: "Английский",
     ru: "Русский"
+  },
+  errors: {
+    failedToLoadPlayers: "Не удалось загрузить данные игроков"
   }
 };

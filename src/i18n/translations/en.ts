@@ -44,13 +44,41 @@ export const en = {
     confirmDelete: "Delete Team",
     deleteWarning: "Are you sure you want to delete this team? This action cannot be undone.",
     deleteWarningDetail: "Are you sure you want to delete '{name}'? This action cannot be undone.",
-    notFound: "Team not found"
+    notFound: "Team not found",
+    addPlayers: "Add Players",
+    selectPlayers: "Select Players",
+    selectedPlayers: "Selected Players",
   },
   players: {
-    name: "Name",
+    title: "Players",
+    createPlayer: "Create Player",
+    editPlayer: "Edit Player",
+    noPlayers: "No players found",
+    createFirst: "Create your first player",
     position: "Position",
+    club: "Club",
     age: "Age",
-    nationality: "Nationality"
+    height: "Height",
+    weight: "Weight",
+    nationality: "Nationality",
+    birthplace: "Birthplace",
+    preferredFoot: "Preferred Foot",
+    leftFoot: "Left",
+    rightFoot: "Right",
+    bothFeet: "Both",
+    bio: "Biography",
+    noBio: "No biography provided",
+    identificationNumber: "ID Number",
+    userId: "User ID",
+    confirmDelete: "Delete Player",
+    deleteWarning: "Are you sure you want to delete this player? This action cannot be undone.",
+    deleteWarningDetail: "Are you sure you want to delete the player with position '{position}'? This action cannot be undone.",
+    notFound: "Player not found",
+    playerDetails: "{position} Details",
+    basicInfo: "Basic Info",
+    nationalityInfo: "Nationality",
+    additionalInfo: "Additional Info",
+    biography: "Biography"
   },
   common: {
     save: "Save",
@@ -70,10 +98,21 @@ export const en = {
     nameRequired: "Name is required",
     nameShort: "Name must be at least 2 characters long",
     descriptionRequired: "Description is required",
-    colorRequired: "Color is required"
+    colorRequired: "Color is required",
+    positionRequired: "Position is required",
+    clubRequired: "Club is required",
+    nationalityRequired: "Nationality is required",
+    birthplaceRequired: "Birthplace is required",
+    ageInvalid: "Age must be greater than 0",
+    heightInvalid: "Height must be greater than 0",
+    weightInvalid: "Weight must be greater than 0",
+    identificationRequired: "ID Number is required"
   },
   languages: {
     en: "English",
     ru: "Russian"
+  },
+  errors: {
+    failedToLoadPlayers: "Failed to load player details"
   }
 };
