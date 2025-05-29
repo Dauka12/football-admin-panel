@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --gold: #ffcc00;
+    --card-bg: #002b3d;
+    --darkest-bg: rgb(0, 19, 30);
+    --accent-pink: rgb(247, 50, 99);
+}
+
+body {
+    @apply bg-darkest-bg text-white;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+.auth-card {
+    @apply bg-card-bg rounded-lg shadow-xl p-6 sm:p-8 w-full max-w-md mx-auto;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.btn-primary {
+    @apply w-full py-2.5 px-4 bg-gold text-darkest-bg font-medium rounded-md hover:bg-gold/90 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gold/50 disabled:opacity-60 disabled:cursor-not-allowed;
+}
+
+.btn-secondary {
+    @apply w-full py-2.5 px-4 bg-accent-pink text-white font-medium rounded-md hover:bg-accent-pink/90 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent-pink/50 disabled:opacity-60 disabled:cursor-not-allowed;
+}
+
+.form-input {
+    @apply w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold transition-colors placeholder:text-gray-500;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
