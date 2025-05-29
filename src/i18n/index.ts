@@ -5,17 +5,17 @@ import { ru } from './translations/ru';
 
 // Initialize i18n instance
 i18n
-  .use(initReactI18next)
-  .init({
-    resources: {
-      en: { translation: en },
-      ru: { translation: ru }
-    },
-    lng: localStorage.getItem('language') || 'en',
-    fallbackLng: 'en',
-    interpolation: {
-      escapeValue: false // React already escapes by default
-    }
-  });
+    .use(initReactI18next)
+    .init({
+        resources: {
+            en: { translation: en },
+            ru: { translation: ru }
+        },
+        lng: localStorage.getItem('language') || 'en',
+        fallbackLng: 'en',
+        interpolation: {
+            escapeValue: false
+        }
+    });
 
 export default i18n;

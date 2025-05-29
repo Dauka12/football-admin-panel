@@ -31,6 +31,9 @@ export const useAuthStore = create<AuthState>()(
                         isLoading: false
                     });
                     localStorage.setItem('auth_token', response.token);
+
+                    // After successful login, redirect user to the dashboard
+                    window.location.href = '/dashboard';
                 } catch (error: any) {
                     set({
                         error: error.response?.data?.message || 'Failed to login',
@@ -44,7 +47,8 @@ export const useAuthStore = create<AuthState>()(
                 try {
                     await authApi.register({ firstname, lastname, phone, password });
                     set({ isLoading: false });
-                    // Typically after successful registration we'd redirect to login
+                    // After successful registration, you might want to automatically log the user in
+                    // or redirect them to the login page
                 } catch (error: any) {
                     set({
                         error: error.response?.data?.message || 'Failed to register',
@@ -56,6 +60,7 @@ export const useAuthStore = create<AuthState>()(
             logout: () => {
                 localStorage.removeItem('auth_token');
                 set({ user: null, isAuthenticated: false });
+                window.location.href = '/auth';
             }
         }),
         {

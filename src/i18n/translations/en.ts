@@ -17,7 +17,50 @@ export const en = {
     noAccount: "Don't have an account?",
     haveAccount: "Already have an account?",
     register: "Register",
-    login: "Login"
+    login: "Login",
+    logout: "Logout"
+  },
+  sidebar: {
+    teams: "Teams",
+    tournaments: "Tournaments",
+    players: "Players",
+    matches: "Matches",
+    "match-events": "Match Events",
+    files: "Files",
+    statistics: "Statistics"
+  },
+  teams: {
+    title: "Teams",
+    createTeam: "Create Team",
+    editTeam: "Edit Team",
+    noTeams: "No teams found",
+    createFirst: "Create your first team",
+    name: "Team Name",
+    description: "Description",
+    primaryColor: "Primary Color",
+    secondaryColor: "Secondary Color",
+    players: "Players",
+    noPlayers: "No players assigned to this team",
+    confirmDelete: "Delete Team",
+    deleteWarning: "Are you sure you want to delete this team? This action cannot be undone.",
+    deleteWarningDetail: "Are you sure you want to delete '{name}'? This action cannot be undone.",
+    notFound: "Team not found"
+  },
+  players: {
+    name: "Name",
+    position: "Position",
+    age: "Age",
+    nationality: "Nationality"
+  },
+  common: {
+    save: "Save",
+    saving: "Saving...",
+    cancel: "Cancel",
+    delete: "Delete",
+    edit: "Edit",
+    loading: "Loading...",
+    viewDetails: "View Details",
+    backToList: "Back to list"
   },
   validations: {
     phoneRequired: "Phone number is required",
@@ -25,7 +68,9 @@ export const en = {
     passwordRequired: "Password is required",
     passwordShort: "Password must be at least 6 characters long",
     nameRequired: "Name is required",
-    nameShort: "Name must be at least 2 characters long"
+    nameShort: "Name must be at least 2 characters long",
+    descriptionRequired: "Description is required",
+    colorRequired: "Color is required"
   },
   languages: {
     en: "English",

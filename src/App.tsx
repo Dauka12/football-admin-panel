@@ -1,13 +1,50 @@
-import React from 'react'
-import AuthPage from './pages/auth'
-import './styles/globals.css'
+import React from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import DashboardLayout from './components/layout/DashboardLayout';
+import AuthPage from './pages/auth';
+import TeamsPage from './pages/teams';
+import TeamDetailPage from './pages/teams/detail';
+import { useAuthStore } from './store/auth';
+import './styles/globals.css';
+
+// Protected route wrapper
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated } = useAuthStore();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  return <>{children}</>;
+};
 
 const App: React.FC = () => {
   return (
-    <div className="dark">
-      <AuthPage />
-    </div>
-  )
-}
+    <BrowserRouter>
+      <Routes>
+        {/* Auth routes */}
+        <Route path="/auth" element={<AuthPage />} />
 
-export default App
+        {/* Protected dashboard routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="/dashboard/teams" replace />} />
+          <Route path="teams" element={<TeamsPage />} />
+          <Route path="teams/:id" element={<TeamDetailPage />} />
+          {/* Other routes will be added here */}
+        </Route>
+
+        {/* Redirect from root to dashboard */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
+
+export default App;
