@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import TeamForm from '../../components/teams/TeamForm';
+import Modal from '../../components/ui/Modal';
 import { useTeamStore } from '../../store/teamStore';
-import type { TeamRequest } from '../../types/teams';
+import type { UpdateTeamRequest } from '../../types/teams';
 
 const TeamDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -20,7 +21,7 @@ const TeamDetailPage: React.FC = () => {
         }
     }, [teamId, fetchTeam]);
 
-    const handleUpdateTeam = async (data: TeamRequest.Update) => {
+    const handleUpdateTeam = async (data: UpdateTeamRequest) => {
         if (teamId > 0) {
             const success = await updateTeam(teamId, data);
             if (success) {
@@ -170,62 +171,48 @@ const TeamDetailPage: React.FC = () => {
             </div>
 
             {/* Edit Team Modal */}
-            {isEditing && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-card-bg rounded-lg w-full max-w-lg">
-                        <div className="flex justify-between items-center p-4 border-b border-darkest-bg">
-                            <h2 className="text-xl font-semibold">{t('teams.editTeam')}</h2>
-                            <button
-                                onClick={() => setIsEditing(false)}
-                                className="text-gray-400 hover:text-white"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                        <div className="p-4">
-                            <TeamForm
-                                initialData={{
-                                    name: currentTeam.name,
-                                    description: currentTeam.description,
-                                    primaryColor: currentTeam.primaryColor,
-                                    secondaryColor: currentTeam.secondaryColor,
-                                    players: currentTeam.players.map(p => p.id)
-                                }}
-                                onSubmit={handleUpdateTeam}
-                                onCancel={() => setIsEditing(false)}
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
+            <Modal 
+                isOpen={isEditing}
+                onClose={() => setIsEditing(false)}
+                title={t('teams.editTeam')}
+            >
+                <TeamForm 
+                    initialData={{
+                        name: currentTeam.name,
+                        description: currentTeam.description,
+                        primaryColor: currentTeam.primaryColor,
+                        secondaryColor: currentTeam.secondaryColor,
+                        players: currentTeam.players.map(p => p.id)
+                    }}
+                    onSubmit={handleUpdateTeam}
+                    onCancel={() => setIsEditing(false)} 
+                />
+            </Modal>
 
             {/* Delete Confirmation Modal */}
-            {showDeleteConfirm && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-card-bg rounded-lg w-full max-w-md">
-                        <div className="p-6">
-                            <h3 className="text-lg font-medium mb-4">{t('teams.confirmDelete')}</h3>
-                            <p className="text-gray-300 mb-6">{t('teams.deleteWarningDetail', { name: currentTeam.name })}</p>
-                            <div className="flex justify-end space-x-3">
-                                <button
-                                    onClick={() => setShowDeleteConfirm(false)}
-                                    className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500"
-                                >
-                                    {t('common.cancel')}
-                                </button>
-                                <button
-                                    onClick={handleDeleteTeam}
-                                    className="px-4 py-2 bg-accent-pink text-white rounded-md hover:bg-accent-pink/90"
-                                >
-                                    {t('common.delete')}
-                                </button>
-                            </div>
-                        </div>
+            <Modal
+                isOpen={showDeleteConfirm}
+                onClose={() => setShowDeleteConfirm(false)}
+                title={t('teams.confirmDelete')}
+            >
+                <div>
+                    <p className="text-gray-300 mb-6">{t('teams.deleteWarningDetail', { name: currentTeam.name })}</p>
+                    <div className="flex justify-end space-x-3">
+                        <button 
+                            onClick={() => setShowDeleteConfirm(false)}
+                            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500 transition-colors duration-200"
+                        >
+                            {t('common.cancel')}
+                        </button>
+                        <button 
+                            onClick={handleDeleteTeam}
+                            className="px-4 py-2 bg-accent-pink text-white rounded-md hover:bg-accent-pink/90 transition-colors duration-200"
+                        >
+                            {t('common.delete')}
+                        </button>
                     </div>
                 </div>
-            )}
+            </Modal>
         </div>
     );
 };

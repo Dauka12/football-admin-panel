@@ -55,21 +55,21 @@ const DashboardLayout: React.FC = () => {
     }, [isMobileSidebarOpen]);
 
     return (
-        <div className="flex h-screen bg-darkest-bg text-white">
+        <div className="flex h-screen bg-darkest-bg text-white font-inter">
             {/* Desktop Sidebar */}
-            <Sidebar />
+            <div className="hidden md:block">
+                <Sidebar />
+            </div>
 
             {/* Mobile Sidebar */}
-            {isMobileSidebarOpen && (
-                <div className="fixed inset-0 z-40 bg-black bg-opacity-50">
-                    <div
-                        id="mobile-sidebar"
-                        className="fixed top-0 left-0 h-full z-50 transition-transform"
-                    >
-                        <Sidebar isMobile onClose={() => setIsMobileSidebarOpen(false)} />
-                    </div>
+            <div className={`sidebar-container ${isMobileSidebarOpen ? 'open' : ''}`}>
+                <div
+                    id="mobile-sidebar"
+                    className={`sidebar-panel ${isMobileSidebarOpen ? 'open' : ''} w-64`}
+                >
+                    <Sidebar isMobile onClose={() => setIsMobileSidebarOpen(false)} />
                 </div>
-            )}
+            </div>
 
             {/* Main content */}
             <div className="flex-1 flex flex-col overflow-hidden">
@@ -77,7 +77,7 @@ const DashboardLayout: React.FC = () => {
                 <header className="bg-card-bg shadow-md h-14 flex items-center px-4">
                     <button
                         id="sidebar-toggle"
-                        className="md:hidden mr-4 text-white p-1 rounded-md hover:bg-darkest-bg"
+                        className="md:hidden mr-4 text-white p-1 rounded-md hover:bg-darkest-bg transition-colors duration-200"
                         onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
                         aria-label="Toggle menu"
                     >

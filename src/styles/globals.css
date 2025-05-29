@@ -14,41 +14,112 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Animation classes */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.animate-slide-out {
+  animation: slideOut 0.3s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+.animate-scale-out {
+  animation: scaleOut 0.3s ease-out forwards;
+}
+
+/* Improve transitions */
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Authentication page styles */
 .auth-card {
   @apply bg-card-bg rounded-lg shadow-xl p-6 sm:p-8 w-full max-w-md mx-auto;
-  animation: fadeIn 0.5s ease-out;
+  animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-primary {
   @apply w-full py-2.5 px-4 bg-gold text-darkest-bg font-medium rounded-md
-    hover:bg-gold/90 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gold/50
+    hover:bg-gold/90 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-gold/50
     disabled:opacity-60 disabled:cursor-not-allowed;
 }
 
 .btn-secondary {
   @apply w-full py-2.5 px-4 bg-accent-pink text-white font-medium rounded-md
-    hover:bg-accent-pink/90 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent-pink/50
+    hover:bg-accent-pink/90 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-accent-pink/50
     disabled:opacity-60 disabled:cursor-not-allowed;
 }
 
 .form-input {
   @apply w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md shadow-sm
-    focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold transition-colors
+    focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold transition-colors duration-300
     placeholder:text-gray-500;
 }
 
 /* Dashboard styles */
 .dashboard-card {
-  @apply bg-card-bg rounded-lg shadow-md overflow-hidden;
+  @apply bg-card-bg rounded-lg shadow-md overflow-hidden transition-all duration-300;
 }
 
-/* Animation styles */
+/* Modal animation */
+.modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-0 z-50 flex items-center justify-center transition-all duration-300;
+}
+
+.modal-overlay.active {
+  @apply bg-opacity-50;
+}
+
+.modal-content {
+  @apply bg-card-bg rounded-lg w-full max-w-lg transform scale-95 opacity-0 transition-all duration-300;
+}
+
+.modal-content.active {
+  @apply scale-100 opacity-100;
+}
+
+/* Mobile sidebar animation */
+.sidebar-container {
+  @apply fixed inset-0 z-40 bg-black bg-opacity-0 transition-all duration-300 pointer-events-none;
+}
+
+.sidebar-container.open {
+  @apply bg-opacity-50 pointer-events-auto;
+}
+
+.sidebar-panel {
+  @apply fixed top-0 left-0 h-full z-50 transform -translate-x-full transition-transform duration-300 ease-in-out;
+}
+
+.sidebar-panel.open {
+  @apply translate-x-0;
+}
+
+/* Animation keyframes */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 @keyframes slideIn {
@@ -56,36 +127,32 @@ body {
   to { transform: translateX(0); }
 }
 
-/* Mobile responsive sidebar */
-.mobile-sidebar-enter {
-  transform: translateX(-100%);
-}
-.mobile-sidebar-enter-active {
-  transform: translateX(0);
-  transition: transform 300ms;
-}
-.mobile-sidebar-exit {
-  transform: translateX(0);
-}
-.mobile-sidebar-exit-active {
-  transform: translateX(-100%);
-  transition: transform 300ms;
+@keyframes slideOut {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
 }
 
-/* Tooltip styles */
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes scaleOut {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(0.95); opacity: 0; }
+}
+
+/* Tooltip styles with smoother animations */
 .tooltip {
   @apply relative inline-block;
 }
 
 .tooltip .tooltip-text {
-  @apply absolute z-10 invisible w-32 bg-gray-800 text-white text-center rounded-md py-1 px-2 bottom-full left-1/2 -translate-x-1/2 -mb-1;
-  opacity: 0;
-  transition: opacity 0.3s;
+  @apply absolute z-10 invisible opacity-0 w-32 bg-gray-800 text-white text-center rounded-md py-1 px-2 bottom-full left-1/2 transform -translate-x-1/2 -mb-1 transition-all duration-300;
 }
 
 .tooltip:hover .tooltip-text {
-  @apply visible;
-  opacity: 1;
+  @apply visible opacity-100;
 }
 
 .tooltip .tooltip-text::after {

@@ -1,5 +1,5 @@
 export const ru = {
-  appTitle: "Футбольное Админ-Приложение",
+  appTitle: "Sport Empire",
   auth: {
     loginTitle: "Вход",
     loginSubtitle: "Введите ваши данные для входа в аккаунт",

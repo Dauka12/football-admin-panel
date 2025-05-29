@@ -12,6 +12,16 @@ module.exports = {
                 'darkest-bg': 'rgb(0,19,30)',
                 'accent-pink': 'rgb(247,50,99)',
             },
+            fontFamily: {
+                'inter': ['Inter', 'sans-serif'],
+            },
+            scale: {
+                '103': '1.03',
+            },
+            transitionProperty: {
+                'height': 'height',
+                'spacing': 'margin, padding',
+            }
         },
     },
     plugins: [],

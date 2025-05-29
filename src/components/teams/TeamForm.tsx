@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CreateTeamRequest } from '../../types/teams';
+import type { CreateTeamRequest, UpdateTeamRequest } from '../../types/teams';
 
 interface TeamFormProps {
-    initialData?: Partial<CreateTeamRequest>;
-    onSubmit: (data: CreateTeamRequest) => Promise<void>;
+    initialData?: Partial<CreateTeamRequest | UpdateTeamRequest>;
+    onSubmit: (data: CreateTeamRequest | UpdateTeamRequest) => Promise<void>;
     onCancel: () => void;
 }
 

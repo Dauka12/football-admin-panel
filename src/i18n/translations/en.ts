@@ -1,5 +1,5 @@
 export const en = {
-  appTitle: "Football App Admin",
+  appTitle: "Sport Empire",
   auth: {
     loginTitle: "Log In",
     loginSubtitle: "Enter your credentials to access your account",

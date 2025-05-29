@@ -8,8 +8,8 @@ interface AuthState {
     isLoading: boolean;
     error: string | null;
     isAuthenticated: boolean;
-    login: (phone: string, password: string) => Promise<void>;
-    register: (firstname: string, lastname: string, phone: string, password: string) => Promise<void>;
+    login: (phone: string, password: string) => Promise<boolean>;
+    register: (firstname: string, lastname: string, phone: string, password: string) => Promise<boolean>;
     logout: () => void;
 }
 
@@ -32,13 +32,14 @@ export const useAuthStore = create<AuthState>()(
                     });
                     localStorage.setItem('auth_token', response.token);
 
-                    // After successful login, redirect user to the dashboard
-                    window.location.href = '/dashboard';
+                    // Return success status instead of redirecting here
+                    return true;
                 } catch (error: any) {
                     set({
                         error: error.response?.data?.message || 'Failed to login',
                         isLoading: false
                     });
+                    return false;
                 }
             },
 
@@ -47,20 +48,20 @@ export const useAuthStore = create<AuthState>()(
                 try {
                     await authApi.register({ firstname, lastname, phone, password });
                     set({ isLoading: false });
-                    // After successful registration, you might want to automatically log the user in
-                    // or redirect them to the login page
+                    return true;
                 } catch (error: any) {
                     set({
                         error: error.response?.data?.message || 'Failed to register',
                         isLoading: false
                     });
+                    return false;
                 }
             },
 
             logout: () => {
                 localStorage.removeItem('auth_token');
                 set({ user: null, isAuthenticated: false });
-                window.location.href = '/auth';
+                // Note: Navigation should be handled by React Router in the component
             }
         }),
         {

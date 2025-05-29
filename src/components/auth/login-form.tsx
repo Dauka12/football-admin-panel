@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth';
 import { validatePassword, validatePhone } from '../../utils/validation';
 
@@ -11,8 +12,9 @@ export const LoginForm: React.FC = () => {
 
     const { login, isLoading, error } = useAuthStore();
     const { t } = useTranslation();
+    const navigate = useNavigate(); // Use React Router's navigation
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         // Validate form
@@ -23,7 +25,11 @@ export const LoginForm: React.FC = () => {
         setPasswordError(passwordValidation);
 
         if (!phoneValidation && !passwordValidation) {
-            login(phone, password);
+            const success = await login(phone, password);
+            if (success) {
+                // Use React Router for navigation instead of window.location
+                navigate('/dashboard');
+            }
         }
     };
 
