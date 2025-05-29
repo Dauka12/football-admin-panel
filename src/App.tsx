@@ -6,6 +6,8 @@ import PlayersPage from './pages/players';
 import PlayerDetailPage from './pages/players/detail';
 import TeamsPage from './pages/teams';
 import TeamDetailPage from './pages/teams/detail';
+import TournamentsPage from './pages/tournaments';
+import TournamentDetailPage from './pages/tournaments/detail';
 import { useAuthStore } from './store/auth';
 import './styles/globals.css';
 
@@ -35,12 +37,13 @@ const App: React.FC = () => {
               <DashboardLayout />
             </ProtectedRoute>
           }
-        >
-          <Route index element={<Navigate to="/dashboard/teams" replace />} />
+        >          <Route index element={<Navigate to="/dashboard/teams" replace />} />
           <Route path="teams" element={<TeamsPage />} />
           <Route path="teams/:id" element={<TeamDetailPage />} />
           <Route path="players" element={<PlayersPage />} />
           <Route path="players/:id" element={<PlayerDetailPage />} />
+          <Route path="tournaments" element={<TournamentsPage />} />
+          <Route path="tournaments/:id" element={<TournamentDetailPage />} />
           {/* Other routes will be added here */}
         </Route>
 

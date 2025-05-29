@@ -14,6 +14,7 @@ interface TeamState {
 
     fetchTeams: (forceRefresh?: boolean) => Promise<void>;
     fetchTeam: (id: number) => Promise<void>;
+    fetchTeamsByIds: (ids: number[]) => Promise<TeamFullResponse[]>;
     createTeam: (data: CreateTeamRequest) => Promise<boolean>;
     updateTeam: (id: number, data: UpdateTeamRequest) => Promise<boolean>;
     deleteTeam: (id: number) => Promise<boolean>;
@@ -57,6 +58,20 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
                 error: error.response?.data?.message || `Failed to fetch team #${id}`,
                 isLoading: false
             });
+        }
+    },
+
+    fetchTeamsByIds: async (ids: number[]) => {
+        if (ids.length === 0) return [];
+        
+        try {
+            // For each id, fetch the team details
+            const teamPromises = ids.map(id => teamApi.getById(id));
+            const teams = await Promise.all(teamPromises);
+            return teams;
+        } catch (error: any) {
+            console.error('Failed to fetch teams by IDs:', error);
+            throw error;
         }
     },
 
