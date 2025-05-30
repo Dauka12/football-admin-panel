@@ -28,7 +28,11 @@ export const en = {
         matches: "Matches",
         "match-events": "Match Events",
         files: "Files",
-        statistics: "Statistics"
+        statistics: "Statistics",
+        permissions: "Permissions",
+        achievements: "Achievements",
+        regions: "Regions",
+        categories: "Categories"
     },
     teams: {
         title: "Teams",

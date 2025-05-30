@@ -1,9 +1,13 @@
 import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import DashboardLayout from './components/layout/DashboardLayout';
+import AchievementsPage from './pages/achievements';
 import AuthPage from './pages/auth';
+import CategoriesPage from './pages/categories';
+import PermissionsPage from './pages/permissions';
 import PlayersPage from './pages/players';
 import PlayerDetailPage from './pages/players/detail';
+import RegionsPage from './pages/regions';
 import TeamsPage from './pages/teams';
 import TeamDetailPage from './pages/teams/detail';
 import TournamentsPage from './pages/tournaments';
@@ -40,10 +44,13 @@ const App: React.FC = () => {
         >          <Route index element={<Navigate to="/dashboard/teams" replace />} />
           <Route path="teams" element={<TeamsPage />} />
           <Route path="teams/:id" element={<TeamDetailPage />} />
-          <Route path="players" element={<PlayersPage />} />
-          <Route path="players/:id" element={<PlayerDetailPage />} />
+          <Route path="players" element={<PlayersPage />} />          <Route path="players/:id" element={<PlayerDetailPage />} />
           <Route path="tournaments" element={<TournamentsPage />} />
           <Route path="tournaments/:id" element={<TournamentDetailPage />} />
+          <Route path="permissions" element={<PermissionsPage />} />
+          <Route path="achievements" element={<AchievementsPage />} />
+          <Route path="regions" element={<RegionsPage />} />
+          <Route path="categories" element={<CategoriesPage />} />
           {/* Other routes will be added here */}
         </Route>
 

@@ -28,7 +28,11 @@ export const ru = {
         matches: "Матчи",
         "match-events": "События матчей",
         files: "Файлы",
-        statistics: "Статистика"
+        statistics: "Статистика",
+        permissions: "Права",
+        achievements: "Достижения",
+        regions: "Регионы",
+        categories: "Категории"
     },
     teams: {
         title: "Команды",
