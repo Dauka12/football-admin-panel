@@ -167,4 +167,4 @@ const PlayerSelectionModal: React.FC<PlayerSelectionModalProps> = ({
     );
 };
 
-export default PlayerSelectionModal;
+export default React.memo(PlayerSelectionModal);

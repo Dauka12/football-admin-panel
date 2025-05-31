@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/auth';
-import { validateName, validatePassword, validatePhone } from '../../utils/validation';
+import { authValidators, useFormValidation } from '../../utils/validation';
 
 export const RegisterForm: React.FC = () => {
     const [firstname, setFirstname] = useState('');
@@ -9,30 +9,31 @@ export const RegisterForm: React.FC = () => {
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
 
-    const [firstnameError, setFirstnameError] = useState<string | null>(null);
-    const [lastnameError, setLastnameError] = useState<string | null>(null);
-    const [phoneError, setPhoneError] = useState<string | null>(null);
-    const [passwordError, setPasswordError] = useState<string | null>(null);
-
     const { register, isLoading, error } = useAuthStore();
     const { t } = useTranslation();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    // Use the new validation system
+    const { errors, validateField, validateForm, clearErrors } = useFormValidation(
+        authValidators.register
+    );
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validate form
-        const firstnameValidation = !firstname ? t('validations.nameRequired') : validateName(firstname) ? t('validations.nameShort') : null;
-        const lastnameValidation = !lastname ? t('validations.nameRequired') : validateName(lastname) ? t('validations.nameShort') : null;
-        const phoneValidation = !phone ? t('validations.phoneRequired') : validatePhone(phone) ? t('validations.phoneInvalid') : null;
-        const passwordValidation = !password ? t('validations.passwordRequired') : validatePassword(password) ? t('validations.passwordShort') : null;
+        const isValid = validateForm({ firstname, lastname, phone, password });
+        if (isValid) {
+            const success = await register(firstname, lastname, phone, password);
+            if (success) {
+                clearErrors();
+                // Form will reset and show success message via toast
+            }
+        }
+    };
 
-        setFirstnameError(firstnameValidation);
-        setLastnameError(lastnameValidation);
-        setPhoneError(phoneValidation);
-        setPasswordError(passwordValidation);
-
-        if (!firstnameValidation && !lastnameValidation && !phoneValidation && !passwordValidation) {
-            register(firstname, lastname, phone, password);
+    const handleFieldChange = (field: 'firstname' | 'lastname' | 'phone' | 'password', value: string, setter: (value: string) => void) => {
+        setter(value);
+        if (errors[field]) {
+            validateField(field, value);
         }
     };
 
@@ -59,14 +60,12 @@ export const RegisterForm: React.FC = () => {
                             id="firstname"
                             type="text"
                             placeholder={t('auth.firstname')}
-                            className={`form-input ${firstnameError ? 'border-red-500' : ''}`}
+                            className={`form-input ${errors.firstname ? 'border-red-500' : ''}`}
                             value={firstname}
-                            onChange={(e) => {
-                                setFirstname(e.target.value);
-                                setFirstnameError(null);
-                            }}
+                            onChange={(e) => handleFieldChange('firstname', e.target.value, setFirstname)}
+                            onBlur={() => validateField('firstname', firstname)}
                         />
-                        {firstnameError && <p className="text-red-500 text-xs mt-1">{firstnameError}</p>}
+                        {errors.firstname && <p className="text-red-500 text-xs mt-1">{errors.firstname}</p>}
                     </div>
 
                     <div className="space-y-2">
@@ -77,14 +76,12 @@ export const RegisterForm: React.FC = () => {
                             id="lastname"
                             type="text"
                             placeholder={t('auth.lastname')}
-                            className={`form-input ${lastnameError ? 'border-red-500' : ''}`}
+                            className={`form-input ${errors.lastname ? 'border-red-500' : ''}`}
                             value={lastname}
-                            onChange={(e) => {
-                                setLastname(e.target.value);
-                                setLastnameError(null);
-                            }}
+                            onChange={(e) => handleFieldChange('lastname', e.target.value, setLastname)}
+                            onBlur={() => validateField('lastname', lastname)}
                         />
-                        {lastnameError && <p className="text-red-500 text-xs mt-1">{lastnameError}</p>}
+                        {errors.lastname && <p className="text-red-500 text-xs mt-1">{errors.lastname}</p>}
                     </div>
                 </div>
 
@@ -96,14 +93,12 @@ export const RegisterForm: React.FC = () => {
                         id="phone"
                         type="tel"
                         placeholder="+1234567890"
-                        className={`form-input ${phoneError ? 'border-red-500' : ''}`}
+                        className={`form-input ${errors.phone ? 'border-red-500' : ''}`}
                         value={phone}
-                        onChange={(e) => {
-                            setPhone(e.target.value);
-                            setPhoneError(null);
-                        }}
+                        onChange={(e) => handleFieldChange('phone', e.target.value, setPhone)}
+                        onBlur={() => validateField('phone', phone)}
                     />
-                    {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
+                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -114,14 +109,12 @@ export const RegisterForm: React.FC = () => {
                         id="register-password"
                         type="password"
                         placeholder="••••••••"
-                        className={`form-input ${passwordError ? 'border-red-500' : ''}`}
+                        className={`form-input ${errors.password ? 'border-red-500' : ''}`}
                         value={password}
-                        onChange={(e) => {
-                            setPassword(e.target.value);
-                            setPasswordError(null);
-                        }}
+                        onChange={(e) => handleFieldChange('password', e.target.value, setPassword)}
+                        onBlur={() => validateField('password', password)}
                     />
-                    {passwordError && <p className="text-red-500 text-xs mt-1">{passwordError}</p>}
+                    {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                 </div>
 
                 <button

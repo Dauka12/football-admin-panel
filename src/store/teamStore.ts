@@ -5,6 +5,9 @@ import type {
     TeamFullResponse,
     UpdateTeamRequest
 } from '../types/teams';
+import { apiService } from '../utils/apiService';
+import { ErrorHandler } from '../utils/errorHandler';
+import { showToast } from '../utils/toast';
 
 interface TeamState {
     teams: TeamFullResponse[];
@@ -34,11 +37,16 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
         set({ isLoading: true, error: null });
 
         try {
-            const teams = await teamApi.getAll();
+            const teams = await apiService.execute(
+                () => teamApi.getAll(),
+                'fetchTeams',
+                { enableCache: true, cacheTTL: 5 * 60 * 1000 } // Cache for 5 minutes
+            );
             set({ teams, isLoading: false });
         } catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
             set({
-                error: error.response?.data?.message || 'Failed to fetch teams',
+                error: errorMessage.message,
                 isLoading: false
             });
         }
@@ -51,11 +59,16 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
 
         set({ isLoading: true, error: null });
         try {
-            const team = await teamApi.getById(id);
+            const team = await apiService.execute(
+                () => teamApi.getById(id),
+                `fetchTeam_${id}`,
+                { enableCache: true, cacheTTL: 2 * 60 * 1000 } // Cache for 2 minutes
+            );
             set({ currentTeam: team, isLoading: false });
         } catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
             set({
-                error: error.response?.data?.message || `Failed to fetch team #${id}`,
+                error: errorMessage.message,
                 isLoading: false
             });
         }
@@ -65,12 +78,19 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
         if (ids.length === 0) return [];
         
         try {
-            // For each id, fetch the team details
-            const teamPromises = ids.map(id => teamApi.getById(id));
+            // For each id, fetch the team details with caching
+            const teamPromises = ids.map(id => 
+                apiService.execute(
+                    () => teamApi.getById(id),
+                    `fetchTeam_${id}`,
+                    { enableCache: true, cacheTTL: 2 * 60 * 1000 }
+                )
+            );
             const teams = await Promise.all(teamPromises);
             return teams;
         } catch (error: any) {
             console.error('Failed to fetch teams by IDs:', error);
+            ErrorHandler.handle(error);
             throw error;
         }
     },
@@ -78,13 +98,22 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
     createTeam: async (data: CreateTeamRequest) => {
         set({ isLoading: true, error: null });
         try {
-            await teamApi.create(data);
-            await get().fetchTeams(); // Refresh the teams list
+            await apiService.execute(
+                () => teamApi.create(data),
+                'createTeam'
+            );
+            
+            // Clear cache and refresh teams list
+            apiService.clearCache(['fetchTeams']);
+            await get().fetchTeams(true);
+            
             set({ isLoading: false });
+            showToast('Team created successfully!', 'success');
             return true;
         } catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
             set({
-                error: error.response?.data?.message || 'Failed to create team',
+                error: errorMessage.message,
                 isLoading: false
             });
             return false;
@@ -95,11 +124,20 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
         set({ isLoading: true, error: null });
         
         try {
-            await teamApi.update(id, data);
+            await apiService.execute(
+                () => teamApi.update(id, data),
+                `updateTeam_${id}`
+            );
             
-            // Instead of directly merging which causes type errors,
-            // fetch the latest data to ensure proper typing
-            const updatedTeam = await teamApi.getById(id);
+            // Fetch the latest data to ensure proper typing
+            const updatedTeam = await apiService.execute(
+                () => teamApi.getById(id),
+                `fetchTeam_${id}`,
+                { forceRefresh: true }
+            );
+            
+            // Clear relevant cache entries
+            apiService.clearCache([`fetchTeam_${id}`, 'fetchTeams']);
             
             // Update state with the correctly typed data from the API
             set(state => ({
@@ -110,11 +148,13 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
                 isLoading: false
             }));
             
+            showToast('Team updated successfully!', 'success');
             return true;
         } 
         catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
             set({ 
-                error: error.response?.data?.message || `Failed to update team #${id}`, 
+                error: errorMessage.message, 
                 isLoading: false 
             });
             return false;
@@ -124,7 +164,13 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
     deleteTeam: async (id: number) => {
         set({ isLoading: true, error: null });
         try {
-            await teamApi.delete(id);
+            await apiService.execute(
+                () => teamApi.delete(id),
+                `deleteTeam_${id}`
+            );
+
+            // Clear relevant cache entries
+            apiService.clearCache([`fetchTeam_${id}`, 'fetchTeams']);
 
             // Remove from current list without reloading
             set({
@@ -132,10 +178,13 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
                 currentTeam: get().currentTeam?.id === id ? null : get().currentTeam,
                 isLoading: false
             });
+            
+            showToast('Team deleted successfully!', 'success');
             return true;
         } catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
             set({
-                error: error.response?.data?.message || `Failed to delete team #${id}`,
+                error: errorMessage.message,
                 isLoading: false
             });
             return false;

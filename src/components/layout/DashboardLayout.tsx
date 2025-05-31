@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth';
 import LanguageSwitcher from '../LanguageSwitcher';
+import PerformanceDebugger from '../debug/PerformanceDebugger';
 import Sidebar from './Sidebar';
 
 const DashboardLayout: React.FC = () => {
-    const { isAuthenticated, user } = useAuthStore();
+    const { isAuthenticated } = useAuthStore();
     const navigate = useNavigate();
     const { t } = useTranslation();
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -97,6 +98,9 @@ const DashboardLayout: React.FC = () => {
                     <Outlet />
                 </main>
             </div>
+
+            {/* Performance Debugger */}
+            <PerformanceDebugger />
         </div>
     );
 };

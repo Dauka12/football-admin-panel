@@ -5,6 +5,9 @@ import type {
     PlayerPublicResponse,
     PlayerUpdateRequest
 } from '../types/players';
+import { apiService } from '../utils/apiService';
+import { ErrorHandler } from '../utils/errorHandler';
+import { showToast } from '../utils/toast';
 
 interface PlayerState {
     players: PlayerPublicResponse[];
@@ -34,12 +37,17 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
         set({ isLoading: true, error: null });
 
         try {
-            const players = await playerApi.getAll();
+            const players = await apiService.execute(
+                () => playerApi.getAll(),
+                'fetchPlayers',
+                { enableCache: true, cacheTTL: 5 * 60 * 1000 } // Cache for 5 minutes
+            );
             set({ players, isLoading: false });
         }
         catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
             set({
-                error: error.response?.data?.message || 'Failed to fetch players',
+                error: errorMessage.message,
                 isLoading: false
             });
         }
@@ -49,13 +57,18 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
         set({ isLoading: true, error: null });
 
         try {
-            const player = await playerApi.getById(id);
+            const player = await apiService.execute(
+                () => playerApi.getById(id),
+                `fetchPlayer_${id}`,
+                { enableCache: true, cacheTTL: 2 * 60 * 1000 } // Cache for 2 minutes
+            );
             set({ currentPlayer: player, isLoading: false });
             return player;
         }
         catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
             set({
-                error: error.response?.data?.message || `Failed to fetch player #${id}`,
+                error: errorMessage.message,
                 isLoading: false
             });
             return null;
@@ -79,9 +92,15 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
             const missingIds = ids.filter(id => !players.some(p => p.id === id));
 
             if (missingIds.length > 0) {
-                // We can optimize this to fetch only once
+                // Fetch missing players with caching
                 const fetchedPlayers = await Promise.all(
-                    missingIds.map(id => playerApi.getById(id))
+                    missingIds.map(id => 
+                        apiService.execute(
+                            () => playerApi.getById(id),
+                            `fetchPlayer_${id}`,
+                            { enableCache: true, cacheTTL: 2 * 60 * 1000 }
+                        )
+                    )
                 );
 
                 // Only update store once with all new players
@@ -98,6 +117,7 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
             return cachedPlayers;
         } catch (error) {
             console.error("Error fetching players by IDs:", error);
+            ErrorHandler.handle(error);
             return [];
         }
     },
@@ -106,10 +126,18 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
         set({ isLoading: true, error: null });
 
         try {
-            const response = await playerApi.create(data);
+            const response = await apiService.execute(
+                () => playerApi.create(data),
+                'createPlayer'
+            );
 
-            // Immediately fetch all players to refresh the list
-            const freshPlayers = await playerApi.getAll();
+            // Clear cache and immediately fetch all players to refresh the list
+            apiService.clearCache(['fetchPlayers']);
+            const freshPlayers = await apiService.execute(
+                () => playerApi.getAll(),
+                'fetchPlayers',
+                { forceRefresh: true }
+            );
 
             // Update the store with the new list of players
             set({
@@ -119,11 +147,13 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
                 currentPlayer: freshPlayers.find(p => p.id === response.id) || null
             });
 
+            showToast('Player created successfully!', 'success');
             return true;
         }
         catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
             set({
-                error: error.response?.data?.message || 'Failed to create player',
+                error: errorMessage.message,
                 isLoading: false
             });
             return false;
@@ -134,20 +164,28 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
         set({ isLoading: true, error: null });
 
         try {
-            await playerApi.update(id, data);
+            await apiService.execute(
+                () => playerApi.update(id, data),
+                `updatePlayer_${id}`
+            );
+
+            // Clear relevant cache entries
+            apiService.clearCache([`fetchPlayer_${id}`, 'fetchPlayers']);
 
             // Refresh current player and player list
             if (get().currentPlayer?.id === id) {
                 await get().fetchPlayer(id);
             }
-            await get().fetchPlayers();
+            await get().fetchPlayers(true);
 
             set({ isLoading: false });
+            showToast('Player updated successfully!', 'success');
             return true;
         }
         catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
             set({
-                error: error.response?.data?.message || `Failed to update player #${id}`,
+                error: errorMessage.message,
                 isLoading: false
             });
             return false;
@@ -158,7 +196,13 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
         set({ isLoading: true, error: null });
 
         try {
-            await playerApi.delete(id);
+            await apiService.execute(
+                () => playerApi.delete(id),
+                `deletePlayer_${id}`
+            );
+
+            // Clear relevant cache entries
+            apiService.clearCache([`fetchPlayer_${id}`, 'fetchPlayers']);
 
             // Remove from current list without reloading
             set({
@@ -166,11 +210,14 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
                 currentPlayer: get().currentPlayer?.id === id ? null : get().currentPlayer,
                 isLoading: false
             });
+            
+            showToast('Player deleted successfully!', 'success');
             return true;
         }
         catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
             set({
-                error: error.response?.data?.message || `Failed to delete player #${id}`,
+                error: errorMessage.message,
                 isLoading: false
             });
             return false;

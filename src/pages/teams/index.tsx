@@ -1,18 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import TeamForm from '../../components/teams/TeamForm';
 import Modal from '../../components/ui/Modal';
+import { usePerformanceMonitor } from '../../hooks/usePerformanceMonitor';
 import { useTeamStore } from '../../store/teamStore';
-import type { CreateTeamRequest, TeamFullResponse } from '../../types/teams';
+import type { CreateTeamRequest } from '../../types/teams';
 
 const TeamsPage: React.FC = () => {
+    // Performance monitoring
+    usePerformanceMonitor('TeamsPage');
+
     const { t } = useTranslation();
     const { teams, isLoading, error, fetchTeams, deleteTeam, createTeam } = useTeamStore();
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [teamToDelete, setTeamToDelete] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [filteredTeams, setFilteredTeams] = useState<TeamFullResponse[]>([]);
+
+    // Memoized filtered teams to avoid recalculation on every render
+    const filteredTeams = useMemo(() => {
+        if (!teams) return [];
+        
+        if (!searchQuery.trim()) return teams;
+        
+        const query = searchQuery.toLowerCase();
+        return teams.filter(team =>
+            team.name.toLowerCase().includes(query) ||
+            team.description.toLowerCase().includes(query)
+        );
+    }, [teams, searchQuery]);
 
     // Ensure we fetch teams on mount and when returning to page
     useEffect(() => {
@@ -22,17 +38,6 @@ const TeamsPage: React.FC = () => {
         };
         loadTeams();
     }, [fetchTeams]);
-
-    // Filter teams whenever the search query changes
-    useEffect(() => {
-        if (teams) {
-            const filtered = teams.filter(team =>
-                team.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                team.description.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-            setFilteredTeams(filtered);
-        }
-    }, [teams, searchQuery]);
 
     const handleCreateTeam = async (data: CreateTeamRequest) => {
         const success = await createTeam(data);

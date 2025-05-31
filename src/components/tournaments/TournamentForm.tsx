@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTeamStore } from '../../store/teamStore';
 import type { CreateTournamentRequest, UpdateTournamentRequest } from '../../types/tournaments';
+import { ErrorHandler } from '../../utils/errorHandler';
+import { showToast } from '../../utils/toast';
+import { tournamentValidators, useFormValidation } from '../../utils/validation';
 import DateTimePicker from '../ui/DateTimePicker';
 import TeamSelectionModal from './TeamSelectionModal';
 
@@ -28,9 +31,15 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
         teams: initialData?.teams || []
     });
 
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    const { 
+        errors, 
+        validateForm, 
+        validateField, 
+        clearFieldError 
+    } = useFormValidation(tournamentValidators.create);
     const [showTeamSelector, setShowTeamSelector] = useState(false);
     const [selectedTeams, setSelectedTeams] = useState<(typeof teams[0])[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         fetchTeams();
@@ -46,33 +55,23 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
         }
     }, [teams, formData.teams]);
 
-    const validateForm = (): boolean => {
-        const newErrors: Record<string, string> = {};
-
-        if (!formData.name.trim()) {
-            newErrors.name = t('tournaments.nameRequired');
-        }
-
-        if (!formData.startDate) {
-            newErrors.startDate = t('tournaments.startDateRequired');
-        }
-
-        if (!formData.endDate) {
-            newErrors.endDate = t('tournaments.endDateRequired');
-        }
-
-        if (formData.startDate && formData.endDate && new Date(formData.startDate) >= new Date(formData.endDate)) {
-            newErrors.endDate = t('tournaments.endDateMustBeAfterStart');
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (validateForm()) {
-            onSubmit(formData);
+        
+        if (!validateForm(formData)) {
+            showToast('Please fix the validation errors', 'error');
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            await onSubmit(formData);
+            showToast('Tournament saved successfully!', 'success');
+        } catch (error) {
+            const errorMessage = ErrorHandler.handle(error);
+            showToast(errorMessage.message, 'error');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -90,6 +89,39 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
             ...prev,
             teams: selectedIds
         }));
+        // Validate teams after selection with updated data
+        const updatedData = { ...formData, teams: selectedIds };
+        validateField('teams', selectedIds, updatedData);
+    };
+
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        setFormData(prev => ({ ...prev, name: value }));
+        if (errors.name) {
+            clearFieldError('name');
+        }
+    };
+
+    const handleNameBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        validateField('name', e.target.value);
+    };
+
+    const handleDateChange = (field: 'startDate' | 'endDate', value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        if (errors[field]) {
+            clearFieldError(field);
+        }
+        
+        // Create updated data for validation
+        const updatedData = { ...formData, [field]: value };
+        
+        // Validate the date field with full form data for context
+        validateField(field, value, updatedData);
+        
+        // Also validate endDate if startDate changes to check date order
+        if (field === 'startDate' && formData.endDate) {
+            validateField('endDate', formData.endDate, updatedData);
+        }
     };
 
     return (
@@ -113,7 +145,8 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
                             <input
                                 type="text"
                                 value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                onChange={handleNameChange}
+                                onBlur={handleNameBlur}
                                 className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg 
                          focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200
                          placeholder-gray-400 text-white"
@@ -126,7 +159,7 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <DateTimePicker
                                 value={formData.startDate}
-                                onChange={(value) => setFormData({ ...formData, startDate: value })}
+                                onChange={(value) => handleDateChange('startDate', value)}
                                 label={t('tournaments.startDate')}
                                 error={errors.startDate}
                                 required
@@ -135,7 +168,7 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
 
                             <DateTimePicker
                                 value={formData.endDate}
-                                onChange={(value) => setFormData({ ...formData, endDate: value })}
+                                onChange={(value) => handleDateChange('endDate', value)}
                                 label={t('tournaments.endDate')}
                                 error={errors.endDate}
                                 required
@@ -232,12 +265,23 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
                         {t('common.cancel')}
                     </button>
                     <button
-                        onClick={handleSubmit}
+                        type="submit"
+                        disabled={isLoading}
                         className="px-6 py-2.5 bg-gradient-to-r from-gold to-gold/80 text-black rounded-lg 
                      hover:from-gold/90 hover:to-gold/70 transition-all duration-200 font-medium
-                     shadow-lg hover:shadow-gold/20"
+                     shadow-lg hover:shadow-gold/20 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {isEdit ? t('common.save') : t('common.create')}
+                        {isLoading ? (
+                            <>
+                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                {t('common.saving')}
+                            </>
+                        ) : (
+                            isEdit ? t('common.save') : t('common.create')
+                        )}
                     </button>
                 </div>
             </div>
@@ -255,4 +299,4 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
     );
 };
 
-export default TournamentForm;
+export default React.memo(TournamentForm);

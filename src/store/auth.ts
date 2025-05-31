@@ -2,6 +2,9 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { authApi } from '../api/auth';
 import type { LoginResponse } from '../types/auth';
+import { apiService } from '../utils/apiService';
+import { ErrorHandler } from '../utils/errorHandler';
+import { showToast } from '../utils/toast';
 
 interface AuthState {
     user: LoginResponse | null;
@@ -25,7 +28,10 @@ export const useAuthStore = create<AuthState>()(
                 set({ isLoading: true, error: null });
                 
                 try {
-                    const response = await authApi.login({ phone, password });
+                    const response = await apiService.execute(
+                        () => authApi.login({ phone, password }),
+                        'login'
+                    );
                     
                     set({
                         user: response,
@@ -34,11 +40,13 @@ export const useAuthStore = create<AuthState>()(
                     });
                     
                     localStorage.setItem('auth_token', response.token);
+                    showToast('Login successful!', 'success');
                     return true;
                 } 
                 catch (error: any) {
+                    const errorMessage = ErrorHandler.handle(error);
                     set({
-                        error: error.response?.data?.message || 'Failed to login',
+                        error: errorMessage.message,
                         isLoading: false
                     });
                     
@@ -50,14 +58,19 @@ export const useAuthStore = create<AuthState>()(
                 set({ isLoading: true, error: null });
                 
                 try {
-                    await authApi.register({ firstname, lastname, phone, password });
+                    await apiService.execute(
+                        () => authApi.register({ firstname, lastname, phone, password }),
+                        'register'
+                    );
                     set({ isLoading: false });
                     
+                    showToast('Registration successful! Please login.', 'success');
                     return true;
                 } 
                 catch (error: any) {
+                    const errorMessage = ErrorHandler.handle(error);
                     set({
-                        error: error.response?.data?.message || 'Failed to register',
+                        error: errorMessage.message,
                         isLoading: false
                     });
                     
@@ -67,7 +80,9 @@ export const useAuthStore = create<AuthState>()(
 
             logout: () => {
                 localStorage.removeItem('auth_token');
+                apiService.clearCache(); // Clear API cache on logout
                 set({ user: null, isAuthenticated: false });
+                showToast('Logged out successfully', 'info');
                 // Note: Navigation should be handled by React Router in the component
             }
         }),

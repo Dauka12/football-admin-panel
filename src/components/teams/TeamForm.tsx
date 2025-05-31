@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePlayerStore } from '../../store/playerStore';
 import type { CreateTeamRequest, UpdateTeamRequest } from '../../types/teams';
+import { ErrorHandler } from '../../utils/errorHandler';
+import { showToast } from '../../utils/toast';
+import { teamValidators, useFormValidation } from '../../utils/validation';
 import PlayerSelectionModal from './PlayerSelectionModal';
 
 interface TeamFormProps {
@@ -11,7 +14,7 @@ interface TeamFormProps {
     onCancel: () => void;
 }
 
-const TeamForm: React.FC<TeamFormProps> = ({ initialData, currentTeamId, onSubmit, onCancel }) => {
+const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeamId, onSubmit, onCancel }) => {
     const { t, i18n } = useTranslation();
     const [formData, setFormData] = useState<CreateTeamRequest>({
         name: initialData?.name || '',
@@ -21,9 +24,14 @@ const TeamForm: React.FC<TeamFormProps> = ({ initialData, currentTeamId, onSubmi
         secondaryColor: initialData?.secondaryColor || '#002b3d',
     });
     
-    const { players, fetchPlayers, isLoading: playersLoading } = usePlayerStore();
+    const { players, fetchPlayers } = usePlayerStore();
     const [isLoading, setIsLoading] = useState(false);
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    const { 
+        errors, 
+        validateForm, 
+        validateField, 
+        clearFieldError 
+    } = useFormValidation(teamValidators.create);
     const [showPlayerSelector, setShowPlayerSelector] = useState(false);
     const [selectedPlayers, setSelectedPlayers] = useState<(typeof players[0])[]>([]);
     
@@ -45,37 +53,19 @@ const TeamForm: React.FC<TeamFormProps> = ({ initialData, currentTeamId, onSubmi
         }
     }, [players, formData.players]);
     
-    const validateForm = (): boolean => {
-        const newErrors: Record<string, string> = {};
-
-        if (!formData.name.trim()) {
-            newErrors.name = t('validations.nameRequired');
-        }
-
-        if (!formData.description.trim()) {
-            newErrors.description = t('validations.descriptionRequired');
-        }
-
-        if (!formData.primaryColor) {
-            newErrors.primaryColor = t('validations.colorRequired');
-        }
-
-        if (!formData.secondaryColor) {
-            newErrors.secondaryColor = t('validations.colorRequired');
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
 
         // Clear error when field is edited
         if (errors[name]) {
-            setErrors(prev => ({ ...prev, [name]: '' }));
+            clearFieldError(name as keyof CreateTeamRequest);
         }
+    };
+
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        validateField(name as keyof CreateTeamRequest, value);
     };
     
     const handlePlayerSelection = (selectedIds: number[]) => {
@@ -95,7 +85,8 @@ const TeamForm: React.FC<TeamFormProps> = ({ initialData, currentTeamId, onSubmi
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!validateForm()) {
+        if (!validateForm(formData)) {
+            showToast('Please fix the validation errors', 'error');
             return;
         }
 
@@ -104,8 +95,10 @@ const TeamForm: React.FC<TeamFormProps> = ({ initialData, currentTeamId, onSubmi
             // Make a copy to avoid potential reference issues
             const dataToSubmit = { ...formData };
             await onSubmit(dataToSubmit);
+            showToast('Team saved successfully!', 'success');
         } catch (error) {
-            console.error('Form submission error:', error);
+            const errorMessage = ErrorHandler.handle(error);
+            showToast(errorMessage.message, 'error');
         } finally {
             setIsLoading(false);
         }
@@ -123,6 +116,7 @@ const TeamForm: React.FC<TeamFormProps> = ({ initialData, currentTeamId, onSubmi
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 focus:ring-gold
                     ${errors.name ? 'border-red-500' : 'border-gray-700'}`}
                 />
@@ -138,6 +132,7 @@ const TeamForm: React.FC<TeamFormProps> = ({ initialData, currentTeamId, onSubmi
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     rows={4}
                     className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 focus:ring-gold
                     ${errors.description ? 'border-red-500' : 'border-gray-700'}`}
@@ -299,6 +294,6 @@ const TeamForm: React.FC<TeamFormProps> = ({ initialData, currentTeamId, onSubmi
             />
         </form>
     );
-};
+})
 
-export default TeamForm;
+export default React.memo(TeamForm);

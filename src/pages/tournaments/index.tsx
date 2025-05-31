@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import TournamentForm from '../../components/tournaments/TournamentForm';
 import Modal from '../../components/ui/Modal';
 import { useTournamentStore } from '../../store/tournamentStore';
-import type { CreateTournamentRequest, TournamentFullResponse } from '../../types/tournaments';
+import type { CreateTournamentRequest } from '../../types/tournaments';
 
 const TournamentsPage: React.FC = () => {
     const { t, i18n } = useTranslation();
@@ -12,10 +12,27 @@ const TournamentsPage: React.FC = () => {
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [tournamentToDelete, setTournamentToDelete] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [filteredTournaments, setFilteredTournaments] = useState<TournamentFullResponse[]>([]);
 
     // Check if current language is Russian for adaptive text sizing
     const isRussian = i18n.language === 'ru';
+
+    // Memoized filtered tournaments to avoid recalculation on every render
+    const filteredTournaments = useMemo(() => {
+        if (!tournaments || !Array.isArray(tournaments)) {
+            return [];
+        }
+        
+        if (!searchQuery.trim()) return tournaments;
+        
+        const query = searchQuery.toLowerCase();
+        return tournaments.filter(tournament => {
+            if (!tournament || typeof tournament !== 'object') {
+                return false;
+            }
+            const name = tournament.name || '';
+            return name.toLowerCase().includes(query);
+        });
+    }, [tournaments, searchQuery]);
 
     // Ensure we fetch tournaments on mount and when returning to page
     useEffect(() => {
@@ -25,38 +42,6 @@ const TournamentsPage: React.FC = () => {
         };
         loadTournaments();
     }, [fetchTournaments]);
-
-    // Filter tournaments whenever the search query changes
-    useEffect(() => {
-        console.log('Filtering tournaments, current tournaments:', tournaments); // Debug log
-
-        // Ensure tournaments is an array before filtering
-        if (!tournaments) {
-            console.log('Tournaments is null or undefined, setting empty array');
-            setFilteredTournaments([]);
-            return;
-        }
-
-        if (!Array.isArray(tournaments)) {
-            console.log('Tournaments is not an array:', typeof tournaments, tournaments);
-            setFilteredTournaments([]);
-            return;
-        }
-
-        const filtered = tournaments.filter(tournament => {
-            if (!tournament || typeof tournament !== 'object') {
-                console.warn('Invalid tournament object:', tournament);
-                return false;
-            }
-
-            const name = tournament.name || '';
-
-            return name.toLowerCase().includes(searchQuery.toLowerCase());
-        });
-
-        console.log('Filtered tournaments result:', filtered);
-        setFilteredTournaments(filtered);
-    }, [tournaments, searchQuery]);
 
     const handleCreateTournament = async (data: CreateTournamentRequest) => {
         const success = await createTournament(data);

@@ -118,4 +118,4 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
     );
 };
 
-export default DateTimePicker;
+export default React.memo(DateTimePicker);

@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import PlayerForm from '../../components/players/PlayerForm';
 import Modal from '../../components/ui/Modal';
 import { usePlayerStore } from '../../store/playerStore';
-import type { PlayerCreateRequest, PlayerPublicResponse } from '../../types/players';
+import type { PlayerCreateRequest } from '../../types/players';
 
 const PlayersPage: React.FC = () => {
     const { t } = useTranslation();
@@ -12,24 +12,25 @@ const PlayersPage: React.FC = () => {
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [playerToDelete, setPlayerToDelete] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [filteredPlayers, setFilteredPlayers] = useState<PlayerPublicResponse[]>([]);
+
+    // Memoized filtered players to avoid recalculation on every render
+    const filteredPlayers = useMemo(() => {
+        if (!players) return [];
+        
+        if (!searchQuery.trim()) return players;
+        
+        const query = searchQuery.toLowerCase();
+        return players.filter(player =>
+            player.position.toLowerCase().includes(query) ||
+            player.club.toLowerCase().includes(query) ||
+            player.nationality.toLowerCase().includes(query)
+        );
+    }, [players, searchQuery]);
 
     useEffect(() => {
         // Force refresh players list
         fetchPlayers(true);
     }, [fetchPlayers]);
-
-    // Filter players whenever the search query changes
-    useEffect(() => {
-        if (players) {
-            const filtered = players.filter(player =>
-                player.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                player.club.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                player.nationality.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-            setFilteredPlayers(filtered);
-        }
-    }, [players, searchQuery]);
 
     const handleCreatePlayer = async (data: PlayerCreateRequest) => {
         const success = await createPlayer(data);

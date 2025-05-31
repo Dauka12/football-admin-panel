@@ -243,4 +243,4 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
     );
 };
 
-export default TeamSelectionModal;
+export default React.memo(TeamSelectionModal);

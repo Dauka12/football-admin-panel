@@ -19,14 +19,20 @@
     "@types/react-i18next": "^7.8.3",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.16",
+    "cross-env": "^7.0.3",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.3.6",
     "typescript": "^5.3.3",
-    "vite": "^5.0.8"
+    "vite": "^5.0.8",
+    "vite-bundle-analyzer": "^0.22.0"
   },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "build:analyze": "cross-env ANALYZE=true vite build",
+    "preview": "vite preview",
+    "bundle-analyzer": "npx vite-bundle-analyzer dist",
+    "type-check": "tsc --noEmit",
+    "perf": "npm run build && npm run bundle-analyzer"
   }
 }

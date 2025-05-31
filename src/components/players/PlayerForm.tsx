@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { PlayerCreateRequest, PlayerPublicResponse } from '../../types/players';
 import { PreferredFoot } from '../../types/teams';
+import { ErrorHandler } from '../../utils/errorHandler';
+import { showToast } from '../../utils/toast';
+import { playerValidators, useFormValidation } from '../../utils/validation';
 
 interface PlayerFormProps {
     initialData?: Partial<PlayerPublicResponse>;
@@ -9,7 +12,7 @@ interface PlayerFormProps {
     onCancel: () => void;
 }
 
-const PlayerForm: React.FC<PlayerFormProps> = ({ initialData, onSubmit, onCancel }) => {
+const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmit, onCancel }) => {
     const { t } = useTranslation();
     const [formData, setFormData] = useState<PlayerCreateRequest>({
         position: initialData?.position || '',
@@ -26,46 +29,12 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ initialData, onSubmit, onCancel
     });
 
     const [isLoading, setIsLoading] = useState(false);
-    const [errors, setErrors] = useState<Record<string, string>>({});
-
-    const validateForm = (): boolean => {
-        const newErrors: Record<string, string> = {};
-
-        if (!formData.position.trim()) {
-            newErrors.position = t('validations.positionRequired');
-        }
-
-        if (!formData.club.trim()) {
-            newErrors.club = t('validations.clubRequired');
-        }
-
-        if (!formData.nationality.trim()) {
-            newErrors.nationality = t('validations.nationalityRequired');
-        }
-
-        if (!formData.birthplace.trim()) {
-            newErrors.birthplace = t('validations.birthplaceRequired');
-        }
-
-        if (formData.age <= 0) {
-            newErrors.age = t('validations.ageInvalid');
-        }
-
-        if (formData.height <= 0) {
-            newErrors.height = t('validations.heightInvalid');
-        }
-
-        if (formData.weight <= 0) {
-            newErrors.weight = t('validations.weightInvalid');
-        }
-
-        if (!formData.identificationNumber.trim()) {
-            newErrors.identificationNumber = t('validations.identificationRequired');
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
+    const { 
+        errors, 
+        validateForm, 
+        validateField, 
+        clearFieldError 
+    } = useFormValidation(playerValidators.create);
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -79,24 +48,43 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ initialData, onSubmit, onCancel
             setFormData(prev => ({ ...prev, [name]: value }));
         }
 
-        // Clear error when field is edited
-        if (errors[name]) {
-            setErrors(prev => ({ ...prev, [name]: '' }));
+        // Clear error when field is edited (only for validated fields)
+        const validatedFields = playerValidators.create.fieldNames;
+        if (validatedFields.includes(name as any) && errors[name as keyof typeof errors]) {
+            clearFieldError(name as any);
+        }
+    };
+
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        
+        // Only validate fields that are in the validator rules
+        const validatedFields = playerValidators.create.fieldNames;
+        if (validatedFields.includes(name as any)) {
+            // Validate field on blur
+            if (name === 'age' || name === 'height' || name === 'weight') {
+                validateField(name as any, Number(value));
+            } else {
+                validateField(name as any, value);
+            }
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!validateForm()) {
+        if (!validateForm(formData)) {
+            showToast('Please fix the validation errors', 'error');
             return;
         }
 
         setIsLoading(true);
         try {
             await onSubmit(formData);
+            showToast('Player saved successfully!', 'success');
         } catch (error) {
-            console.error('Form submission error:', error);
+            const errorMessage = ErrorHandler.handle(error);
+            showToast(errorMessage.message, 'error');
         } finally {
             setIsLoading(false);
         }
@@ -119,6 +107,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ initialData, onSubmit, onCancel
                             name="position"
                             value={formData.position}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             className={`form-input ${errors.position ? 'border-red-500' : ''}`}
                         />
                         {errors.position && <p className="text-red-500 text-xs mt-1">{errors.position}</p>}
@@ -134,6 +123,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ initialData, onSubmit, onCancel
                             name="club"
                             value={formData.club}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             className={`form-input ${errors.club ? 'border-red-500' : ''}`}
                         />
                         {errors.club && <p className="text-red-500 text-xs mt-1">{errors.club}</p>}
@@ -151,6 +141,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ initialData, onSubmit, onCancel
                             name="age"
                             value={formData.age}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             min="0"
                             className={`form-input ${errors.age ? 'border-red-500' : ''}`}
                         />
@@ -167,6 +158,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ initialData, onSubmit, onCancel
                             name="height"
                             value={formData.height}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             min="0"
                             className={`form-input ${errors.height ? 'border-red-500' : ''}`}
                         />
@@ -183,6 +175,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ initialData, onSubmit, onCancel
                             name="weight"
                             value={formData.weight}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             min="0"
                             className={`form-input ${errors.weight ? 'border-red-500' : ''}`}
                         />
@@ -206,6 +199,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ initialData, onSubmit, onCancel
                             name="nationality"
                             value={formData.nationality}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             className={`form-input ${errors.nationality ? 'border-red-500' : ''}`}
                         />
                         {errors.nationality && <p className="text-red-500 text-xs mt-1">{errors.nationality}</p>}
@@ -221,6 +215,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ initialData, onSubmit, onCancel
                             name="birthplace"
                             value={formData.birthplace}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             className={`form-input ${errors.birthplace ? 'border-red-500' : ''}`}
                         />
                         {errors.birthplace && <p className="text-red-500 text-xs mt-1">{errors.birthplace}</p>}
@@ -274,6 +269,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ initialData, onSubmit, onCancel
                             name="identificationNumber"
                             value={formData.identificationNumber}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             className={`form-input ${errors.identificationNumber ? 'border-red-500' : ''}`}
                         />
                         {errors.identificationNumber && (
@@ -328,6 +324,6 @@ const PlayerForm: React.FC<PlayerFormProps> = ({ initialData, onSubmit, onCancel
             </div>
         </form>
     );
-};
+});
 
 export default PlayerForm;

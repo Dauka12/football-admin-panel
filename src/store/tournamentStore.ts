@@ -5,6 +5,9 @@ import type {
     TournamentFullResponse,
     UpdateTournamentRequest
 } from '../types/tournaments';
+import { apiService } from '../utils/apiService';
+import { ErrorHandler } from '../utils/errorHandler';
+import { showToast } from '../utils/toast';
 
 interface TournamentState {
     tournaments: TournamentFullResponse[];
@@ -33,15 +36,20 @@ export const useTournamentStore = create<TournamentState>()((set, get) => ({
         set({ isLoading: true, error: null });
 
         try {
-            const tournaments = await tournamentApi.getAll();
+            const tournaments = await apiService.execute(
+                () => tournamentApi.getAll(),
+                'fetchTournaments',
+                { enableCache: true, cacheTTL: 5 * 60 * 1000 } // Cache for 5 minutes
+            );
             console.log('Fetched tournaments:', tournaments); // Debug log
             
             set({ tournaments, isLoading: false });
         } catch (error: any) {
             console.error('Error fetching tournaments:', error); // Debug log
+            const errorMessage = ErrorHandler.handle(error);
             set({
                 tournaments: [], // Set empty array on error
-                error: error.response?.data?.message || 'Failed to fetch tournaments',
+                error: errorMessage.message,
                 isLoading: false
             });
         }
@@ -54,11 +62,16 @@ export const useTournamentStore = create<TournamentState>()((set, get) => ({
 
         set({ isLoading: true, error: null });
         try {
-            const tournament = await tournamentApi.getById(id);
+            const tournament = await apiService.execute(
+                () => tournamentApi.getById(id),
+                `fetchTournament_${id}`,
+                { enableCache: true, cacheTTL: 2 * 60 * 1000 } // Cache for 2 minutes
+            );
             set({ currentTournament: tournament, isLoading: false });
         } catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
             set({
-                error: error.response?.data?.message || `Failed to fetch tournament #${id}`,
+                error: errorMessage.message,
                 isLoading: false
             });
         }
@@ -67,13 +80,22 @@ export const useTournamentStore = create<TournamentState>()((set, get) => ({
     createTournament: async (data: CreateTournamentRequest) => {
         set({ isLoading: true, error: null });
         try {
-            await tournamentApi.create(data);
-            await get().fetchTournaments(true); // Refresh the tournaments list
+            await apiService.execute(
+                () => tournamentApi.create(data),
+                'createTournament'
+            );
+            
+            // Clear cache and refresh tournaments list
+            apiService.clearCache(['fetchTournaments']);
+            await get().fetchTournaments(true);
+            
             set({ isLoading: false });
+            showToast('Tournament created successfully!', 'success');
             return true;
         } catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
             set({
-                error: error.response?.data?.message || 'Failed to create tournament',
+                error: errorMessage.message,
                 isLoading: false
             });
             return false;
@@ -84,10 +106,20 @@ export const useTournamentStore = create<TournamentState>()((set, get) => ({
         set({ isLoading: true, error: null });
         
         try {
-            await tournamentApi.update(id, data);
+            await apiService.execute(
+                () => tournamentApi.update(id, data),
+                `updateTournament_${id}`
+            );
             
             // Fetch the latest data to ensure proper typing
-            const updatedTournament = await tournamentApi.getById(id);
+            const updatedTournament = await apiService.execute(
+                () => tournamentApi.getById(id),
+                `fetchTournament_${id}`,
+                { forceRefresh: true }
+            );
+            
+            // Clear relevant cache entries
+            apiService.clearCache([`fetchTournament_${id}`, 'fetchTournaments']);
             
             // Update state with the correctly typed data from the API
             set(state => ({
@@ -98,11 +130,13 @@ export const useTournamentStore = create<TournamentState>()((set, get) => ({
                 isLoading: false
             }));
             
+            showToast('Tournament updated successfully!', 'success');
             return true;
         } 
         catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
             set({ 
-                error: error.response?.data?.message || `Failed to update tournament #${id}`, 
+                error: errorMessage.message, 
                 isLoading: false 
             });
             return false;
@@ -112,7 +146,13 @@ export const useTournamentStore = create<TournamentState>()((set, get) => ({
     deleteTournament: async (id: number) => {
         set({ isLoading: true, error: null });
         try {
-            await tournamentApi.delete(id);
+            await apiService.execute(
+                () => tournamentApi.delete(id),
+                `deleteTournament_${id}`
+            );
+
+            // Clear relevant cache entries
+            apiService.clearCache([`fetchTournament_${id}`, 'fetchTournaments']);
 
             // Remove from current list without reloading
             set(state => ({
@@ -121,10 +161,12 @@ export const useTournamentStore = create<TournamentState>()((set, get) => ({
                 isLoading: false
             }));
             
+            showToast('Tournament deleted successfully!', 'success');
             return true;
         } catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
             set({
-                error: error.response?.data?.message || `Failed to delete tournament #${id}`,
+                error: errorMessage.message,
                 isLoading: false
             });
             return false;

@@ -2,34 +2,45 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth';
-import { validatePassword, validatePhone } from '../../utils/validation';
+import { authValidators, useFormValidation } from '../../utils/validation';
 
 export const LoginForm: React.FC = () => {
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
-    const [phoneError, setPhoneError] = useState<string | null>(null);
-    const [passwordError, setPasswordError] = useState<string | null>(null);
 
     const { login, isLoading, error } = useAuthStore();
     const { t } = useTranslation();
-    const navigate = useNavigate(); // Use React Router's navigation
+    const navigate = useNavigate();
+
+    // Use the new validation system
+    const { errors, validateField, validateForm, clearErrors } = useFormValidation(
+        authValidators.login
+    );
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validate form
-        const phoneValidation = !phone ? t('validations.phoneRequired') : validatePhone(phone) ? t('validations.phoneInvalid') : null;
-        const passwordValidation = !password ? t('validations.passwordRequired') : validatePassword(password) ? t('validations.passwordShort') : null;
-
-        setPhoneError(phoneValidation);
-        setPasswordError(passwordValidation);
-
-        if (!phoneValidation && !passwordValidation) {
+        const isValid = validateForm({ phone, password });
+        if (isValid) {
             const success = await login(phone, password);
             if (success) {
-                // Use React Router for navigation instead of window.location
+                clearErrors();
                 navigate('/dashboard');
             }
+        }
+    };
+
+    const handlePhoneChange = (value: string) => {
+        setPhone(value);
+        if (errors.phone) {
+            validateField('phone', value);
+        }
+    };
+
+    const handlePasswordChange = (value: string) => {
+        setPassword(value);
+        if (errors.password) {
+            validateField('password', value);
         }
     };
 
@@ -55,14 +66,12 @@ export const LoginForm: React.FC = () => {
                         id="phone"
                         type="tel"
                         placeholder="+1234567890"
-                        className={`form-input ${phoneError ? 'border-red-500' : ''}`}
+                        className={`form-input ${errors.phone ? 'border-red-500' : ''}`}
                         value={phone}
-                        onChange={(e) => {
-                            setPhone(e.target.value);
-                            setPhoneError(null);
-                        }}
+                        onChange={(e) => handlePhoneChange(e.target.value)}
+                        onBlur={() => validateField('phone', phone)}
                     />
-                    {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
+                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -78,14 +87,12 @@ export const LoginForm: React.FC = () => {
                         id="password"
                         type="password"
                         placeholder="••••••••"
-                        className={`form-input ${passwordError ? 'border-red-500' : ''}`}
+                        className={`form-input ${errors.password ? 'border-red-500' : ''}`}
                         value={password}
-                        onChange={(e) => {
-                            setPassword(e.target.value);
-                            setPasswordError(null);
-                        }}
+                        onChange={(e) => handlePasswordChange(e.target.value)}
+                        onBlur={() => validateField('password', password)}
                     />
-                    {passwordError && <p className="text-red-500 text-xs mt-1">{passwordError}</p>}
+                    {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                 </div>
 
                 <button
