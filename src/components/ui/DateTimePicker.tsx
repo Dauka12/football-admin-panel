@@ -8,6 +8,7 @@ interface DateTimePickerProps {
     error?: string;
     required?: boolean;
     placeholder?: string;
+    className?: string;
 }
 
 const DateTimePicker: React.FC<DateTimePickerProps> = ({
@@ -16,7 +17,8 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
     label,
     error,
     required = false,
-    placeholder
+    placeholder,
+    className = ''
 }) => {
     const { t } = useTranslation();
     const [isFocused, setIsFocused] = useState(false);
@@ -36,9 +38,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
         } catch {
             return dateTimeString;
         }
-    };
-
-    return (
+    };    return (
         <div className="relative">
             {/* Label */}
             <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -55,6 +55,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                         : 'border-gray-600 hover:border-gray-500'
                 }
         ${error ? 'bg-red-50/5' : 'bg-gray-800/50'}
+        ${className}
       `}>
                 {/* Calendar Icon */}
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">

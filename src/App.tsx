@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom';
 import DashboardLayout from './components/layout/DashboardLayout';
+import ErrorBoundary from './components/ui/ErrorBoundary';
 import GlobalLoadingIndicator from './components/ui/GlobalLoadingIndicator';
 import { useAuthStore } from './store/auth';
 import './styles/globals.css';
@@ -13,6 +14,8 @@ const PlayersPage = React.lazy(() => import('./pages/players'));
 const PlayerDetailPage = React.lazy(() => import('./pages/players/detail'));
 const TournamentsPage = React.lazy(() => import('./pages/tournaments'));
 const TournamentDetailPage = React.lazy(() => import('./pages/tournaments/detail'));
+const MatchesPage = React.lazy(() => import('./pages/matches'));
+const MatchDetailPage = React.lazy(() => import('./pages/matches/detail'));
 const PermissionsPage = React.lazy(() => import('./pages/permissions'));
 const AchievementsPage = React.lazy(() => import('./pages/achievements'));
 const RegionsPage = React.lazy(() => import('./pages/regions'));
@@ -38,73 +41,100 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <GlobalLoadingIndicator />      <Routes>
-        {/* Auth routes */}
-        <Route 
-          path="/auth" 
-          element={
-            <Suspense fallback={<RouteLoadingSpinner />}>
-              <AuthPage />
-            </Suspense>
-          } 
-        />
-
-        {/* Protected dashboard routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Navigate to="/dashboard/teams" replace />} />
+    <ErrorBoundary>
+      <BrowserRouter>
+        <GlobalLoadingIndicator />      
+        <Routes>
+          {/* Auth routes */}
           <Route 
-            path="teams" 
+            path="/auth" 
             element={
               <Suspense fallback={<RouteLoadingSpinner />}>
-                <TeamsPage />
+                <ErrorBoundary>
+                  <AuthPage />
+                </ErrorBoundary>
               </Suspense>
             } 
           />
-          <Route 
+
+          {/* Protected dashboard routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="/dashboard/teams" replace />} />
+            <Route 
+              path="teams" 
+              element={
+                <Suspense fallback={<RouteLoadingSpinner />}>
+                  <ErrorBoundary>
+                    <TeamsPage />
+                  </ErrorBoundary>
+                </Suspense>
+              } 
+          />          <Route 
             path="teams/:id" 
             element={
               <Suspense fallback={<RouteLoadingSpinner />}>
-                <TeamDetailPage />
+                <ErrorBoundary>
+                  <TeamDetailPage />
+                </ErrorBoundary>
               </Suspense>
             } 
-          />
-          <Route 
+          />          <Route 
             path="players" 
             element={
               <Suspense fallback={<RouteLoadingSpinner />}>
-                <PlayersPage />
+                <ErrorBoundary>
+                  <PlayersPage />
+                </ErrorBoundary>
               </Suspense>
             } 
-          />
-          <Route 
+          />          <Route 
             path="players/:id" 
             element={
               <Suspense fallback={<RouteLoadingSpinner />}>
-                <PlayerDetailPage />
+                <ErrorBoundary>
+                  <PlayerDetailPage />
+                </ErrorBoundary>
               </Suspense>
             } 
-          />
-          <Route 
+          />          <Route 
             path="tournaments" 
             element={
               <Suspense fallback={<RouteLoadingSpinner />}>
-                <TournamentsPage />
+                <ErrorBoundary>
+                  <TournamentsPage />
+                </ErrorBoundary>
               </Suspense>
             } 
-          />
-          <Route 
+          /><Route 
             path="tournaments/:id" 
             element={
               <Suspense fallback={<RouteLoadingSpinner />}>
                 <TournamentDetailPage />
+              </Suspense>
+            } 
+          />          <Route 
+            path="matches" 
+            element={
+              <Suspense fallback={<RouteLoadingSpinner />}>
+                <ErrorBoundary>
+                  <MatchesPage />
+                </ErrorBoundary>
+              </Suspense>
+            } 
+          />          <Route 
+            path="matches/:id" 
+            element={
+              <Suspense fallback={<RouteLoadingSpinner />}>
+                <ErrorBoundary>
+                  <MatchDetailPage />
+                </ErrorBoundary>
               </Suspense>
             } 
           />
@@ -131,22 +161,30 @@ const App: React.FC = () => {
                 <RegionsPage />
               </Suspense>
             } 
-          />
-          <Route 
+          />          <Route 
             path="categories" 
             element={
               <Suspense fallback={<RouteLoadingSpinner />}>
                 <CategoriesPage />
               </Suspense>
             } 
-          />
-          {/* Other routes will be added here */}
-        </Route>
-
-        {/* Redirect from root to dashboard */}
+          />          {/* Other routes will be added here */}
+        </Route>        {/* Redirect from root to dashboard */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        
+        {/* 404 - Not Found Route (follows React Router v7 pattern) */}
+        <Route path="*" element={
+          <div className="flex flex-col items-center justify-center h-screen bg-darkest-bg">
+            <h1 className="text-3xl font-bold text-gold mb-4">404 - Page Not Found</h1>
+            <p className="text-white mb-8">The page you are looking for doesn't exist.</p>
+            <Link to="/dashboard" className="bg-gold text-darkest-bg px-4 py-2 rounded-md hover:bg-gold/90 transition-colors">
+              Return to Dashboard
+            </Link>
+          </div>
+        } />
       </Routes>
     </BrowserRouter>
+    </ErrorBoundary>
   );
 };
 

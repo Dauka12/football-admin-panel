@@ -23,13 +23,37 @@ axiosInstance.interceptors.request.use(
 
 // Add a response interceptor for error handling
 axiosInstance.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        // Ensure response.data is properly formatted
+        if (response.data === null || response.data === undefined) {
+            response.data = [];
+        }
+        return response;
+    },
     (error) => {
         // Handle the error case
-        if (error.response && error.response.status === 401) {
-            // Handle unauthorized access
-            localStorage.removeItem('auth_token');
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            if (error.response.status === 401) {
+                // Handle unauthorized access
+                localStorage.removeItem('auth_token');
+                // You could redirect to login page here
+            }
+            
+            console.error('API Error Response:', {
+                status: error.response.status,
+                data: error.response.data,
+                endpoint: error.config.url
+            });
+        } else if (error.request) {
+            // The request was made but no response was received
+            console.error('API Request Error:', error.request);
+        } else {
+            // Something happened in setting up the request
+            console.error('API Setup Error:', error.message);
         }
+        
         return Promise.reject(error);
     }
 );

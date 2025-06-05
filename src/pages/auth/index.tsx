@@ -37,7 +37,7 @@ const AuthPage: React.FC = () => {
                 </div>
 
                 <div className="auth-card">
-                    <div className="flex mb-6 border-b border-gray-700">
+                    {/* <div className="flex mb-6 border-b border-gray-700">
                         <button
                             className={`pb-2 px-4 text-sm font-medium transition-all duration-300 ${activeTab === 'login'
                                     ? 'text-gold border-b-2 border-gold'
@@ -56,7 +56,7 @@ const AuthPage: React.FC = () => {
                         >
                             {t('auth.register')}
                         </button>
-                    </div>
+                    </div> */}
 
                     <div className={`transition-all duration-300 ${isAnimating ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'}`}>
                         {activeTab === 'login' ? <LoginForm /> : <RegisterForm />}

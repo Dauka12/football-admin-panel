@@ -42,10 +42,16 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
                 'fetchTeams',
                 { enableCache: true, cacheTTL: 5 * 60 * 1000 } // Cache for 5 minutes
             );
-            set({ teams, isLoading: false });
+            
+            // Ensure teams is always an array
+            set({ 
+                teams: Array.isArray(teams) ? teams : [],
+                isLoading: false 
+            });
         } catch (error: any) {
             const errorMessage = ErrorHandler.handle(error);
             set({
+                teams: [], // Ensure we always have an array even on error
                 error: errorMessage.message,
                 isLoading: false
             });

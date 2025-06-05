@@ -1,7 +1,13 @@
 export const ru = {
     appTitle: "Sport Empire",
     auth: {
-        loginTitle: "Вход",
+        status: {
+            allStatuses: "Все статусы",
+            pending: "Ожидается",
+            live: "В прямом эфире",
+            completed: "Завершен",
+            cancelled: "Отменен"
+        },  loginTitle: "Вход",
         loginSubtitle: "Введите ваши данные для входа в аккаунт",
         registerTitle: "Создание Аккаунта",
         registerSubtitle: "Введите ваши данные для регистрации",
@@ -33,6 +39,83 @@ export const ru = {
         achievements: "Достижения",
         regions: "Регионы",
         categories: "Категории"
+    },
+    matches: {
+        title: "Матчи",
+        match: "Матч",
+        createMatch: "Создать матч",
+        editMatch: "Редактировать матч",
+        noMatches: "Матчи не найдены",
+        createFirst: "Создайте ваш первый матч",
+        matchId: "ID матча",
+        matchDate: "Дата матча",
+        teams: "Команды",
+        player: "Игрок",
+        noResultsFound: "Не найдено матчей по вашему запросу",
+        searchByTeam: "Поиск по названию команды...",
+        allTournaments: "Все турниры",
+        confirmDelete: "Удалить матч",
+        deleteWarning: "Вы уверены, что хотите удалить этот матч? Это действие нельзя отменить.",
+        deleteSuccess: "Матч успешно удалён",
+        createSuccess: "Матч успешно создан",
+        updateSuccess: "Матч успешно обновлён",
+        notFound: "Матч не найден",
+        tournamentInfo: "Информация о турнире",
+        teamsAndScores: "Команды и счёт",
+        matchEvents: "События матча",
+        noEvents: "Для этого матча не записаны события",
+        minute: "Минута",
+        eventType: "Тип события",
+        sort: {
+            dateDesc: "Сначала новые",
+            dateAsc: "Сначала старые",
+            status: "По статусу"
+        },
+        status: {
+            pending: "Ожидание",
+            live: "В прямом эфире",
+            completed: "Завершён",
+            cancelled: "Отменён"
+        },
+        statusUpdated: "Статус матча успешно обновлён",
+        scoreUpdated: "Счёт успешно обновлён",
+        actions: {
+            startMatch: "Начать матч",
+            endMatch: "Завершить матч",
+            updateStatus: "Обновить статус",
+            manageEvents: "Управление событиями",
+            updateScore: "Обновить счет"
+        },
+        events: {
+            goal: "Гол",
+            card: "Карточка",
+            substitution: "Замена",
+            injury: "Травма",
+            add: "Добавить событие",
+            addButton: "Добавить",
+            current: "Текущие события",
+            addSuccess: "Событие успешно добавлено",
+            deleteSuccess: "Событие успешно удалено",
+            confirmDelete: "Вы уверены что хотите удалить это событие?",
+            selectPlayer: "Пожалуйста выберите игрока",
+            invalidMinute: "Пожалуйста, укажите корректную минуту",
+            playerNotFound: "Выбранный игрок не найден",
+            manageEvents: "Управление событиями"
+        },
+        form: {
+            tournament: "Турнир",
+            matchDate: "Дата и время матча",
+            teams: "Выбрать команды",
+            selectTournament: "Выберите турнир",
+            noTeams: "Нет доступных команд",
+            success: "Матч успешно сохранён",
+            errors: {
+                tournamentRequired: "Турнир обязателен",
+                dateRequired: "Дата матча обязательна",
+                teamsRequired: "Требуется выбрать хотя бы одну команду",
+                minimumTwoTeams: "Необходимо выбрать минимум две команды"
+            }
+        }
     },
     teams: {
         title: "Команды",

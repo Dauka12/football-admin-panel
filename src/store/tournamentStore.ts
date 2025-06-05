@@ -36,14 +36,22 @@ export const useTournamentStore = create<TournamentState>()((set, get) => ({
         set({ isLoading: true, error: null });
 
         try {
+            // Use execute instead of executeWithRetry
             const tournaments = await apiService.execute(
                 () => tournamentApi.getAll(),
                 'fetchTournaments',
-                { enableCache: true, cacheTTL: 5 * 60 * 1000 } // Cache for 5 minutes
+                { 
+                    enableCache: true,
+                    cacheTTL: 5 * 60 * 1000, // 5 minutes
+                    maxRetries: 3
+                }
             );
-            console.log('Fetched tournaments:', tournaments); // Debug log
             
-            set({ tournaments, isLoading: false });
+            // Ensure tournaments is always an array
+            set({ 
+                tournaments: Array.isArray(tournaments) ? tournaments : [], 
+                isLoading: false 
+            });
         } catch (error: any) {
             console.error('Error fetching tournaments:', error); // Debug log
             const errorMessage = ErrorHandler.handle(error);

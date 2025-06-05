@@ -255,31 +255,34 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
                         </div>
                     )}
                 </div>
-            </div>
-
-            <div className="border-t border-gray-700 pt-4 mt-4 flex justify-end space-x-3">
+            </div>            <div className="border-t border-gray-700/50 pt-6 mt-6 flex justify-end space-x-4">
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors"
+                    className="px-5 py-2.5 bg-darkest-bg text-gray-300 hover:text-white border border-gray-700 rounded-md hover:bg-card-bg transition-all duration-300"
                 >
                     {t('common.cancel')}
                 </button>
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="px-4 py-2 bg-gold text-darkest-bg rounded-md hover:bg-gold/90 transition-colors flex items-center"
-                >
+                    className="px-6 py-2.5 bg-gradient-to-r from-gold to-gold/90 text-darkest-bg font-medium rounded-md hover:shadow-lg hover:shadow-gold/20 transition-all duration-300 flex items-center relative overflow-hidden group"
+                >                    <span className="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
                     {isLoading ? (
-                        <>
-                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-darkest-bg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <span className="flex items-center relative">
+                            <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-darkest-bg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            {t('common.saving')}
-                        </>
+                            {t('common.saving')}...
+                        </span>
                     ) : (
-                        t('common.save')
+                        <span className="flex items-center relative">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 mr-2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {t('common.save')}
+                        </span>
                     )}
                 </button>
             </div>

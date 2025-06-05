@@ -34,6 +34,84 @@ export const en = {
         regions: "Regions",
         categories: "Categories"
     },
+    matches: {
+        title: "Matches",
+        match: "Match",
+        createMatch: "Create Match",
+        editMatch: "Edit Match",
+        noMatches: "No matches found",
+        createFirst: "Create your first match",
+        matchId: "Match ID",
+        matchDate: "Match Date",
+        teams: "Teams",
+        player: "Player",
+        noResultsFound: "No matches found matching your search",
+        searchByTeam: "Search by team name...",
+        allTournaments: "All tournaments",
+        confirmDelete: "Delete Match",
+        deleteWarning: "Are you sure you want to delete this match? This action cannot be undone.",
+        deleteSuccess: "Match deleted successfully",
+        createSuccess: "Match created successfully",
+        updateSuccess: "Match updated successfully",
+        notFound: "Match not found",
+        tournamentInfo: "Tournament Info",
+        teamsAndScores: "Teams & Scores",
+        matchEvents: "Match Events",
+        noEvents: "No events recorded for this match",
+        minute: "Minute",
+        eventType: "Event Type",
+        sort: {
+            dateDesc: "Newest first",
+            dateAsc: "Oldest first",
+            status: "By status"
+        },
+        status: {
+            allStatuses: "All Statuses",
+            pending: "Pending",
+            live: "Live",
+            completed: "Completed",
+            cancelled: "Cancelled"
+        },
+        statusUpdated: "Match status updated successfully",
+        scoreUpdated: "Score updated successfully",
+        actions: {
+            startMatch: "Start Match",
+            endMatch: "End Match",
+            updateStatus: "Update Status",
+            manageEvents: "Manage Events",
+            updateScore: "Update Score"
+        },
+        events: {
+            goal: "Goal",
+            card: "Card",
+            substitution: "Substitution",
+            injury: "Injury",
+            add: "Add Event",
+            addButton: "Add Event",
+            current: "Current Events",
+            addSuccess: "Event added successfully",
+            deleteSuccess: "Event deleted successfully",
+            confirmDelete: "Are you sure you want to delete this event?",
+            selectPlayer: "Please select a player",
+            invalidMinute: "Please enter a valid minute",
+            playerNotFound: "Selected player not found",
+            manageEvents: "Manage Events"
+        },
+        form: {
+            tournament: "Tournament",
+            matchDate: "Match Date & Time",
+            teams: "Select Teams",
+            selectTournament: "Select a tournament",
+            noTeams: "No teams available",
+            success: "Match saved successfully",
+            errors: {
+                tournamentRequired: "Tournament is required",
+                dateRequired: "Match date is required",
+                teamsRequired: "At least one team is required",
+                minimumTwoTeams: "At least two teams must be selected"
+            }
+        }
+    },
     teams: {
         title: "Teams",
         createTeam: "Create Team",

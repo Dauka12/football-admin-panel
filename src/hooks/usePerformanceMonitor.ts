@@ -41,8 +41,8 @@ export const usePerformanceMonitor = (componentName: string) => {
 
             sessionStorage.setItem('performance-metrics', JSON.stringify(allMetrics));
 
-            // Log slow renders (> 16ms)
-            if (renderTime > 16) {
+            // Log slow renders (> 100ms)
+            if (renderTime > 100) {
                 console.warn(`Slow render detected in ${componentName}: ${renderTime.toFixed(2)}ms`);
             }
         }
