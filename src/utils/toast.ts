@@ -17,22 +17,22 @@ class ToastManager {
         this.container.id = 'toast-container';
         this.container.className = 'fixed top-4 right-4 z-50 space-y-2';
         document.body.appendChild(this.container);
-        
+
         return this.container;
     }
 
     private createToast(
-        message: string, 
-        type: ToastType, 
+        message: string,
+        type: ToastType,
         options: ToastOptions = {}
     ): HTMLElement {
         const toast = document.createElement('div');
         const id = Date.now().toString();
-        
+
         const baseClasses = 'flex items-center p-4 rounded-lg shadow-lg max-w-sm transition-all duration-300 transform';
         const typeClasses = {
             success: 'bg-green-600 text-white',
-            error: 'bg-red-600 text-white', 
+            error: 'bg-red-600 text-white',
             warning: 'bg-yellow-600 text-white',
             info: 'bg-blue-600 text-white'
         };
@@ -41,7 +41,7 @@ class ToastManager {
         toast.setAttribute('data-toast-id', id);
 
         const iconSvg = this.getIcon(type);
-        
+
         toast.innerHTML = `
             <div class="flex items-center">
                 <div class="flex-shrink-0">${iconSvg}</div>
@@ -105,7 +105,7 @@ class ToastManager {
         if (!toast) return;
 
         toast.classList.add('translate-x-full', 'opacity-0');
-        
+
         setTimeout(() => {
             if (toast.parentNode) {
                 toast.parentNode.removeChild(toast);
