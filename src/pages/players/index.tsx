@@ -8,36 +8,46 @@ import type { PlayerCreateRequest } from '../../types/players';
 
 const PlayersPage: React.FC = () => {
     const { t } = useTranslation();
-    const { players, isLoading, error, fetchPlayers, createPlayer, deletePlayer } = usePlayerStore();
+    const { 
+        players, 
+        isLoading, 
+        error, 
+        fetchPlayers, 
+        createPlayer, 
+        deletePlayer, 
+        totalElements,
+        totalPages,
+        currentPage,
+        pageSize
+    } = usePlayerStore();
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [playerToDelete, setPlayerToDelete] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-
+    const [page, setPage] = useState(0);
+    
     // Memoized filtered players to avoid recalculation on every render
     const filteredPlayers = useMemo(() => {
-        if (!players) return [];
+        if (!players || !Array.isArray(players)) return [];
         
         if (!searchQuery.trim()) return players;
         
         const query = searchQuery.toLowerCase();
         return players.filter(player =>
-            player.position.toLowerCase().includes(query) ||
-            player.club.toLowerCase().includes(query) ||
-            player.nationality.toLowerCase().includes(query)
+            player.position?.toLowerCase().includes(query) ||
+            (player.club ? player.club.toLowerCase().includes(query) : false) ||
+            player.nationality?.toLowerCase().includes(query)
         );
     }, [players, searchQuery]);
-
+    
     useEffect(() => {
-        // Force refresh players list
-        fetchPlayers(true);
-    }, [fetchPlayers]);
-
-    const handleCreatePlayer = async (data: PlayerCreateRequest) => {
+        // Force refresh players list with current page
+        fetchPlayers(true, page, 10);
+    }, [fetchPlayers, page]);const handleCreatePlayer = async (data: PlayerCreateRequest) => {
         const success = await createPlayer(data);
         if (success) {
             setShowCreateForm(false);
-            // Force refresh players list
-            await fetchPlayers(true);
+            // Force refresh players list with current page
+            await fetchPlayers(true, page, pageSize);
         }
     };
 
@@ -45,8 +55,8 @@ const PlayersPage: React.FC = () => {
         if (playerToDelete !== null) {
             await deletePlayer(playerToDelete);
             setPlayerToDelete(null);
-            // Refresh players list
-            await fetchPlayers(true);
+            // Refresh players list with current page
+            await fetchPlayers(true, page, pageSize);
         }
     };
 
@@ -155,8 +165,7 @@ const PlayersPage: React.FC = () => {
                                                 </div>
                                                 <span>{player.position}</span>
                                             </div>
-                                        </td>
-                                        <td className="px-4 py-3">{player.club}</td>
+                                        </td>                                        <td className="px-4 py-3">{player.club || '-'}</td>
                                         <td className="px-4 py-3 hidden md:table-cell">{player.nationality}</td>
                                         <td className="px-4 py-3 text-center hidden sm:table-cell">{player.age}</td>
                                         <td className="px-4 py-3 text-center hidden lg:table-cell">{getPreferredFootLabel(player.preferredFoot)}</td>
@@ -187,6 +196,61 @@ const PlayersPage: React.FC = () => {
                                 ))}
                             </tbody>
                         </table>
+                        
+                        {/* Pagination Controls */}
+                        {totalPages > 1 && (
+                            <div className="flex justify-between items-center mt-4 px-4 py-3 border-t border-gray-700">
+                                <div className="text-sm text-gray-400">
+                                    Showing {currentPage * pageSize + 1}-{Math.min((currentPage + 1) * pageSize, totalElements)} of {totalElements}
+                                </div>
+                                <div className="flex space-x-2">                                    <button
+                                        onClick={() => setPage(Math.max(0, page - 1))}
+                                        disabled={page === 0}
+                                        className={`px-3 py-1 rounded-md ${page === 0 
+                                            ? 'bg-gray-700 text-gray-400 cursor-not-allowed' 
+                                            : 'bg-gray-700 hover:bg-gray-600 text-white'}`}
+                                    >
+                                        Previous
+                                    </button>
+                                    
+                                    {/* Page numbers */}
+                                    <div className="flex space-x-1">
+                                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                            // Calculate page numbers to show
+                                            let pageNum;
+                                            if (totalPages <= 5) {
+                                                pageNum = i;
+                                            } else {
+                                                const start = Math.max(0, Math.min(page - 2, totalPages - 5));
+                                                pageNum = start + i;
+                                            }
+                                            
+                                            return (
+                                                <button
+                                                    key={pageNum}
+                                                    onClick={() => setPage(pageNum)}
+                                                    className={`w-8 h-8 rounded-md ${pageNum === page
+                                                        ? 'bg-gold text-darkest-bg'
+                                                        : 'bg-gray-700 hover:bg-gray-600 text-white'}`}
+                                                >
+                                                    {pageNum + 1}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    
+                                    <button
+                                        onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+                                        disabled={page >= totalPages - 1}
+                                        className={`px-3 py-1 rounded-md ${page >= totalPages - 1
+                                            ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                                            : 'bg-gray-700 hover:bg-gray-600 text-white'}`}
+                                    >
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

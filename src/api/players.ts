@@ -2,14 +2,17 @@ import type {
     PlayerCreateRequest,
     PlayerCreateResponse,
     PlayerPublicResponse,
-    PlayerUpdateRequest
+    PlayerUpdateRequest,
+    PlayersPageResponse
 } from '../types/players';
 import axiosInstance from './axios';
 
 // Remove redundant base URL prefix to prevent double paths
 export const playerApi = {
-    getAll: async (): Promise<PlayerPublicResponse[]> => {
-        const response = await axiosInstance.get(`/players`);
+    getAll: async (page = 0, size = 10): Promise<PlayersPageResponse> => {
+        const response = await axiosInstance.get(`/players/public`, {
+            params: { page, size }
+        });
         return response.data;
     },
 

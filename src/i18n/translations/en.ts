@@ -213,23 +213,44 @@ export const en = {
     },
     common: {
         save: "Save",
-        saving: "Saving...",
         cancel: "Cancel",
         delete: "Delete",
         edit: "Edit",
+        create: "Create",
         loading: "Loading...",
+        search: "Search",
+        searchByName: "Search by name",
+        searchByPosition: "Search by position, club or nationality",
         viewDetails: "View Details",
-        backToList: "Back to list",
-        search: "Search...",
+        backToList: "Back to List",
         actions: "Actions",
-        searchByPosition: "Search by position, club, or nationality...",
-        searchByName: "Search by team name or description...",
-        searchByTournament: "Search by tournament name or description...",
-        select: "Select",
-        players: "players",
-        selectAll: "Select All",
-        deselectAll: "Deselect All",
-        clearAll: "Clear All",
+        createdAt: "Created At",
+        noDataAvailable: "No data available",
+        previous: "Previous",
+        next: "Next",
+        of: "of",
+        showing: "Showing",
+        page: "Page",
+        creation: {
+            success: "Created successfully",
+            error: "Creation failed"
+        },
+        update: {
+            success: "Updated successfully",
+            error: "Update failed"
+        },
+        deleteStatus: {
+            success: "Deleted successfully",
+            error: "Deletion failed",
+            confirm: "Are you sure you want to delete this item?",
+            warning: "This action cannot be undone."
+        },
+        errors: {
+            general: "An error occurred",
+            notFound: "Item not found",
+            validation: "Please fix the validation errors",
+            required: "This field is required"
+        },
     },
     validations: {
         phoneRequired: "Phone number is required",

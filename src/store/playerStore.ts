@@ -14,8 +14,14 @@ interface PlayerState {
     currentPlayer: PlayerPublicResponse | null;
     isLoading: boolean;
     error: string | null;
-
-    fetchPlayers: (forceRefresh?: boolean) => Promise<void>;
+    
+    // Pagination state
+    totalElements: number;
+    totalPages: number;
+    currentPage: number;
+    pageSize: number;
+    
+    fetchPlayers: (forceRefresh?: boolean, page?: number, size?: number) => Promise<void>;
     fetchPlayer: (id: number) => Promise<PlayerPublicResponse | null>;
     fetchPlayersByIds: (ids: number[]) => Promise<PlayerPublicResponse[]>;
     createPlayer: (data: PlayerCreateRequest) => Promise<boolean>;
@@ -28,25 +34,56 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
     currentPlayer: null,
     isLoading: false,
     error: null,
+    
+    // Pagination state
+    totalElements: 0,
+    totalPages: 0,
+    currentPage: 0,
+    pageSize: 10,
 
-    fetchPlayers: async (forceRefresh = false) => {
-        // Check if we already have players loaded and avoid redundant requests
-        const { players } = get();
-        if (players.length > 0 && !forceRefresh) return;
+    fetchPlayers: async (forceRefresh = false, page = 0, size = 10) => {
+        // Check if we already have players loaded for the same page and avoid redundant requests
+        const { players, currentPage, pageSize } = get();
+        if (players.length > 0 && currentPage === page && pageSize === size && !forceRefresh) return;
 
         set({ isLoading: true, error: null });
 
         try {
-            const players = await apiService.execute(
-                () => playerApi.getAll(),
+            const response = await apiService.execute(
+                () => playerApi.getAll(page, size),
                 'fetchPlayers',
-                { enableCache: true, cacheTTL: 5 * 60 * 1000 } // Cache for 5 minutes
+                { enableCache: false } // Disable cache to ensure fresh data
             );
-            set({ players, isLoading: false });
+            
+            // Ensure response contains content array
+            if (response && response.content && Array.isArray(response.content)) {
+                set({ 
+                    players: response.content, 
+                    totalElements: response.totalElements,
+                    totalPages: response.totalPages,
+                    currentPage: response.number,
+                    pageSize: response.size,
+                    isLoading: false,
+                    error: null
+                });
+            } else {
+                console.error('Unexpected API response format:', response);
+                // Fallback if response structure is unexpected
+                set({ 
+                    players: [],
+                    totalElements: 0,
+                    totalPages: 0,
+                    currentPage: 0,
+                    pageSize: size,
+                    isLoading: false,
+                    error: 'Unexpected API response format'
+                });
+            }
         }
         catch (error: any) {
             const errorMessage = ErrorHandler.handle(error);
             set({
+                players: [],
                 error: errorMessage.message,
                 isLoading: false
             });
@@ -133,19 +170,34 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
 
             // Clear cache and immediately fetch all players to refresh the list
             apiService.clearCache(['fetchPlayers']);
-            const freshPlayers = await apiService.execute(
+            const paginatedResponse = await apiService.execute(
                 () => playerApi.getAll(),
                 'fetchPlayers',
                 { forceRefresh: true }
             );
 
-            // Update the store with the new list of players
-            set({
-                players: freshPlayers,
-                isLoading: false,
-                // Also set the newly created player as the current player
-                currentPlayer: freshPlayers.find(p => p.id === response.id) || null
-            });
+            // Handle paginated response structure
+            if (paginatedResponse && paginatedResponse.content && Array.isArray(paginatedResponse.content)) {
+                const freshPlayers = paginatedResponse.content;
+                
+                // Update the store with the new list of players
+                set({
+                    players: freshPlayers,
+                    totalElements: paginatedResponse.totalElements,
+                    totalPages: paginatedResponse.totalPages,
+                    currentPage: paginatedResponse.number,
+                    pageSize: paginatedResponse.size,
+                    isLoading: false,
+                    // Also set the newly created player as the current player
+                    currentPlayer: freshPlayers.find(p => p.id === response.id) || null
+                });
+            } else {
+                // Fallback if response structure is unexpected
+                set({
+                    isLoading: false,
+                    error: 'Unexpected API response format'
+                });
+            }
 
             showToast('Player created successfully!', 'success');
             return true;
