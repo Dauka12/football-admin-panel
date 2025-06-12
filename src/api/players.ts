@@ -7,11 +7,29 @@ import type {
 } from '../types/players';
 import axiosInstance from './axios';
 
+// Define a type for filter parameters
+export interface PlayerFilterParams {
+    position?: string;
+    club?: string;
+    nationality?: string;
+    minAge?: number;
+    maxAge?: number;
+    preferredFoot?: string;
+}
+
 // Remove redundant base URL prefix to prevent double paths
 export const playerApi = {
-    getAll: async (page = 0, size = 10): Promise<PlayersPageResponse> => {
+    getAll: async (
+        page = 0, 
+        size = 10, 
+        filters?: PlayerFilterParams
+    ): Promise<PlayersPageResponse> => {
         const response = await axiosInstance.get(`/players/public`, {
-            params: { page, size }
+            params: { 
+                page, 
+                size,
+                ...filters // Spread the filter parameters
+            }
         });
         return response.data;
     },

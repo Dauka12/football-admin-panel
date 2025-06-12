@@ -2,11 +2,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import type { PlayerFilterParams } from '../../api/players';
 import PlayerForm from '../../components/players/PlayerForm';
 import Modal from '../../components/ui/Modal';
 import { usePlayerStore } from '../../store/playerStore';
 import type { PlayerCreateRequest } from '../../types/players';
+import type { PlayerFilterParams } from '../../api/players';
 
 const PlayersPage: React.FC = () => {
     const { t } = useTranslation();

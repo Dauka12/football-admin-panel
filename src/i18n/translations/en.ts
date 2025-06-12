@@ -231,6 +231,13 @@ export const en = {
         of: "of",
         showing: "Showing",
         page: "Page",
+        filter: "Filter",
+        filterOptions: "Filter Options",
+        apply: "Apply",
+        reset: "Reset",
+        min: "Min",
+        max: "Max",
+        all: "All",
         creation: {
             success: "Created successfully",
             error: "Creation failed"

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { PlayerFilterParams } from '../api/players';
 import { playerApi } from '../api/players';
 import type {
     PlayerCreateRequest,
@@ -21,7 +22,11 @@ interface PlayerState {
     currentPage: number;
     pageSize: number;
     
-    fetchPlayers: (forceRefresh?: boolean, page?: number, size?: number) => Promise<void>;
+    // Filter state
+    filters: PlayerFilterParams;
+    
+    fetchPlayers: (forceRefresh?: boolean, page?: number, size?: number, filters?: PlayerFilterParams) => Promise<void>;
+    setFilters: (filters: PlayerFilterParams) => void;
     fetchPlayer: (id: number) => Promise<PlayerPublicResponse | null>;
     fetchPlayersByIds: (ids: number[]) => Promise<PlayerPublicResponse[]>;
     createPlayer: (data: PlayerCreateRequest) => Promise<boolean>;
@@ -40,17 +45,42 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
     totalPages: 0,
     currentPage: 0,
     pageSize: 10,
+    
+    // Filter state
+    filters: {},
+    
+    // Set filters method
+    setFilters: (filters: PlayerFilterParams) => {
+        set({ filters });
+    },
 
-    fetchPlayers: async (forceRefresh = false, page = 0, size = 10) => {
+    fetchPlayers: async (forceRefresh = false, page = 0, size = 10, filters?: PlayerFilterParams) => {
         // Check if we already have players loaded for the same page and avoid redundant requests
-        const { players, currentPage, pageSize } = get();
-        if (players.length > 0 && currentPage === page && pageSize === size && !forceRefresh) return;
+        const { players, currentPage, pageSize, filters: currentFilters } = get();
+        
+        // Use provided filters or fall back to current filters in state
+        const filtersToApply = filters || currentFilters;
+        
+        // If not forcing refresh, we only want to avoid a request if:
+        // 1. We have players
+        // 2. We're on the same page
+        // 3. We're using the same page size
+        // 4. We're using the same filters (deep comparison)
+        if (
+            players.length > 0 && 
+            currentPage === page && 
+            pageSize === size && 
+            !forceRefresh &&
+            JSON.stringify(currentFilters) === JSON.stringify(filtersToApply)
+        ) {
+            return;
+        }
 
         set({ isLoading: true, error: null });
 
         try {
             const response = await apiService.execute(
-                () => playerApi.getAll(page, size),
+                () => playerApi.getAll(page, size, filtersToApply),
                 'fetchPlayers',
                 { enableCache: false } // Disable cache to ensure fresh data
             );
@@ -63,6 +93,7 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
                     totalPages: response.totalPages,
                     currentPage: response.number,
                     pageSize: response.size,
+                    filters: filtersToApply, // Store the filters that were used
                     isLoading: false,
                     error: null
                 });
@@ -170,8 +201,9 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
 
             // Clear cache and immediately fetch all players to refresh the list
             apiService.clearCache(['fetchPlayers']);
+            const { filters, currentPage, pageSize } = get();
             const paginatedResponse = await apiService.execute(
-                () => playerApi.getAll(),
+                () => playerApi.getAll(currentPage, pageSize, filters),
                 'fetchPlayers',
                 { forceRefresh: true }
             );
@@ -228,7 +260,10 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
             if (get().currentPlayer?.id === id) {
                 await get().fetchPlayer(id);
             }
-            await get().fetchPlayers(true);
+            
+            // Fetch with current filters and pagination
+            const { filters, currentPage, pageSize } = get();
+            await get().fetchPlayers(true, currentPage, pageSize, filters);
 
             set({ isLoading: false });
             showToast('Player updated successfully!', 'success');
