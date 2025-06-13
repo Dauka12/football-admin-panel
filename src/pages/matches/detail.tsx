@@ -11,7 +11,7 @@ import { LoadingSpinner } from '../../components/ui/LoadingIndicator';
 import Modal from '../../components/ui/Modal';
 import { useMatchStore } from '../../store/matchStore';
 import type { UpdateMatchRequest } from '../../types/matches';
-import { formatDateTime } from '../../utils/dateUtils.ts';
+import { formatDateTime } from '../../utils/dateUtils';
 import { showToast } from '../../utils/toast';
 
 const MatchDetailPage: React.FC = () => {
@@ -21,16 +21,16 @@ const MatchDetailPage: React.FC = () => {
     const matchId = parseInt(id || '0', 10);
 
     const {
-      currentMatch,
-      isLoading,
-      error,
-      fetchMatchById,
-      updateMatch,
-      deleteMatch,
-      updateMatchStatus,
-      updateParticipantScore,
-      addMatchEvent,
-      deleteMatchEvent
+        currentMatch,
+        isLoading,
+        error,
+        fetchMatchById,
+        updateMatch,
+        deleteMatch,
+        updateMatchStatus,
+        updateParticipantScore,
+        addMatchEvent,
+        deleteMatchEvent
     } = useMatchStore();
 
     // UI state
@@ -65,19 +65,23 @@ const MatchDetailPage: React.FC = () => {
             showToast(t('matches.deleteSuccess'), 'success');
             navigate('/dashboard/matches');
         }
-    };
-
-    // Event type mapping for display
+    };    // Event type mapping for display
     const getEventTypeDisplay = (type: string) => {
         switch (type) {
             case 'GOAL':
-                return t('matches.events.goal');
-            case 'CARD':
-                return t('matches.events.card');
-            case 'SUBSTITUTION':
-                return t('matches.events.substitution');
-            case 'INJURY':
-                return t('matches.events.injury');
+                return t('matches.events.goal') || 'Goal';
+            case 'PENALTY_GOAL':
+                return t('matches.events.penaltyGoal') || 'Penalty Goal';
+            case 'MISSED_PENALTY':
+                return t('matches.events.missedPenalty') || 'Missed Penalty';
+            case 'OWN_GOAL':
+                return t('matches.events.ownGoal') || 'Own Goal';
+            case 'YELLOW_CARD':
+                return t('matches.events.yellowCard') || 'Yellow Card';
+            case 'RED_CARD':
+                return t('matches.events.redCard') || 'Red Card';
+            case 'SECOND_YELLOW':
+                return t('matches.events.secondYellow') || 'Second Yellow Card';
             default:
                 return type;
         }
@@ -122,45 +126,45 @@ const MatchDetailPage: React.FC = () => {
             {/* Header section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center my-6 space-y-4 md:space-y-0">
                 <div>
-                    <h1 className="text-2xl font-bold">{currentMatch.tournament.name}</h1>
+                    <h1 className="text-xl sm:text-2xl font-bold">{currentMatch.tournament.name}</h1>
                     <p className="text-gray-400">
                         {formatDateTime(currentMatch.matchDate)}
                     </p>
                 </div>
 
-                <div className="flex space-x-3">
+                <div className="flex flex-wrap gap-2">
                     {currentMatch.status !== 'COMPLETED' && currentMatch.status !== 'CANCELLED' && (
-                      <StatusUpdateButton 
-                        matchId={currentMatch.id}
-                        currentStatus={currentMatch.status}
-                      />
+                        <StatusUpdateButton
+                            matchId={currentMatch.id}
+                            currentStatus={currentMatch.status}
+                        />
                     )}
                     <button
                         onClick={() => setShowEditForm(true)}
-                        className="px-4 py-2 bg-gold text-darkest-bg rounded-md hover:bg-gold/90 transition-colors duration-200"
+                        className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gold text-darkest-bg rounded-md hover:bg-gold/90 transition-colors duration-200 text-sm sm:text-base"
                     >
                         {t('common.edit')}
                     </button>
                     <button
                         onClick={() => setShowDeleteModal(true)}
-                        className="px-4 py-2 bg-accent-pink text-white rounded-md hover:bg-accent-pink/90 transition-colors duration-200"
+                        className="px-3 py-1.5 sm:px-4 sm:py-2 bg-accent-pink text-white rounded-md hover:bg-accent-pink/90 transition-colors duration-200 text-sm sm:text-base"
                     >
                         {t('common.delete')}
                     </button>
                 </div>
             </div>
 
-      {/* Status section */}
-      <div className="mb-6">
-        <MatchStatusControl
-          matchId={currentMatch.id}
-          currentStatus={currentMatch.status}
-          onStatusChange={async (status) => {
-            const success = await updateMatchStatus(currentMatch.id, status);
-            return success;
-          }}
-        />
-      </div>
+            {/* Status section */}
+            <div className="mb-6">
+                <MatchStatusControl
+                    matchId={currentMatch.id}
+                    currentStatus={currentMatch.status}
+                    onStatusChange={async (status) => {
+                        const success = await updateMatchStatus(currentMatch.id, status);
+                        return success;
+                    }}
+                />
+            </div>
 
             {/* Match details grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -215,20 +219,20 @@ const MatchDetailPage: React.FC = () => {
                 </div>
             </div>
 
-      {/* Match events section */}
-      <div className="mt-6">
-        <div className="bg-card-bg rounded-lg overflow-hidden shadow-md">
-          <div className="p-4 border-b border-darkest-bg flex justify-between items-center">
-            <h2 className="font-semibold">{t('matches.matchEvents')}</h2>
-            <button 
-              onClick={() => setShowEventsModal(true)}
-              className="px-3 py-1 text-sm bg-gold text-darkest-bg rounded hover:bg-gold/90 transition-colors"
-            >
-              {t('matches.events.manageEvents')}
-            </button>
-          </div>
-          
-          {currentMatch.events && currentMatch.events.length > 0 ? (
+            {/* Match events section */}
+            <div className="mt-6">
+                <div className="bg-card-bg rounded-lg overflow-hidden shadow-md">
+                    <div className="p-4 border-b border-darkest-bg flex flex-wrap justify-between items-center gap-3">
+                        <h2 className="font-semibold">{t('matches.matchEvents')}</h2>
+                        <button
+                            onClick={() => setShowEventsModal(true)}
+                            className="px-3 py-1.5 text-sm bg-gold text-darkest-bg rounded hover:bg-gold/90 transition-colors whitespace-nowrap"
+                        >
+                            {t('matches.events.manageEvents')}
+                        </button>
+                    </div>
+
+                    {currentMatch.events && currentMatch.events.length > 0 ? (
                         <div className="p-4">
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-darkest-bg">
@@ -252,9 +256,7 @@ const MatchDetailPage: React.FC = () => {
                                                     {event.minute}'
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    {event.player ? 
-                                                      `Player ${event.player.id}` : 
-                                                      'Player info unavailable'}
+                                                    {event.playerName || 'Player info unavailable'}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     {getEventTypeDisplay(event.type)}
@@ -278,66 +280,73 @@ const MatchDetailPage: React.FC = () => {
                 isOpen={showEditForm}
                 onClose={() => setShowEditForm(false)}
                 title={t('matches.editMatch')}
+                hasDatePicker={true}
             >
                 <MatchForm
                     initialData={{
                         tournamentId: currentMatch.tournament.id,
-                        matchDate: currentMatch.matchDate,
-                        teams: currentMatch.participants.map(p => p.team.id)
+                        matchDate: currentMatch.matchDate, // Now accepts string | number
+                        teams: currentMatch.participants.map(p => {
+                            // Handle possible nested team object or teamId property
+                            if (p.team && typeof p.team === 'object' && 'id' in p.team) {
+                                return p.team.id;
+                            }
+                            return p.teamId || 0;
+                        })
                     }}
                     onSubmit={handleUpdateMatch}
                     onCancel={() => setShowEditForm(false)}
                 />
             </Modal>
 
-      {/* Delete Confirmation Modal */}
-      <Modal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        title={t('matches.confirmDelete')}
-      >
-        <div>
-          <p className="text-gray-300 mb-6">{t('matches.deleteWarning')}</p>
-          <div className="flex justify-end space-x-3">
-            <button
-              onClick={() => setShowDeleteModal(false)}
-              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500 transition-colors duration-200"
+            {/* Delete Confirmation Modal */}
+            <Modal
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                title={t('matches.confirmDelete')}
             >
-              {t('common.cancel')}
-            </button>
-            <button
-              onClick={handleDelete}
-              className="px-4 py-2 bg-accent-pink text-white rounded-md hover:bg-accent-pink/90 transition-colors duration-200"
-            >
-              {t('common.delete')}
-            </button>
-          </div>
-        </div>
-      </Modal>
+                <div>
+                    <p className="text-gray-300 mb-6">{t('matches.deleteWarning')}</p>
+                    <div className="flex flex-col sm:flex-row sm:justify-end gap-2 sm:space-x-3">
+                        <button
+                            onClick={() => setShowDeleteModal(false)}
+                            className="w-full sm:w-auto px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500 transition-colors duration-200"
+                        >
+                            {t('common.cancel')}
+                        </button>
+                        <button
+                            onClick={handleDelete}
+                            className="w-full sm:w-auto px-3 py-1.5 sm:px-4 sm:py-2 bg-accent-pink text-white rounded-md hover:bg-accent-pink/90 transition-colors duration-200"
+                        >
+                            {t('common.delete')}
+                        </button>
+                    </div>
+                </div>
+            </Modal>
 
-      {/* Events Management Modal */}
-      <Modal
-        isOpen={showEventsModal}
-        onClose={() => setShowEventsModal(false)}
-        title={t('matches.events.manageEvents')}
-      >
-        {currentMatch && (
-          <MatchEventsForm
-            match={currentMatch}
-            onAddEvent={async (eventData) => {
-              const success = await addMatchEvent(currentMatch.id, eventData);
-              return success;
-            }}
-            onDeleteEvent={async (eventId) => {
-              const success = await deleteMatchEvent(currentMatch.id, eventId);
-              return success;
-            }}
-            onClose={() => setShowEventsModal(false)}
-          />
-        )}
-      </Modal>
-    </div>
-  );
+            {/* Events Management Modal */}
+            <Modal
+                isOpen={showEventsModal}
+                onClose={() => setShowEventsModal(false)}
+                title={t('matches.events.manageEvents')}
+            >
+                {currentMatch && (
+                    <MatchEventsForm
+                        match={currentMatch}
+                        onAddEvent={async (eventData) => {
+                            const success = await addMatchEvent(currentMatch.id, eventData);
+                            return success;
+                        }}
+                        onDeleteEvent={async (eventId) => {
+                            const success = await deleteMatchEvent(currentMatch.id, eventId);
+                            return success;
+                        }}
+                        onClose={() => setShowEventsModal(false)}
+                    />
+                )}
+            </Modal>
+        </div>
+    );
 };
 
 export default MatchDetailPage;

@@ -51,6 +51,36 @@ export interface TeamCreateResponse {
     id: number;
 }
 
+// Paginated response for teams
+export interface TeamsPageResponse {
+    content: TeamFullResponse[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+    sort: {
+        empty: boolean;
+        sorted: boolean;
+        unsorted: boolean;
+    };
+    pageable: {
+        offset: number;
+        sort: {
+            empty: boolean;
+            sorted: boolean;
+            unsorted: boolean;
+        };
+        pageNumber: number;
+        pageSize: number;
+        paged: boolean;
+        unpaged: boolean;
+    };
+    numberOfElements: number;
+    first: boolean;
+    last: boolean;
+    empty: boolean;
+}
+
 export interface TeamErrorResponse {
     id: number;
 }

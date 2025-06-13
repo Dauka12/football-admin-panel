@@ -1,8 +1,9 @@
 // Match status enum
 export type MatchStatus = 'PENDING' | 'LIVE' | 'COMPLETED' | 'CANCELLED';
 
-// Event type enum
-export type EventType = 'GOAL' | 'CARD' | 'SUBSTITUTION' | 'INJURY';
+// Event type enum - updated to match API values
+export type EventType = 'GOAL' | 'YELLOW_CARD' | 'RED_CARD' | 'SECOND_YELLOW' | 
+                        'PENALTY_GOAL' | 'MISSED_PENALTY' | 'OWN_GOAL';
 
 // Match participant interface
 export interface MatchParticipant {
@@ -30,40 +31,49 @@ export interface MatchParticipant {
         // Other player properties simplified
     };
     score: number;
+    
+    // Additional fields for flexibility with API responses
+    teamId?: number;
+    teamName?: string;
+    playerId?: number;
+    playerFullName?: string;
 }
 
 // Match event interface
 export interface MatchEvent {
     id: number;
-    match: string;
-    player: {
-        id: number;
-        user?: {
-            firstname: string;
-            lastname: string;
-            email?: string;
-            id: number;
-        };
-        position?: string;
-        club?: string;
-        // Other player properties simplified
-    };
+    matchId: number;
+    playerId: number;
+    playerName: string;
     type: EventType;
     minute: number;
+}
+
+// Match event request interface
+export interface MatchEventRequest {
+    matchId: number;
+    playerId: number;
+    type: EventType;
+    minute: number;
+}
+
+// Match events response
+export interface MatchEventsResponse {
+    events: MatchEvent[];
 }
 
 // Match interfaces for API responses
 export interface MatchFullResponse {
     id: number;
-    matchDate: string;
+    matchDate: string | number;  // Accept both ISO date strings and Unix timestamps
     deleted: boolean;
     participants: MatchParticipant[];
     status: MatchStatus;
     tournament: {
         id: number;
         name: string;
-        startDate: string;
-        endDate: string;
+        startDate: string | number;  // Also accept timestamps here
+        endDate: string | number;    // Also accept timestamps here
         description: string;
         active: boolean;
         teams: string[];
@@ -75,7 +85,7 @@ export interface MatchFullResponse {
 // Simplified match response for listings
 export interface MatchListResponse {
     id: number;
-    matchDate: string;
+    matchDate: string | number;  // Accept both ISO date strings and Unix timestamps
     tournament: {
         id: number;
         name: string;
@@ -95,13 +105,13 @@ export interface MatchListResponse {
 // Request interfaces
 export interface CreateMatchRequest {
     tournamentId: number;
-    matchDate: string;
+    matchDate: string | number;
     teams: number[];
 }
 
 export interface UpdateMatchRequest {
     tournamentId: number;
-    matchDate: string;
+    matchDate: string | number;
     teams: number[];
 }
 

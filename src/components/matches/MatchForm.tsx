@@ -25,6 +25,28 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
         matchDate: initialData?.matchDate || new Date().toISOString(),
         teams: initialData?.teams || []
     });
+    
+    // Normalize initial matchDate if it's a timestamp
+    useEffect(() => {
+        if (initialData?.matchDate) {
+            let matchDate = initialData.matchDate;
+            
+            // If it's a number (Unix timestamp)
+            if (typeof matchDate === 'number') {
+                // Convert to ISO string for form handling
+                const date = new Date(
+                    // If it's seconds (10 digits), convert to milliseconds
+                    matchDate.toString().length === 10 ? matchDate * 1000 : matchDate
+                );
+                if (!isNaN(date.getTime())) {
+                    setFormData(prev => ({
+                        ...prev,
+                        matchDate: date.toISOString()
+                    }));
+                }
+            }
+        }
+    }, [initialData]);
 
     // Form validation
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -78,10 +100,19 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
     };
 
     // Handle date change
-    const handleDateChange = (date: Date | null) => {
-        if (date) {
+    const handleDateChange = (dateValue: string | Date | null) => {
+        if (dateValue) {
+            // If we get a string, we need to parse it
+            const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue;
+            
+            if (isNaN(date.getTime())) {
+                console.error('Invalid date provided:', dateValue);
+                return;
+            }
+            
             setFormData(prev => ({
                 ...prev,
+                // Store as ISO string for consistency
                 matchDate: date.toISOString()
             }));
 
@@ -167,15 +198,16 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
             </div>
 
             {/* Match date/time */}
-            <div>
-                <label className="block font-medium mb-1 text-sm">
+            <div className="w-full">
+                <div className="block font-medium mb-1 text-sm sr-only">
                     {t('matches.form.matchDate')} *
-                </label>
+                </div>
                 <DateTimePicker
                     value={formData.matchDate}
-                    onChange={(dateString) => handleDateChange(dateString ? new Date(dateString) : null)}
+                    onChange={(dateValue) => handleDateChange(dateValue)}
                     className={errors.matchDate ? 'border-red-500' : ''}
                     label={t('matches.form.matchDate')}
+                    required
                 />
                 {errors.matchDate && (
                     <p className="text-red-500 text-xs mt-1">{errors.matchDate}</p>
@@ -230,19 +262,19 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
             </div>
 
             {/* Form buttons */}
-            <div className="border-t border-gray-700 pt-4 mt-4 flex justify-end space-x-3">
+            <div className="border-t border-gray-700 pt-4 mt-4 flex flex-col sm:flex-row sm:justify-end gap-2 sm:space-x-3">
                 <button
                     type="button"
                     onClick={onCancel}
                     disabled={isLoading}
-                    className="px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors"
+                    className="w-full sm:w-auto px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors text-sm sm:text-base"
                 >
                     {t('common.cancel')}
                 </button>
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="px-4 py-2 bg-gold text-darkest-bg rounded-md hover:bg-gold/90 transition-colors flex items-center"
+                    className="w-full sm:w-auto px-3 py-1.5 sm:px-4 sm:py-2 bg-gold text-darkest-bg rounded-md hover:bg-gold/90 transition-colors flex items-center justify-center text-sm sm:text-base"
                 >
                     {isLoading ? (
                         <>

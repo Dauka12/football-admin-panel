@@ -122,21 +122,17 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
         if (field === 'startDate' && formData.endDate) {
             validateField('endDate', formData.endDate, updatedData);
         }
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-card-bg rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+    };    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50">
+            <div className="bg-card-bg rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-hidden mx-2 sm:mx-0">
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-700/50 bg-gradient-to-r from-gold/10 to-transparent">
-                    <h2 className="text-xl font-semibold text-white">
+                <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-700/50 bg-gradient-to-r from-gold/10 to-transparent">
+                    <h2 className="text-lg sm:text-xl font-semibold text-white truncate">
                         {isEdit ? t('tournaments.editTournament') : t('tournaments.createTournament')}
                     </h2>
-                </div>
-
-                {/* Form Content */}
-                <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                </div>                {/* Form Content */}
+                <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+                    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                         {/* Tournament Name */}
                         <div>
                             <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -153,27 +149,29 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
                                 placeholder={t('tournaments.enterName')}
                             />
                             {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name}</p>}
-                        </div>
+                        </div>                        {/* Date Range */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            <div className="w-full">
+                                <DateTimePicker
+                                    value={formData.startDate}
+                                    onChange={(value) => handleDateChange('startDate', value)}
+                                    label={t('tournaments.startDate')}
+                                    error={errors.startDate}
+                                    required
+                                    placeholder={t('tournaments.selectStartDate')}
+                                />
+                            </div>
 
-                        {/* Date Range */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <DateTimePicker
-                                value={formData.startDate}
-                                onChange={(value) => handleDateChange('startDate', value)}
-                                label={t('tournaments.startDate')}
-                                error={errors.startDate}
-                                required
-                                placeholder={t('tournaments.selectStartDate')}
-                            />
-
-                            <DateTimePicker
-                                value={formData.endDate}
-                                onChange={(value) => handleDateChange('endDate', value)}
-                                label={t('tournaments.endDate')}
-                                error={errors.endDate}
-                                required
-                                placeholder={t('tournaments.selectEndDate')}
-                            />
+                            <div className="w-full">
+                                <DateTimePicker
+                                    value={formData.endDate}
+                                    onChange={(value) => handleDateChange('endDate', value)}
+                                    label={t('tournaments.endDate')}
+                                    error={errors.endDate}
+                                    required
+                                    placeholder={t('tournaments.selectEndDate')}
+                                />
+                            </div>
                         </div>
 
                         {/* Team Selection */}
@@ -252,24 +250,22 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
                             </button>
                         </div>
                     </form>
-                </div>
-
-                {/* Footer */}
-                <div className="px-6 py-4 border-t border-gray-700/50 bg-gray-800/30 flex justify-end space-x-3">
+                </div>                {/* Footer */}
+                <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-700/50 bg-gray-800/30 flex flex-col sm:flex-row sm:justify-end gap-2 sm:space-x-3">
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="px-6 py-2.5 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700/50 
-                     transition-all duration-200 font-medium"
+                        className="w-full sm:w-auto px-4 sm:px-6 py-2.5 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700/50 
+                     transition-all duration-200 font-medium text-sm sm:text-base"
                     >
                         {t('common.cancel')}
                     </button>
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="px-6 py-2.5 bg-gradient-to-r from-gold to-gold/80 text-black rounded-lg 
-                     hover:from-gold/90 hover:to-gold/70 transition-all duration-200 font-medium
-                     shadow-lg hover:shadow-gold/20 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-gradient-to-r from-gold to-gold/80 text-black rounded-lg 
+                     hover:from-gold/90 hover:to-gold/70 transition-all duration-200 font-medium text-sm sm:text-base
+                     shadow-lg hover:shadow-gold/20 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isLoading ? (
                             <>

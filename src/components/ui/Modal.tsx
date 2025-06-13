@@ -5,9 +5,18 @@ interface ModalProps {
     onClose: () => void;
     title: string;
     children: React.ReactNode;
+    className?: string;
+    hasDatePicker?: boolean;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+const Modal: React.FC<ModalProps> = ({ 
+    isOpen, 
+    onClose, 
+    title, 
+    children, 
+    className = '',
+    hasDatePicker = false 
+}) => {
     const [isActive, setIsActive] = useState(false);
 
     useEffect(() => {
@@ -28,14 +37,22 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
         return null;
     }    return (
         <div className={`modal-overlay ${isActive ? 'active' : ''}`}>
-            <div className={`modal-content ${isActive ? 'active' : ''} bg-gradient-to-b from-card-bg to-darkest-bg border border-gray-800/50 rounded-lg shadow-2xl overflow-hidden`}>
+            <div className={`
+                modal-content 
+                ${isActive ? 'active' : ''} 
+                ${hasDatePicker ? 'date-picker-modal' : ''}
+                ${className}
+                bg-gradient-to-b from-card-bg to-darkest-bg border border-gray-800/50 
+                rounded-lg shadow-2xl overflow-hidden 
+                mx-3 sm:mx-0 max-h-[90vh] w-full max-w-lg
+            `}>
                 <div className="relative">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-gold via-accent-pink to-gold opacity-50"></div>
-                    <div className="flex justify-between items-center p-5 border-b border-gray-800/50 bg-darkest-bg/30">
-                        <h2 className="text-xl font-bold text-white">{title}</h2>
+                    <div className="flex justify-between items-center p-3 sm:p-5 border-b border-gray-800/50 bg-darkest-bg/30">
+                        <h2 className="text-base sm:text-xl font-bold text-white truncate pr-2">{title}</h2>
                         <button
                             onClick={onClose}
-                            className="text-gray-400 hover:text-accent-pink transition-all duration-300 p-1.5 rounded-full hover:bg-darkest-bg/70"
+                            className="text-gray-400 hover:text-accent-pink transition-all duration-300 p-1.5 rounded-full hover:bg-darkest-bg/70 flex-shrink-0"
                             aria-label="Close"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -44,7 +61,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
                         </button>
                     </div>
                 </div>
-                <div className="p-5">
+                <div className={`
+                    p-3 sm:p-5 overflow-y-auto 
+                    ${hasDatePicker ? 'max-h-[70vh] sm:max-h-[calc(90vh-60px)]' : 'max-h-[calc(90vh-60px)]'}
+                `}>
                     {children}
                 </div>
             </div>

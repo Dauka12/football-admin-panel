@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import TournamentForm from '../../components/tournaments/TournamentForm';
-import Breadcrumb from '../../components/ui/Breadcrumb';
+import Bread from '../../components/ui/Breadcrumb';
 import Modal from '../../components/ui/Modal';
 import { useTeamStore } from '../../store/teamStore';
 import { useTournamentStore } from '../../store/tournamentStore';
@@ -139,29 +139,29 @@ const TournamentDetailPage: React.FC = () => {
 
     return (
         <div className="space-y-6">
-            <Breadcrumb items={breadcrumbItems} />
+            <Bread items={breadcrumbItems} />
             
             {/* Tournament Header */}
-            <div className="bg-card-bg rounded-lg p-6">
-                <div className="flex justify-between items-start mb-4">
+            <div className="bg-card-bg rounded-lg p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
                     <div className="flex-1">
-                        <h1 className="text-2xl sm:text-3xl font-bold mb-2">{currentTournament.name}</h1>
+                        <h1 className="text-2xl sm:text-3xl font-bold">{currentTournament.name}</h1>
                     </div>
-                    <div className="flex space-x-2">
+                    <div className="flex flex-wrap gap-2">
                         <button
                             onClick={() => setIsEditing(true)}
-                            className="bg-gold text-darkest-bg px-4 py-2 rounded-md hover:bg-gold/90 transition-colors duration-200 flex items-center"
+                            className="bg-gold text-darkest-bg px-3 py-1.5 sm:px-4 sm:py-2 rounded-md hover:bg-gold/90 transition-colors duration-200 flex items-center text-sm sm:text-base w-full sm:w-auto justify-center"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                             {t('common.edit')}
                         </button>
                         <button
                             onClick={() => setShowDeleteConfirm(true)}
-                            className="bg-accent-pink text-white px-4 py-2 rounded-md hover:bg-accent-pink/90 transition-colors duration-200 flex items-center"
+                            className="bg-accent-pink text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-md hover:bg-accent-pink/90 transition-colors duration-200 flex items-center text-sm sm:text-base w-full sm:w-auto justify-center"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                             {t('common.delete')}
@@ -248,6 +248,7 @@ const TournamentDetailPage: React.FC = () => {
                 isOpen={isEditing}
                 onClose={() => setIsEditing(false)}
                 title={t('tournaments.editTournament')}
+                hasDatePicker={true}
             >
                 <TournamentForm 
                     initialData={{
@@ -271,16 +272,16 @@ const TournamentDetailPage: React.FC = () => {
                     <p className="text-gray-300 mb-6">
                         {t('tournaments.deleteWarningDetail', { name: currentTournament.name })}
                     </p>
-                    <div className="flex justify-end space-x-3">
+                    <div className="flex flex-col sm:flex-row sm:justify-end gap-3 sm:space-x-3">
                         <button 
                             onClick={() => setShowDeleteConfirm(false)}
-                            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500 transition-colors duration-200"
+                            className="w-full sm:w-auto px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500 transition-colors duration-200"
                         >
                             {t('common.cancel')}
                         </button>
                         <button 
                             onClick={handleDelete}
-                            className="px-4 py-2 bg-accent-pink text-white rounded-md hover:bg-accent-pink/90 transition-colors duration-200"
+                            className="w-full sm:w-auto px-4 py-2 bg-accent-pink text-white rounded-md hover:bg-accent-pink/90 transition-colors duration-200"
                         >
                             {t('common.delete')}
                         </button>

@@ -44,7 +44,13 @@ const MatchesPage: React.FC = () => {
   // Filtered matches
   const filteredMatches = useMemo(() => {
     // Make sure matches is an array
-    if (!matches || !Array.isArray(matches)) return [];
+    if (!matches || !Array.isArray(matches)) {
+      console.log('No matches found or matches is not an array:', matches);
+      return [];
+    }
+    
+    // Debug log all matches
+    console.log('Matches data:', matches);
     
     let result = [...matches];
     
@@ -53,21 +59,21 @@ const MatchesPage: React.FC = () => {
       const query = searchQuery.toLowerCase();
       result = result.filter(match => {
         // Search in participant team names
-        return match.participants.some(p => 
-          p.teamName.toLowerCase().includes(query)
+        return match.participants && Array.isArray(match.participants) && match.participants.some(p => 
+          p.teamName && p.teamName.toLowerCase().includes(query)
         );
       });
     }
     
     // Filter by tournament
     if (tournamentFilter) {
-      result = result.filter(match => match.tournament.id === tournamentFilter);
+      result = result.filter(match => match.tournament && match.tournament.id === tournamentFilter);
     }
     
     // Filter by status
     if (statusFilter) {
       result = result.filter(match => 
-        match.status.toUpperCase() === statusFilter.toUpperCase()
+        match.status && match.status.toUpperCase() === statusFilter.toUpperCase()
       );
     }
     
@@ -75,15 +81,38 @@ const MatchesPage: React.FC = () => {
     result.sort((a, b) => {
       switch (sortBy) {
         case 'date-asc':
-          return new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime();
+          return getDateTimeValue(a.matchDate) - getDateTimeValue(b.matchDate);
         case 'date-desc':
-          return new Date(b.matchDate).getTime() - new Date(a.matchDate).getTime();
+          return getDateTimeValue(b.matchDate) - getDateTimeValue(a.matchDate);
         case 'status':
           return a.status.localeCompare(b.status);
         default:
           return 0;
       }
     });
+    
+    // Helper function to safely parse dates of different formats
+    function getDateTimeValue(dateValue: string | number): number {
+      if (typeof dateValue === 'number') {
+        // Check if timestamp is in seconds (10 digits) or milliseconds (13 digits)
+        if (dateValue.toString().length === 10) {
+          return dateValue * 1000; // Convert seconds to milliseconds
+        }
+        return dateValue;
+      }
+      
+      // Try to parse as timestamp string
+      const maybeTimestamp = parseInt(dateValue, 10);
+      if (!isNaN(maybeTimestamp)) {
+        if (maybeTimestamp.toString().length === 10) {
+          return maybeTimestamp * 1000; // Convert seconds to milliseconds
+        }
+        return maybeTimestamp;
+      }
+      
+      // Parse as date string
+      return new Date(dateValue).getTime();
+    }
     
     return result;
   }, [matches, searchQuery, tournamentFilter, statusFilter, sortBy]);
@@ -265,7 +294,7 @@ const MatchesPage: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <div className="text-lg font-bold text-gold mr-2">
-                          {participant.score}
+                          {participant.score !== undefined ? participant.score : 0}
                         </div>
                         <span>{participant.teamName}</span>
                       </div>
@@ -304,6 +333,7 @@ const MatchesPage: React.FC = () => {
         isOpen={showCreateForm}
         onClose={() => setShowCreateForm(false)}
         title={t('matches.createMatch')}
+        hasDatePicker={true}
       >
         <MatchForm 
           onSubmit={handleCreateMatch} 

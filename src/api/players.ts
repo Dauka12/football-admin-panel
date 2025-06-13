@@ -10,7 +10,7 @@ import axiosInstance from './axios';
 // Define a type for filter parameters
 export interface PlayerFilterParams {
     position?: string;
-    club?: string;
+    teamId?: number;
     nationality?: string;
     minAge?: number;
     maxAge?: number;

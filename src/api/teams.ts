@@ -2,14 +2,33 @@ import type {
     CreateTeamRequest,
     TeamCreateResponse,
     TeamFullResponse,
+    TeamsPageResponse,
     UpdateTeamRequest
 } from '../types/teams';
 import axiosInstance from './axios';
 
+// Define a type for filter parameters
+export interface TeamFilterParams {
+    name?: string;
+    tournamentId?: number;
+    primaryColor?: string;
+    secondaryColor?: string;
+}
+
 // Remove redundant base URL prefix to prevent double paths
 export const teamApi = {
-    getAll: async (): Promise<TeamFullResponse[]> => {
-        const response = await axiosInstance.get(`/teams/public`);
+    getAll: async (
+        page = 0, 
+        size = 10, 
+        filters?: TeamFilterParams
+    ): Promise<TeamsPageResponse> => {
+        const response = await axiosInstance.get(`/teams/public`, {
+            params: { 
+                page, 
+                size,
+                ...filters // Spread the filter parameters
+            }
+        });
         return response.data;
     },
 

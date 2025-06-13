@@ -24,8 +24,9 @@ interface MatchStore {
     deleteMatch: (id: number) => Promise<boolean>;
 
     // Match Events
-    addMatchEvent: (matchId: number, eventData: Omit<MatchEvent, 'id'>) => Promise<boolean>;
+    addMatchEvent: (matchId: number, eventData: { playerId: number, type: string, minute: number }) => Promise<boolean>;
     deleteMatchEvent: (matchId: number, eventId: number) => Promise<boolean>;
+    fetchMatchEvents: (matchId: number) => Promise<MatchEvent[]>;
 
     // Match Status
     updateMatchStatus: (matchId: number, status: string) => Promise<boolean>;
@@ -53,12 +54,78 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
 
         set({ isLoading: true, error: null });
         try {
-            const matches = await matchApi.getAll();
-            // Ensure matches is always an array
-            set({ matches: Array.isArray(matches) ? matches : [], isLoading: false });
+            const response = await matchApi.getAll();
+            console.log("API Response for matches:", response);
+            
+            // Handle different response formats
+            let matches: any[] = [];
+            
+            if (Array.isArray(response)) {
+                // Response is already an array
+                matches = response;
+            } else if (response && typeof response === 'object') {
+                // Check if response has a matches property
+                if ('matches' in response) {
+                    matches = Array.isArray(response.matches) ? response.matches : [];
+                } else {
+                    // If it's just a single match object, wrap it in an array
+                    matches = [response];
+                }
+            }
+            
+            // Ensure matches is always an array and handle different data structures
+            const processedMatches = Array.isArray(matches) ? matches.map(match => {
+                // Process matchDate to ensure it's valid
+                let normalizedMatchDate = match.matchDate;
+                
+                // If matchDate is a number (Unix timestamp), ensure it's handled correctly
+                if (typeof normalizedMatchDate === 'number') {
+                    // No need to convert here as we'll format properly when displaying
+                    // Just ensure it's passed through properly
+                } else if (typeof normalizedMatchDate === 'string') {
+                    // Try to detect Unix timestamps stored as strings and convert them
+                    const maybeTimestamp = parseInt(normalizedMatchDate, 10);
+                    if (!isNaN(maybeTimestamp) && maybeTimestamp > 1000000000) {
+                        // It's likely a Unix timestamp as a string
+                        normalizedMatchDate = maybeTimestamp;
+                    }
+                }
+                
+                // Process participants with defensive coding
+                // Define a type for the participant structure
+                interface RawParticipant {
+                    score?: number;
+                    [key: string]: any;
+                }
+
+                interface ProcessedParticipant extends RawParticipant {
+                    score: number;
+                }
+
+                const processedParticipants: ProcessedParticipant[] = Array.isArray(match.participants) ? 
+                    match.participants.map((p: RawParticipant) => {
+                        // Clone the participant and ensure score exists
+                        const processedParticipant = { 
+                            ...p, 
+                            score: p.score !== undefined ? p.score : 0 
+                        } as ProcessedParticipant;
+                        
+                        return processedParticipant;
+                    }) : [];
+                
+                return {
+                    ...match,
+                    matchDate: normalizedMatchDate || new Date().getTime(),
+                    participants: processedParticipants
+                };
+            }) : [];
+            
+            console.log("Processed matches:", processedMatches);
+            set({ matches: processedMatches, isLoading: false });
             return true;
         } catch (error) {
             const errorMessage = ErrorHandler.handle(error);
+            console.error("Error fetching matches:", error);
             // Maintain the array structure even when there's an error
             set({ matches: [], error: errorMessage.message, isLoading: false });
             return false;
@@ -69,11 +136,88 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     fetchMatchById: async (id: number) => {
         set({ isLoading: true, error: null });
         try {
-            const match = await matchApi.getById(id);
-            set({ currentMatch: match, isLoading: false });
+            const matchData = await matchApi.getById(id);
+            console.log("Match data received:", matchData);
+            
+            // Fetch match events separately using the new API
+            const matchEvents = await matchApi.getMatchEvents(id);
+            console.log("Match events received:", matchEvents);
+            
+            // Normalize matchDate for different formats
+            let normalizedMatchDate = matchData.matchDate;
+            if (typeof normalizedMatchDate === 'string' && !isNaN(parseInt(normalizedMatchDate))) {
+                const parsedDate = parseInt(normalizedMatchDate);
+                // If it's a Unix timestamp in seconds (10 digits), convert to milliseconds
+                if (String(parsedDate).length === 10) {
+                    normalizedMatchDate = parsedDate * 1000;
+                } else {
+                    normalizedMatchDate = parsedDate;
+                }
+            }
+            
+            // Ensure response is properly formatted as a MatchFullResponse
+            const processedMatch: MatchFullResponse = {
+                id: matchData.id,
+                matchDate: normalizedMatchDate,
+                deleted: matchData.deleted || false,
+                status: matchData.status || 'PENDING',
+                participants: [],
+                events: Array.isArray(matchEvents) ? matchEvents : [], // Use the events from the dedicated endpoint
+                tournament: {
+                    id: matchData.tournament?.id || 0,
+                    name: matchData.tournament?.name || 'Unknown',
+                    startDate: matchData.tournament?.startDate || '',
+                    endDate: matchData.tournament?.endDate || '',
+                    description: matchData.tournament?.description || '',
+                    active: matchData.tournament?.active || false,
+                    teams: matchData.tournament?.teams || [],
+                    matches: matchData.tournament?.matches || []
+                }
+            };
+            
+            // Process participants if they exist
+            if (Array.isArray(matchData.participants)) {
+                // Convert simplified participants to full MatchParticipant objects
+                processedMatch.participants = matchData.participants.map(p => {
+                    // Create default participant structure
+                    const participant: any = {
+                        id: p.id || 0,
+                        match: typeof p.match === 'string' ? p.match : String(matchData.id),
+                        team: {
+                            id: p.teamId || (p.team?.id) || 0,
+                            name: p.teamName || (p.team?.name) || 'Unknown Team',
+                            primaryColor: p.team?.primaryColor || '#000000',
+                            secondaryColor: p.team?.secondaryColor || '#ffffff',
+                            description: p.team?.description || '',
+                            players: p.team?.players || []
+                        },
+                        score: typeof p.score !== 'undefined' ? p.score : 0
+                    };
+                    
+                    // Add player if available
+                    if (p.playerId) {
+                        participant.player = {
+                            id: p.playerId,
+                            position: p.player?.position || '',
+                            club: p.player?.club || '',
+                            user: p.player?.user || {
+                                firstname: p.playerFullName?.split(' ')[0] || '',
+                                lastname: p.playerFullName?.split(' ')[1] || '',
+                                id: p.playerId
+                            }
+                        };
+                    }
+                    
+                    return participant;
+                });
+            }
+            
+            console.log("Processed match:", processedMatch);
+            set({ currentMatch: processedMatch, isLoading: false });
             return true;
         } catch (error) {
             const errorMessage = ErrorHandler.handle(error);
+            console.error("Error fetching match by ID:", error);
             set({ error: errorMessage.message, isLoading: false });
             return false;
         }
@@ -147,20 +291,30 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     },
 
     // Add match event
-    addMatchEvent: async (matchId: number, eventData: Omit<MatchEvent, 'id'>) => {
+    addMatchEvent: async (matchId: number, eventData: { playerId: number, type: string, minute: number }) => {
         set({ isLoading: true, error: null });
         try {
+            // Use the new API endpoint structure
             await matchApi.addEvent(matchId, eventData);
 
-            // Refresh match data to get the updated events
+            // After adding event, fetch all events for the match using the new endpoint
             if (get().currentMatch?.id === matchId) {
-                await get().fetchMatchById(matchId);
+                const events = await get().fetchMatchEvents(matchId);
+                console.log("Fetched events after adding:", events);
+                
+                // Update current match with the new events
+                set(state => ({
+                    currentMatch: state.currentMatch
+                        ? { ...state.currentMatch, events }
+                        : null
+                }));
             }
 
             set({ isLoading: false });
             return true;
         } catch (error) {
             const errorMessage = ErrorHandler.handle(error);
+            console.error("Error adding match event:", errorMessage.message);
             set({ error: errorMessage.message, isLoading: false });
             return false;
         }
@@ -170,7 +324,10 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     deleteMatchEvent: async (matchId: number, eventId: number) => {
         set({ isLoading: true, error: null });
         try {
+            // Delete event using the new API endpoint structure
             await matchApi.deleteEvent(matchId, eventId);
+
+            console.log("Successfully deleted event ID:", eventId);
 
             // Update local state if we have the current match loaded
             if (get().currentMatch?.id === matchId) {
@@ -188,8 +345,21 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
             return true;
         } catch (error) {
             const errorMessage = ErrorHandler.handle(error);
+            console.error("Error deleting match event:", errorMessage.message);
             set({ error: errorMessage.message, isLoading: false });
             return false;
+        }
+    },
+    
+    // Fetch match events
+    fetchMatchEvents: async (matchId: number) => {
+        try {
+            const events = await matchApi.getMatchEvents(matchId);
+            return events;
+        } catch (error) {
+            const errorMessage = ErrorHandler.handle(error);
+            console.error("Error fetching match events:", errorMessage.message);
+            return [];
         }
     },
 

@@ -18,6 +18,57 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Fix for datetime-local inputs on mobile */
+input[type="datetime-local"] {
+    appearance: none;
+    -webkit-appearance: none;
+    position: relative;
+    min-height: 2.5rem;
+}
+
+/* Improve mobile datetime picker display */
+@media (max-width: 640px) {
+    input[type="datetime-local"] {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding-right: 0.5rem; /* More space for the dropdown arrow on mobile */
+    }
+    
+    /* iOS specific fixes */
+    @supports (-webkit-touch-callout: none) {
+        input[type="datetime-local"] {
+            padding-right: 1rem;
+            border-radius: 0.375rem;
+            min-height: 44px; /* Better touch target on iOS */
+            background-color: transparent !important; /* iOS sometimes adds its own backgrounds */
+        }
+    }
+}
+
+/* Modal with date picker needs special handling on mobile */
+@media (max-width: 640px) {
+    .date-picker-modal {
+        max-height: 100vh !important;
+        margin-top: auto !important;
+        margin-bottom: auto !important;
+    }
+    
+    .date-picker-modal input[type="datetime-local"] {
+        min-height: 44px;
+        font-size: 16px; /* Ensure no zoom on iOS */
+    }
+}
+
+/* iOS datetime input specific styles */
+.ios-date-input {
+    /* iOS needs extra touch area */
+    min-height: 44px !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    /* iOS native UI doesn't look right with our dark theme */
+    background-color: transparent !important;
+    color: white !important;
+}
+
 /* Animation classes */
 .animate-fade-in {
     animation: fadeIn 0.3s ease-out forwards;
@@ -73,15 +124,15 @@ body {
 
 /* Modal animation */
 .modal-overlay {
-    @apply fixed inset-0 bg-black bg-opacity-0 z-50 flex items-center justify-center transition-all duration-300;
+    @apply fixed inset-0 bg-black bg-opacity-0 z-50 flex items-center justify-center transition-all duration-300 p-0;
 }
 
 .modal-overlay.active {
-    @apply bg-opacity-50;
+    @apply bg-opacity-70;
 }
 
 .modal-content {
-    @apply bg-card-bg rounded-lg w-full max-w-lg transform scale-95 opacity-0 transition-all duration-300;
+    @apply bg-card-bg rounded-lg transform scale-95 opacity-0 transition-all duration-300 w-full max-w-lg;
 }
 
 .modal-content.active {

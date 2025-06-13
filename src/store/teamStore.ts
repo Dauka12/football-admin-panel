@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { TeamFilterParams } from '../api/teams';
 import { teamApi } from '../api/teams';
 import type {
     CreateTeamRequest,
@@ -14,8 +15,18 @@ interface TeamState {
     currentTeam: TeamFullResponse | null;
     isLoading: boolean;
     error: string | null;
-
-    fetchTeams: (forceRefresh?: boolean) => Promise<void>;
+    
+    // Pagination state
+    totalElements: number;
+    totalPages: number;
+    currentPage: number;
+    pageSize: number;
+    
+    // Filter state
+    filters: TeamFilterParams;
+    
+    fetchTeams: (forceRefresh?: boolean, page?: number, size?: number, filters?: TeamFilterParams) => Promise<void>;
+    setFilters: (filters: TeamFilterParams) => void;
     fetchTeam: (id: number) => Promise<void>;
     fetchTeamsByIds: (ids: number[]) => Promise<TeamFullResponse[]>;
     createTeam: (data: CreateTeamRequest) => Promise<boolean>;
@@ -28,26 +39,76 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
     currentTeam: null,
     isLoading: false,
     error: null,
+    
+    // Pagination state
+    totalElements: 0,
+    totalPages: 0,
+    currentPage: 0,
+    pageSize: 10,
+    
+    // Filter state
+    filters: {},
+    
+    // Set filters method
+    setFilters: (filters: TeamFilterParams) => {
+        set({ filters });
+    },
 
-    fetchTeams: async (forceRefresh = false) => {
-        // Check if we already have teams loaded and avoid redundant requests
-        const { teams } = get();
-        if (teams.length > 0 && !forceRefresh) return;
+    fetchTeams: async (forceRefresh = false, page = 0, size = 10, filters?: TeamFilterParams) => {
+        // Check if we already have teams loaded for the same page and avoid redundant requests
+        const { teams, currentPage, pageSize, filters: currentFilters } = get();
+        
+        // Use provided filters or fall back to current filters in state
+        const filtersToApply = filters || currentFilters;
+        
+        // If not forcing refresh, we only want to avoid a request if:
+        // 1. We have teams
+        // 2. We're on the same page
+        // 3. We're using the same page size
+        // 4. We're using the same filters (deep comparison)
+        if (
+            teams.length > 0 && 
+            currentPage === page && 
+            pageSize === size && 
+            !forceRefresh &&
+            JSON.stringify(currentFilters) === JSON.stringify(filtersToApply)
+        ) {
+            return;
+        }
 
         set({ isLoading: true, error: null });
 
         try {
-            const teams = await apiService.execute(
-                () => teamApi.getAll(),
+            const response = await apiService.execute(
+                () => teamApi.getAll(page, size, filtersToApply),
                 'fetchTeams',
-                { enableCache: true, cacheTTL: 5 * 60 * 1000 } // Cache for 5 minutes
+                { enableCache: false } // Disable cache to ensure fresh data
             );
             
-            // Ensure teams is always an array
-            set({ 
-                teams: Array.isArray(teams) ? teams : [],
-                isLoading: false 
-            });
+            // Ensure response contains content array
+            if (response && response.content && Array.isArray(response.content)) {
+                set({ 
+                    teams: response.content, 
+                    totalElements: response.totalElements,
+                    totalPages: response.totalPages,
+                    currentPage: response.number,
+                    pageSize: response.size,
+                    filters: filtersToApply, // Store the filters that were used
+                    isLoading: false,
+                    error: null
+                });
+            } else {
+                // Fallback if response structure is unexpected
+                set({ 
+                    teams: [],
+                    totalElements: 0,
+                    totalPages: 0,
+                    currentPage: 0,
+                    pageSize: size,
+                    isLoading: false,
+                    error: 'Unexpected API response format'
+                });
+            }
         } catch (error: any) {
             const errorMessage = ErrorHandler.handle(error);
             set({

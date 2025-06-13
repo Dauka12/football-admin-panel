@@ -196,11 +196,11 @@ const TournamentsPage: React.FC = () => {
                 </div>
             )}
 
-            {/* Create Tournament Modal */}
-            <Modal
+            {/* Create Tournament Modal */}            <Modal
                 isOpen={showCreateForm}
                 onClose={() => setShowCreateForm(false)}
                 title={t('tournaments.createTournament')}
+                hasDatePicker={true}
             >
                 <TournamentForm onSubmit={handleCreateTournament} onCancel={() => setShowCreateForm(false)} />
             </Modal>

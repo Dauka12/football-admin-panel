@@ -1,16 +1,48 @@
 /**
- * Formats a date string for display
- * @param dateStr - ISO date string
+ * Formats a date string or timestamp for display
+ * @param dateValue - ISO date string, timestamp number, or timestamp string
  * @param format - Optional format type ('datetime' | 'date' | 'time')
  * @returns Formatted date string
  */
-export const formatDateTime = (dateStr: string, format: 'datetime' | 'date' | 'time' = 'datetime'): string => {
-  if (!dateStr) return '';
+export const formatDateTime = (dateValue: string | number, format: 'datetime' | 'date' | 'time' = 'datetime'): string => {
+  if (dateValue === undefined || dateValue === null || dateValue === '') return '';
   
-  const date = new Date(dateStr);
+  let date: Date;
+  
+  // Handle different input types (string, number or timestamp string)
+  if (typeof dateValue === 'number') {
+    // Check if timestamp is in seconds (10 digits) or milliseconds (13 digits)
+    if (dateValue.toString().length === 10) {
+      // Convert seconds to milliseconds for JavaScript Date
+      date = new Date(dateValue * 1000);
+    } else {
+      // Assume it's already in milliseconds
+      date = new Date(dateValue);
+    }
+  } else {
+    // Try to parse as a timestamp (number stored as string)
+    const maybeTimestamp = parseInt(dateValue, 10);
+    if (!isNaN(maybeTimestamp)) {
+      if (maybeTimestamp.toString().length === 10) {
+        // Convert seconds to milliseconds for JavaScript Date
+        date = new Date(maybeTimestamp * 1000);
+      } else if (maybeTimestamp > 1000000000000) {
+        // If number is big enough to be a millisecond timestamp
+        date = new Date(maybeTimestamp);
+      } else {
+        // Otherwise treat as ISO string
+        date = new Date(dateValue);
+      }
+    } else {
+      // Otherwise treat as ISO string
+      date = new Date(dateValue);
+    }
+  }
   
   if (isNaN(date.getTime())) {
-    return dateStr; // Return original string if invalid date
+    console.warn('Invalid date detected:', dateValue);
+    // If still invalid, return original value
+    return String(dateValue);
   }
   
   const options: Intl.DateTimeFormatOptions = {};

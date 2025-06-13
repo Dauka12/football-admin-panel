@@ -187,6 +187,8 @@ export const en = {
         createFirst: "Create your first player",
         position: "Position",
         club: "Club",
+        team: "Team",
+        selectTeam: "Select team",
         age: "Age",
         height: "Height",
         weight: "Weight",
@@ -210,6 +212,11 @@ export const en = {
         additionalInfo: "Additional Info",
         biography: "Biography",
         noResultsFound: "No players found matching your search",
+        filter: {
+            byTeam: "Filter by team",
+            byPosition: "Filter by position",
+            byNationality: "Filter by nationality"
+        },
     },
     common: {
         save: "Save",
@@ -238,6 +245,10 @@ export const en = {
         min: "Min",
         max: "Max",
         all: "All",
+        selectTeam: "Select Team",
+        teamId: "Team ID",
+        noTeamsFound: "No teams found",
+        loadingTeams: "Loading teams...",
         creation: {
             success: "Created successfully",
             error: "Creation failed"

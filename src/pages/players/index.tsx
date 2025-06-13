@@ -1,4 +1,3 @@
-// filepath: c:\Users\User10\Desktop\Football-admin-panel\src\pages\players\index.tsx
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -6,6 +5,7 @@ import type { PlayerFilterParams } from '../../api/players';
 import PlayerForm from '../../components/players/PlayerForm';
 import Modal from '../../components/ui/Modal';
 import { usePlayerStore } from '../../store/playerStore';
+import { useTeamStore } from '../../store/teamStore';
 import type { PlayerCreateRequest } from '../../types/players';
 
 const PlayersPage: React.FC = () => {
@@ -24,6 +24,14 @@ const PlayersPage: React.FC = () => {
         filters,
         setFilters
     } = usePlayerStore();
+    
+    // Get teams for dropdown
+    const {
+        teams,
+        fetchTeams,
+        isLoading: isTeamsLoading,
+    } = useTeamStore();
+
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [playerToDelete, setPlayerToDelete] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -32,11 +40,16 @@ const PlayersPage: React.FC = () => {
     // Filter state
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [filterPosition, setFilterPosition] = useState(filters.position || '');
-    const [filterClub, setFilterClub] = useState(filters.club || '');
+    const [filterTeamId, setFilterTeamId] = useState<number | undefined>(filters.teamId);
     const [filterNationality, setFilterNationality] = useState(filters.nationality || '');
     const [filterMinAge, setFilterMinAge] = useState<string>(filters.minAge?.toString() || '');
     const [filterMaxAge, setFilterMaxAge] = useState<string>(filters.maxAge?.toString() || '');
     const [filterPreferredFoot, setFilterPreferredFoot] = useState(filters.preferredFoot || '');
+
+    // Load teams on component mount
+    useEffect(() => {
+        fetchTeams();
+    }, [fetchTeams]);
 
     // Memoized filtered players to avoid recalculation on every render
     const filteredPlayers = useMemo(() => {
@@ -47,7 +60,6 @@ const PlayersPage: React.FC = () => {
         const query = searchQuery.toLowerCase();
         return players.filter(player =>
             player.position?.toLowerCase().includes(query) ||
-            (player.club ? player.club.toLowerCase().includes(query) : false) ||
             player.nationality?.toLowerCase().includes(query)
         );
     }, [players, searchQuery]);
@@ -57,7 +69,7 @@ const PlayersPage: React.FC = () => {
         const newFilters: PlayerFilterParams = {};
         
         if (filterPosition) newFilters.position = filterPosition;
-        if (filterClub) newFilters.club = filterClub;
+        if (filterTeamId) newFilters.teamId = filterTeamId;
         if (filterNationality) newFilters.nationality = filterNationality;
         if (filterMinAge) newFilters.minAge = parseInt(filterMinAge);
         if (filterMaxAge) newFilters.maxAge = parseInt(filterMaxAge);
@@ -73,7 +85,7 @@ const PlayersPage: React.FC = () => {
     // Reset all filters
     const resetFilters = () => {
         setFilterPosition('');
-        setFilterClub('');
+        setFilterTeamId(undefined);
         setFilterNationality('');
         setFilterMinAge('');
         setFilterMaxAge('');
@@ -203,16 +215,25 @@ const PlayersPage: React.FC = () => {
                             />
                         </div>
                         
-                        {/* Club filter */}
+                        {/* Team filter - new dropdown */}
                         <div className="space-y-1">
-                            <label className="text-sm text-gray-400">{t('players.club')}</label>
-                            <input
-                                type="text"
-                                value={filterClub}
-                                onChange={(e) => setFilterClub(e.target.value)}
-                                placeholder={t('players.club')}
+                            <label className="text-sm text-gray-400">{t('players.team')}</label>
+                            <select
+                                value={filterTeamId || ''}
+                                onChange={(e) => setFilterTeamId(e.target.value ? parseInt(e.target.value) : undefined)}
                                 className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold transition-colors duration-200"
-                            />
+                                disabled={isTeamsLoading || teams.length === 0}
+                            >
+                                <option value="">{t('common.all')}</option>
+                                {teams.map(team => (
+                                    <option key={team.id} value={team.id}>
+                                        {team.name}
+                                    </option>
+                                ))}
+                            </select>
+                            {isTeamsLoading && (
+                                <div className="text-xs text-gray-400 mt-1">{t('common.loading')}</div>
+                            )}
                         </div>
                         
                         {/* Nationality filter */}
@@ -414,10 +435,6 @@ const PlayersPage: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-2 text-sm">
-                                    <div>
-                                        <span className="text-gray-400">{t('players.club')}: </span>
-                                        <span>{player.club || '-'}</span>
-                                    </div>
                                     <div>
                                         <span className="text-gray-400">{t('players.age')}: </span>
                                         <span>{player.age}</span>
