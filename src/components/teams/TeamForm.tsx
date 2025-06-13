@@ -23,16 +23,14 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
         primaryColor: initialData?.primaryColor || '#ffcc00',
         secondaryColor: initialData?.secondaryColor || '#002b3d',
     });
-    
-    const { players, fetchPlayers } = usePlayerStore();
+      const { players, fetchPlayers } = usePlayerStore();
     const [isLoading, setIsLoading] = useState(false);
     const { 
         errors, 
         validateForm, 
         validateField, 
         clearFieldError 
-    } = useFormValidation(teamValidators.create);
-    const [showPlayerSelector, setShowPlayerSelector] = useState(false);
+    } = useFormValidation(teamValidators.create);    const [showPlayerSelector, setShowPlayerSelector] = useState(false);
     const [selectedPlayers, setSelectedPlayers] = useState<(typeof players[0])[]>([]);
     
     // Check if current language is Russian for adaptive text sizing
@@ -50,8 +48,7 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
             setSelectedPlayers(selected);
         } else {
             setSelectedPlayers([]);
-        }
-    }, [players, formData.players]);
+        }    }, [players, formData.players]);
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -80,9 +77,7 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
             ...prev,
             players: prev.players.filter(id => id !== playerId)
         }));
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
+    };    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!validateForm(formData)) {
@@ -199,8 +194,7 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
                             ></div>
                         </div>
                     </div>
-                    {errors.secondaryColor && <p className="text-red-500 text-xs mt-1">{errors.secondaryColor}</p>}
-                </div>
+                    {errors.secondaryColor && <p className="text-red-500 text-xs mt-1">{errors.secondaryColor}</p>}                </div>
             </div>
             
             {/* Player Selection Section */}
@@ -253,9 +247,10 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
                                 </div>
                             ))}
                         </div>
-                    )}
-                </div>
-            </div>            <div className="border-t border-gray-700/50 pt-6 mt-6 flex justify-end space-x-4">
+                    )}                </div>
+            </div>
+
+            <div className="border-t border-gray-700/50 pt-6 mt-6 flex justify-end space-x-4">
                 <button
                     type="button"
                     onClick={onCancel}

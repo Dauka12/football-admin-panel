@@ -2,10 +2,15 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import TeamForm from '../../components/teams/TeamForm';
+import TeamStatistics from '../../components/teams/TeamStatistics';
 import Breadcrumb from '../../components/ui/Breadcrumb';
+import FileUpload from '../../components/ui/FileUpload';
+import ImageDisplay from '../../components/ui/ImageDisplay';
 import Modal from '../../components/ui/Modal';
 import { usePlayerStore } from '../../store/playerStore';
+import { useStatisticsStore } from '../../store/statisticsStore';
 import { useTeamStore } from '../../store/teamStore';
+import { type FileType } from '../../types/files';
 import type { PlayerPublicResponse } from '../../types/players';
 import type { UpdateTeamRequest } from '../../types/teams';
 
@@ -16,8 +21,15 @@ const TeamDetailPage: React.FC = () => {
     const { t, i18n } = useTranslation();
     const { currentTeam, isLoading: teamLoading, error: teamError, fetchTeam, updateTeam, deleteTeam } = useTeamStore();
     const { fetchPlayersByIds } = usePlayerStore();
+    const { 
+        teamMatches, 
+        isTeamMatchesLoading, 
+        teamMatchesError, 
+        fetchTeamMatches 
+    } = useStatisticsStore();
     const [isEditing, setIsEditing] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showAvatarUpload, setShowAvatarUpload] = useState(false);
     const [teamPlayers, setTeamPlayers] = useState<PlayerPublicResponse[]>([]);
     const [isLoadingPlayers, setIsLoadingPlayers] = useState(false);
     const [playerError, setPlayerError] = useState<string | null>(null);
@@ -37,6 +49,13 @@ const TeamDetailPage: React.FC = () => {
         // Only run this effect once when the component mounts or when teamId changes
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [teamId]);
+    
+    // Fetch team statistics
+    useEffect(() => {
+        if (teamId > 0) {
+            fetchTeamMatches(teamId);
+        }
+    }, [teamId, fetchTeamMatches]);
     
     // Fetch player details - Fixed to prevent infinite loop
     useEffect(() => {
@@ -111,6 +130,25 @@ const TeamDetailPage: React.FC = () => {
             if (success) {
                 navigate('/dashboard/teams');
             }
+        }
+    };
+
+    const handleAvatarUpload = (fileIds: number[]) => {
+        if (fileIds.length > 0) {
+            // Here you could update the team with the new avatar ID
+            // For now, we'll just close the upload modal and refresh the team data
+            setShowAvatarUpload(false);
+            loadTeam(); // Refresh team data to show new avatar
+        }
+    };
+
+    const handleAvatarError = (error: string) => {
+        console.error('Team avatar upload error:', error);
+    };
+
+    const handleLoadMore = () => {
+        if (teamMatches && !teamMatches.last) {
+            fetchTeamMatches(teamId, teamMatches.number + 1);
         }
     };
 
@@ -194,20 +232,37 @@ const TeamDetailPage: React.FC = () => {
                 {/* Team Info */}
                 <div className="md:col-span-4 bg-card-bg rounded-lg shadow-md overflow-hidden">
                     <div className="p-4 md:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                        <div
-                            className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center shrink-0"
-                            style={{
-                                backgroundColor: currentTeam.primaryColor || '#ffcc00',
-                                color: currentTeam.secondaryColor || '#002b3d'
-                            }}
-                        >
-                            {currentTeam.avatar ? (
-                                <img src={currentTeam.avatar} alt={currentTeam.name} className="w-full h-full object-cover rounded-full" />
-                            ) : (
-                                <span className="font-bold text-2xl md:text-3xl">
+                        <div className="relative">
+                            <div
+                                className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center shrink-0 overflow-hidden"
+                                style={{
+                                    backgroundColor: currentTeam.primaryColor || '#ffcc00',
+                                    color: currentTeam.secondaryColor || '#002b3d'
+                                }}
+                            >
+                                <ImageDisplay
+                                    objectId={teamId}
+                                    type={'team-avatar' as FileType}
+                                    alt={`${currentTeam.name} avatar`}
+                                    className="w-full h-full object-cover"
+                                    fallbackSrc=""
+                                    showLoader={false}
+                                />
+                                {/* Fallback initials if no avatar */}
+                                <span className="font-bold text-2xl md:text-3xl absolute inset-0 flex items-center justify-center">
                                     {currentTeam.name.substring(0, 2).toUpperCase()}
                                 </span>
-                            )}
+                            </div>
+                            <button
+                                onClick={() => setShowAvatarUpload(true)}
+                                className="absolute bottom-0 right-0 bg-gold text-darkest-bg rounded-full p-1 hover:bg-gold/90 transition-colors"
+                                title={t('teams.changeAvatar')}
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-3 h-3">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                                </svg>
+                            </button>
                         </div>
                         <div className="flex-grow">
                             <h2 className={`font-semibold mb-1 ${isRussian ? 'text-lg' : 'text-xl'}`}>{currentTeam.name}</h2>
@@ -303,6 +358,14 @@ const TeamDetailPage: React.FC = () => {
                 )}
             </div>
 
+            {/* Team Statistics */}
+            <TeamStatistics
+                matches={teamMatches}
+                isLoading={isTeamMatchesLoading}
+                error={teamMatchesError}
+                onLoadMore={handleLoadMore}
+            />
+
             {/* Edit Team Modal */}
             <Modal
                 isOpen={isEditing}
@@ -347,6 +410,43 @@ const TeamDetailPage: React.FC = () => {
                             className="px-4 py-2 bg-accent-pink text-white rounded-md hover:bg-accent-pink/90 transition-colors duration-200"
                         >
                             {t('common.delete')}
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Team Avatar Upload Modal */}
+            <Modal
+                isOpen={showAvatarUpload}
+                onClose={() => setShowAvatarUpload(false)}
+                title={t('teams.changeAvatar')}
+            >
+                <div className="space-y-4">
+                    <FileUpload
+                        type={'team-avatar' as FileType}
+                        objectId={teamId}
+                        accept="image/*"
+                        maxSize={5}
+                        onUploadComplete={handleAvatarUpload}
+                        onUploadError={handleAvatarError}
+                        className="h-40"
+                    >
+                        <div className="text-center">
+                            <svg className="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <p className="text-sm text-gray-600">
+                                {t('teams.uploadAvatarHint')}
+                            </p>
+                        </div>
+                    </FileUpload>
+
+                    <div className="flex justify-end space-x-2">
+                        <button
+                            onClick={() => setShowAvatarUpload(false)}
+                            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500 transition-colors duration-200"
+                        >
+                            {t('common.cancel')}
                         </button>
                     </div>
                 </div>

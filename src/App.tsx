@@ -20,6 +20,9 @@ const PermissionsPage = React.lazy(() => import('./pages/permissions'));
 const AchievementsPage = React.lazy(() => import('./pages/achievements'));
 const RegionsPage = React.lazy(() => import('./pages/regions'));
 const CategoriesPage = React.lazy(() => import('./pages/categories'));
+const PlaygroundsPage = React.lazy(() => import('./pages/playgrounds'));
+const PlaygroundDetailPage = React.lazy(() => import('./pages/playgrounds/detail'));
+const FilesPage = React.lazy(() => import('./pages/files'));
 
 // Loading component for lazy-loaded routes
 const RouteLoadingSpinner: React.FC = () => (
@@ -168,7 +171,37 @@ const App: React.FC = () => {
                 <CategoriesPage />
               </Suspense>
             } 
-          />          {/* Other routes will be added here */}
+          />
+          <Route 
+            path="playgrounds" 
+            element={
+              <Suspense fallback={<RouteLoadingSpinner />}>
+                <ErrorBoundary>
+                  <PlaygroundsPage />
+                </ErrorBoundary>
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="playgrounds/:id" 
+            element={
+              <Suspense fallback={<RouteLoadingSpinner />}>
+                <ErrorBoundary>
+                  <PlaygroundDetailPage />
+                </ErrorBoundary>
+              </Suspense>
+            }          />
+          <Route 
+            path="files" 
+            element={
+              <Suspense fallback={<RouteLoadingSpinner />}>
+                <ErrorBoundary>
+                  <FilesPage />
+                </ErrorBoundary>
+              </Suspense>
+            } 
+          />
+          {/* Other routes will be added here */}
         </Route>        {/* Redirect from root to dashboard */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         

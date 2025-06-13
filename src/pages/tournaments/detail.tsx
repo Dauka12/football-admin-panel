@@ -2,8 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import TournamentForm from '../../components/tournaments/TournamentForm';
+import TournamentStatistics from '../../components/tournaments/TournamentStatistics';
 import Bread from '../../components/ui/Breadcrumb';
 import Modal from '../../components/ui/Modal';
+import { useStatisticsStore } from '../../store/statisticsStore';
 import { useTeamStore } from '../../store/teamStore';
 import { useTournamentStore } from '../../store/tournamentStore';
 import type { TeamFullResponse } from '../../types/teams';
@@ -16,6 +18,12 @@ const TournamentDetailPage: React.FC = () => {
     const { t, i18n } = useTranslation();
     const { currentTournament, isLoading: tournamentLoading, error: tournamentError, fetchTournament, updateTournament, deleteTournament } = useTournamentStore();
     const { fetchTeamsByIds } = useTeamStore();
+    const { 
+        tournamentStats, 
+        isTournamentStatsLoading, 
+        tournamentStatsError, 
+        fetchTournamentStatistics 
+    } = useStatisticsStore();
     const [isEditing, setIsEditing] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [tournamentTeams, setTournamentTeams] = useState<TeamFullResponse[]>([]);
@@ -35,6 +43,13 @@ const TournamentDetailPage: React.FC = () => {
     useEffect(() => {
         loadTournament();
     }, [tournamentId]);
+    
+    // Fetch tournament statistics
+    useEffect(() => {
+        if (tournamentId > 0) {
+            fetchTournamentStatistics(tournamentId);
+        }
+    }, [tournamentId, fetchTournamentStatistics]);
     
     // Fetch team details
     useEffect(() => {
@@ -242,6 +257,13 @@ const TournamentDetailPage: React.FC = () => {
                     </div>
                 )}
             </div>
+
+            {/* Tournament Statistics */}
+            <TournamentStatistics
+                stats={tournamentStats}
+                isLoading={isTournamentStatsLoading}
+                error={tournamentStatsError}
+            />
 
             {/* Edit Tournament Modal */}
             <Modal 
