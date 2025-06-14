@@ -4,6 +4,7 @@ export const ru = {
         home: "Главная",
         teams: "Команды",
         tournaments: "Турниры",
+        tournamentCategories: "Категории турниров",
         players: "Игроки",
         matches: "Матчи",
         "match-events": "События матчей",
@@ -207,8 +208,10 @@ export const ru = {
         saving: "Сохранение...",
         cancel: "Отмена",
         delete: "Удалить",
+        deleting: "Удаление...",
         edit: "Редактировать",
         create: "Создать",
+        update: "Обновить",
         warning: "Предупреждение",
         loading: "Загрузка...",
         notSpecified: "Не указано",
@@ -231,11 +234,20 @@ export const ru = {
         clearAll: "Очистить все",
         filter: "Фильтр",
         filterOptions: "Параметры фильтра",
+        filters: "Фильтры",
         apply: "Применить",
         reset: "Сбросить",
         min: "Мин",
         max: "Макс",
         all: "Все",
+        active: "Активно",
+        inactive: "Неактивно",
+        status: "Статус",
+        description: "Описание",
+        confirmDelete: "Подтвердить удаление",
+        notFound: "Не найдено",
+        additionalInformation: "Дополнительная информация",
+        dashboard: "Панель управления",
         selectTeam: "Выбрать команду",
         teamId: "ID команды",
         noTeamsFound: "Команды не найдены",
@@ -243,9 +255,6 @@ export const ru = {
         noDescription: "Нет описания",
         yes: "Да",
         no: "Нет",
-        active: "Активный",
-        inactive: "Неактивный",
-        status: "Статус",
         metadata: "Метаданные",
         updatedAt: "Обновлено",
     },
@@ -461,6 +470,101 @@ export const ru = {
         changeImage: "Сменить изображение",
         uploadImageHint: "Загрузите новое изображение площадки (макс 5МБ)"
     },
+    achievements: {
+        title: "Достижения",
+        description: "Управление достижениями и наградами игроков",
+        createAchievement: "Создать достижение",
+        editAchievement: "Редактировать достижение",
+        achievement: "Достижение", 
+        player: "Игрок",
+        achievementDate: "Дата достижения",
+        category: "Категория",
+        points: "Очки",
+        featured: "Рекомендуемое",
+        createdAt: "Создано",
+        playerId: "ID игрока",
+        
+        // Form placeholders
+        selectPlayer: "Выберите игрока",
+        selectCategory: "Выберите категорию",
+        titlePlaceholder: "Введите название достижения",
+        descriptionPlaceholder: "Введите описание достижения",
+        pointsPlaceholder: "Введите очки (опционально)",
+        
+        // Categories
+        categories: {
+            tournament_winner: "Победитель турнира",
+            best_player: "Лучший игрок",
+            top_scorer: "Лучший бомбардир",
+            most_assists: "Лучший ассистент",
+            fair_play: "Честная игра",
+            rookie_of_year: "Новичок года",
+            veteran_achievement: "Ветеранское достижение",
+            team_captain: "Капитан команды",
+            milestone: "Веха",
+            special_award: "Специальная награда"
+        },
+        
+        // Category descriptions
+        categoryDescriptions: {
+            tournament_winner: "Награждается чемпионам турнира",
+            best_player: "Выдающиеся индивидуальные показатели",
+            top_scorer: "Лучший бомбардир соревнования",
+            most_assists: "Лучший ассистент соревнования",
+            fair_play: "Образцовое спортивное поведение",
+            rookie_of_year: "Лучший дебютант",
+            veteran_achievement: "Долгосрочный вклад в спорт",
+            team_captain: "Выдающееся лидерство",
+            milestone: "Карьерное достижение",
+            special_award: "Специальное признание"
+        },
+        
+        // Filters and search
+        searchByTitle: "Поиск по названию...",
+        allCategories: "Все категории",
+        allPlayers: "Все игроки",
+        allAchievements: "Все достижения",
+        featuredOnly: "Только рекомендуемые",
+        regularOnly: "Только обычные",
+        
+        // Statistics
+        totalAchievements: "Всего достижений",
+        featuredAchievements: "Рекомендуемые достижения",
+        uniquePlayers: "Уникальные игроки",
+        
+        // States
+        noAchievements: "Достижения не найдены",
+        noResultsFound: "Достижения по вашему запросу не найдены",
+        createFirst: "Создайте первое достижение",
+        tryDifferentFilters: "Попробуйте изменить фильтры поиска",
+        
+        // Actions
+        confirmDelete: "Удалить достижение",
+        deleteWarning: "Вы уверены, что хотите удалить это достижение? Это действие нельзя отменить.",
+        deleteWarningDetail: "Вы уверены, что хотите удалить '{name}'? Это действие нельзя отменить.",
+        notFound: "Достижение не найдено",
+        achievementNotFoundDescription: "Достижение, которое вы ищете, не существует или было удалено.",
+        backToList: "Вернуться к достижениям",
+        clickToViewPlayer: "Нажмите для просмотра данных игрока",
+        
+        // Detail page sections
+        details: "Детали достижения",
+        quickStats: "Быстрая статистика",
+        categoryInfo: "Информация о категории",
+        type: "Тип",
+        regular: "Обычное",
+        noPoints: "Очки не назначены",
+        
+        // Validation messages
+        validation: {
+            playerRequired: "Игрок обязателен",
+            titleRequired: "Название обязательно",
+            descriptionRequired: "Описание обязательно",
+            dateRequired: "Дата достижения обязательна",
+            categoryRequired: "Категория обязательна",
+            pointsPositive: "Очки должны быть положительными или равными нулю"
+        }
+    },
     regions: {
         description: "Обзор регионов и распределения городов",
         totalRegions: "Всего регионов",
@@ -512,5 +616,37 @@ export const ru = {
             uploadFailed: "Ошибка загрузки. Попробуйте снова.",
             loadFailed: "Не удалось загрузить изображение"
         }
-    }
+    },
+    // Tournament Categories
+    tournamentCategories: {
+        title: "Категории турниров",
+        description: "Управление категориями турниров",
+        name: "Название категории",
+        categoryInformation: "Информация о категории",
+        categoryDetails: "Детали и информация о категории",
+        categoryId: "ID категории",
+        create: "Создать категорию",
+        edit: "Редактировать категорию",
+        list: "Список категорий",
+        total: "Всего категорий",
+        noCategories: "Категории не найдены",
+        createFirst: "Создайте вашу первую категорию",
+        searchName: "Поиск по названию...",
+        namePlaceholder: "Введите название категории",
+        descriptionPlaceholder: "Введите описание категории",
+        backToList: "Назад к категориям",
+        notFound: "Категория не найдена",
+        notFoundDescription: "Категория, которую вы ищете, не существует или была удалена.",
+        deleteConfirmation: "Вы уверены, что хотите удалить категорию '{name}'? Это действие нельзя отменить.",
+        
+        // Validation messages
+        validation: {
+            nameRequired: "Название категории обязательно",
+            nameMinLength: "Название категории должно содержать минимум 2 символа",
+            nameMaxLength: "Название категории не должно превышать 100 символов",
+            descriptionRequired: "Описание обязательно", 
+            descriptionMinLength: "Описание должно содержать минимум 5 символов",
+            descriptionMaxLength: "Описание не должно превышать 500 символов"
+        }
+    },
 };

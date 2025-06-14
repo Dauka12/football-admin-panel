@@ -62,3 +62,12 @@ export const formatDateTime = (dateValue: string | number, format: 'datetime' | 
   
   return date.toLocaleString(undefined, options);
 };
+
+/**
+ * Formats a date for display (date only, no time)
+ * @param dateValue - ISO date string, timestamp number, or timestamp string
+ * @returns Formatted date string
+ */
+export const formatDate = (dateValue: string | number): string => {
+  return formatDateTime(dateValue, 'date');
+};

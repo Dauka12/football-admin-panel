@@ -28,7 +28,8 @@ export const tournamentApi = {
             });
         }
         const response = await axiosInstance.get(`/tournaments/public?${params}`);
-        return response.data.tournaments;
+        // The API returns paginated response with tournaments in 'content' property
+        return response.data.content || [];
     },
 
     getById: async (id: number): Promise<TournamentFullResponse> => {

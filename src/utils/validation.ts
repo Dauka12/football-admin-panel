@@ -332,6 +332,73 @@ export const tournamentValidators = {
     })
 };
 
+// Tournament Category validators
+export const tournamentCategoryValidators = {
+    create: new Validator({
+        name: [
+            validationRules.required('Category name is required'),
+            validationRules.minLength(2, 'Category name must be at least 2 characters'),
+            validationRules.maxLength(100, 'Category name must not exceed 100 characters')
+        ],
+        description: [
+            validationRules.required('Description is required'),
+            validationRules.minLength(5, 'Description must be at least 5 characters'),
+            validationRules.maxLength(500, 'Description must not exceed 500 characters')
+        ]
+    }),
+    
+    update: new Validator({
+        name: [
+            validationRules.required('Category name is required'),
+            validationRules.minLength(2, 'Category name must be at least 2 characters'),
+            validationRules.maxLength(100, 'Category name must not exceed 100 characters')
+        ],
+        description: [
+            validationRules.required('Description is required'),
+            validationRules.minLength(5, 'Description must be at least 5 characters'),
+            validationRules.maxLength(500, 'Description must not exceed 500 characters')
+        ]
+    })
+};
+
+// Achievement validators
+export const achievementValidators = {
+    create: new Validator({
+        playerId: [validationRules.required('Player is required')],
+        title: [
+            validationRules.required('Title is required'),
+            validationRules.minLength(2, 'Title must be at least 2 characters long'),
+            validationRules.maxLength(200, 'Title must be less than 200 characters')
+        ],
+        description: [
+            validationRules.required('Description is required'),
+            validationRules.minLength(10, 'Description must be at least 10 characters long'),
+            validationRules.maxLength(1000, 'Description must be less than 1000 characters')
+        ],
+        achievementDate: [validationRules.required('Achievement date is required')],
+        category: [validationRules.required('Category is required')],
+        points: [validationRules.min(0, 'Points must be positive')],
+        featured: []
+    }),
+    
+    update: new Validator({
+        title: [
+            validationRules.required('Title is required'),
+            validationRules.minLength(2, 'Title must be at least 2 characters long'),
+            validationRules.maxLength(200, 'Title must be less than 200 characters')
+        ],
+        description: [
+            validationRules.required('Description is required'),
+            validationRules.minLength(10, 'Description must be at least 10 characters long'),
+            validationRules.maxLength(1000, 'Description must be less than 1000 characters')
+        ],
+        achievementDate: [validationRules.required('Achievement date is required')],
+        category: [validationRules.required('Category is required')],
+        points: [validationRules.min(0, 'Points must be positive')],
+        featured: []
+    })
+};
+
 // Utility hook for form validation
 export const useFormValidation = <T extends Record<string, any>>(
     validator: Validator<T>

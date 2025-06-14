@@ -24,6 +24,7 @@ export const en = {
         home: "Home",
         teams: "Teams",
         tournaments: "Tournaments",
+        tournamentCategories: "Tournament Categories",
         players: "Players",
         matches: "Matches",
         "match-events": "Match Events",
@@ -298,8 +299,11 @@ export const en = {
         delete: "Delete",
         edit: "Edit",
         create: "Create",
+        update: "Update",
         warning: "Warning",
         loading: "Loading...",
+        saving: "Saving...",
+        deleting: "Deleting...",
         notSpecified: "Not specified",
         search: "Search",
         searchByName: "Search by name",
@@ -316,11 +320,20 @@ export const en = {
         page: "Page",
         filter: "Filter",
         filterOptions: "Filter Options",
+        filters: "Filters",
         apply: "Apply",
         reset: "Reset",
+        all: "All",
+        active: "Active",
+        inactive: "Inactive",
+        status: "Status",
+        description: "Description",
+        confirmDelete: "Confirm Delete",
+        notFound: "Not Found",
+        additionalInformation: "Additional Information",
+        dashboard: "Dashboard",
         min: "Min",
         max: "Max",
-        all: "All",
         selectTeam: "Select Team",
         teamId: "Team ID",
         noTeamsFound: "No teams found",
@@ -328,18 +341,11 @@ export const en = {
         noDescription: "No description",
         yes: "Yes",
         no: "No",
-        active: "Active",
-        inactive: "Inactive",
-        status: "Status",
         metadata: "Metadata",
         updatedAt: "Updated At",
         creation: {
             success: "Created successfully",
             error: "Creation failed"
-        },
-        update: {
-            success: "Updated successfully",
-            error: "Update failed"
         },
         deleteStatus: {
             success: "Deleted successfully",
@@ -351,7 +357,9 @@ export const en = {
             general: "An error occurred",
             notFound: "Item not found",
             validation: "Please fix the validation errors",
-            required: "This field is required"
+            required: "This field is required",
+            failedToLoadPlayers: "Failed to load player details",
+            failedToLoadTeams: "Failed to load team details"
         },
     },
     validations: {
@@ -381,10 +389,6 @@ export const en = {
     languages: {
         en: "English",
         ru: "Russian"
-    },
-    errors: {
-        failedToLoadPlayers: "Failed to load player details",
-        failedToLoadTeams: "Failed to load team details"
     },
     statistics: {
         tournamentTable: "Tournament Table",
@@ -514,5 +518,133 @@ export const en = {
             uploadFailed: "Upload failed. Please try again.",
             loadFailed: "Failed to load image"
         }
-    }
+    },
+    achievements: {
+        title: "Achievements",
+        description: "Manage player achievements and awards",
+        createAchievement: "Create Achievement",
+        editAchievement: "Edit Achievement", 
+        achievement: "Achievement",
+        player: "Player",
+        achievementDate: "Achievement Date",
+        category: "Category",
+        points: "Points",
+        featured: "Featured",
+        createdAt: "Created At",
+        playerId: "Player ID",
+        
+        // Form placeholders
+        selectPlayer: "Select a player",
+        selectCategory: "Select a category",
+        titlePlaceholder: "Enter achievement title",
+        descriptionPlaceholder: "Enter achievement description",
+        pointsPlaceholder: "Enter points (optional)",
+        
+        // Categories
+        categories: {
+            tournament_winner: "Tournament Winner",
+            best_player: "Best Player",
+            top_scorer: "Top Scorer",
+            most_assists: "Most Assists",
+            fair_play: "Fair Play",
+            rookie_of_year: "Rookie of the Year",
+            veteran_achievement: "Veteran Achievement",
+            team_captain: "Team Captain",
+            milestone: "Milestone",
+            special_award: "Special Award"
+        },
+        
+        // Category descriptions
+        categoryDescriptions: {
+            tournament_winner: "Awarded to tournament champions",
+            best_player: "Outstanding individual performance",
+            top_scorer: "Highest goal scorer in competition",
+            most_assists: "Most assists in competition",
+            fair_play: "Exemplary sportsmanship",
+            rookie_of_year: "Best newcomer performance",
+            veteran_achievement: "Long-term contribution to sport",
+            team_captain: "Leadership excellence",
+            milestone: "Career milestone achievement",
+            special_award: "Special recognition award"
+        },
+        
+        // Filters and search
+        searchByTitle: "Search by title...",
+        allCategories: "All Categories",
+        allPlayers: "All Players",
+        allAchievements: "All Achievements",
+        featuredOnly: "Featured Only",
+        regularOnly: "Regular Only",
+        
+        // Statistics
+        totalAchievements: "Total Achievements",
+        featuredAchievements: "Featured Achievements",
+        uniquePlayers: "Unique Players",
+        
+        // States
+        noAchievements: "No achievements found",
+        noResultsFound: "No achievements found matching your search",
+        createFirst: "Create your first achievement",
+        tryDifferentFilters: "Try adjusting your search filters",
+        
+        // Actions
+        confirmDelete: "Delete Achievement",
+        deleteWarning: "Are you sure you want to delete this achievement? This action cannot be undone.",
+        deleteWarningDetail: "Are you sure you want to delete '{name}'? This action cannot be undone.",
+        notFound: "Achievement not found",
+        achievementNotFoundDescription: "The achievement you're looking for doesn't exist or has been deleted.",
+        backToList: "Back to Achievements",
+        clickToViewPlayer: "Click to view player details",
+        
+        // Detail page sections
+        details: "Achievement Details",
+        quickStats: "Quick Stats",
+        categoryInfo: "Category Information",
+        type: "Type",
+        regular: "Regular",
+        noPoints: "No points assigned",
+        
+        // Validation messages
+        validation: {
+            playerRequired: "Player is required",
+            titleRequired: "Title is required",
+            descriptionRequired: "Description is required",
+            dateRequired: "Achievement date is required",
+            categoryRequired: "Category is required",
+            pointsPositive: "Points must be positive or zero"
+        }
+    },
+    // Tournament Categories
+    tournamentCategories: {
+        title: "Tournament Categories",
+        description: "Manage tournament categories",
+        name: "Category Name",
+        categoryInformation: "Category Information",
+        categoryDetails: "Category details and information",
+        categoryId: "Category ID",
+        create: "Create Category",
+        edit: "Edit Category",
+        list: "Categories List",
+        total: "Total Categories",
+        noCategories: "No categories found",
+        createFirst: "Create your first category",
+        searchName: "Search by name...",
+        namePlaceholder: "Enter category name",
+        descriptionPlaceholder: "Enter category description",
+        backToList: "Back to Categories",
+        notFound: "Category not found",
+        notFoundDescription: "The category you're looking for doesn't exist or has been removed.",
+        deleteConfirmation: "Are you sure you want to delete the category '{name}'? This action cannot be undone.",
+        
+        // Validation messages
+        validation: {
+            nameRequired: "Category name is required",
+            nameMinLength: "Category name must be at least 2 characters",
+            nameMaxLength: "Category name must not exceed 100 characters",
+            descriptionRequired: "Description is required", 
+            descriptionMinLength: "Description must be at least 5 characters",
+            descriptionMaxLength: "Description must not exceed 500 characters"
+        }
+    },
+
 };

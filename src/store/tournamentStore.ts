@@ -37,7 +37,7 @@ export const useTournamentStore = create<TournamentState>()((set, get) => ({
 
         try {
             // Use execute instead of executeWithRetry
-            const tournaments = await apiService.execute(
+            const tournamentsData = await apiService.execute(
                 () => tournamentApi.getAll(),
                 'fetchTournaments',
                 { 
@@ -48,12 +48,14 @@ export const useTournamentStore = create<TournamentState>()((set, get) => ({
             );
             
             // Ensure tournaments is always an array
+            const tournamentsArray = Array.isArray(tournamentsData) ? tournamentsData : [];
+            
             set({ 
-                tournaments: Array.isArray(tournaments) ? tournaments : [], 
+                tournaments: tournamentsArray, 
                 isLoading: false 
             });
         } catch (error: any) {
-            console.error('Error fetching tournaments:', error); // Debug log
+            console.error('Error fetching tournaments:', error);
             const errorMessage = ErrorHandler.handle(error);
             set({
                 tournaments: [], // Set empty array on error
