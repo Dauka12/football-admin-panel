@@ -20,6 +20,8 @@ export interface CreateTournamentRequest {
     startDate: string;
     endDate: string;
     teams: number[];
+    cityId: number;
+    sportTypeId: number;
 }
 
 export interface UpdateTournamentRequest {
@@ -27,6 +29,8 @@ export interface UpdateTournamentRequest {
     startDate: string;
     endDate: string;
     teams: number[];
+    cityId: number;
+    sportTypeId: number;
 }
 
 // Response interfaces  
@@ -35,6 +39,8 @@ export interface TournamentFullResponse {
     name: string;
     startDate: string;
     endDate: string;
+    numberOfMatches: number;
+    sportTypeId: number;
     teams?: TournamentTeam[];
 }
 

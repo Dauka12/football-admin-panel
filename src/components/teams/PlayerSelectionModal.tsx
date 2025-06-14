@@ -20,12 +20,38 @@ const PlayerSelectionModal: React.FC<PlayerSelectionModalProps> = ({
     currentSelectedIds,
     currentTeamId,
     title
-}) => {
-    const { t } = useTranslation();
+}) => {    const { t } = useTranslation();
     const { players, fetchPlayers, isLoading } = usePlayerStore();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedIds, setSelectedIds] = useState<number[]>(currentSelectedIds || []);
-    const [availablePlayers, setAvailablePlayers] = useState<PlayerPublicResponse[]>([]);
+    const [availablePlayers, setAvailablePlayers] = useState<PlayerPublicResponse[]>([]);    // Helper function to get player display name - fix for API bug where fullName="Unknown" and real name is in position
+    const getPlayerDisplayName = (player: any) => {
+        // If fullName exists and is not "Unknown" or "string", use it
+        if (player.fullName && player.fullName !== "Unknown" && player.fullName !== "string") {
+            return player.fullName;
+        }
+        // If position field has actual data (not "string"), use it as name
+        if (player.position && player.position !== "string") {
+            return player.position;
+        }        // Fallback to player ID if available
+        return player.id ? `Player #${player.id}` : t('players.unknownPlayer') || 'Unknown Player';
+    };
+
+    // Helper function to get player position - since real name might be in position field
+    const getPlayerPosition = (player: any) => {
+        // If fullName is "Unknown" or "string", then position field might contain the name, not the position
+        if (player.fullName === "Unknown" || player.fullName === "string") {
+            // If position field also has placeholder data, try to use a meaningful fallback
+            if (player.position === "string") {
+                return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
+            }
+            // If position has real data but fullName is placeholder, position might be the actual name
+            // In this case, use club as position fallback
+            return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
+        }
+        // If fullName is valid, then position field should contain actual position
+        return player.position && player.position !== "string" ? player.position : t('common.notSpecified');
+    };
 
     // Load players when modal opens
     useEffect(() => {
@@ -126,13 +152,12 @@ const PlayerSelectionModal: React.FC<PlayerSelectionModalProps> = ({
                                                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                             </svg>
                                         )}
-                                    </div>
-                                    <div className="min-w-0 flex-1">
+                                    </div>                                    <div className="min-w-0 flex-1">
                                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                                            <div className="font-medium">{player.position}</div>
+                                            <div className="font-medium">{getPlayerDisplayName(player)}</div>
                                             <div className="text-sm text-gray-400">{player.nationality}</div>
                                         </div>
-                                        <div className="text-xs text-gray-400 truncate">{player.club || 'No club'}</div>
+                                        <div className="text-xs text-gray-400 truncate">{getPlayerPosition(player)} • {player.club || 'No club'}</div>
                                     </div>
                                 </div>
                             ))}

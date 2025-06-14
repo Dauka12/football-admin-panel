@@ -64,21 +64,47 @@ const MatchEventsForm: React.FC<MatchEventsFormProps> = ({
           
           // Map players to the format needed for the dropdown
           const mappedPlayers = result.content.map((player: PlayerPublicResponse) => {
+            // Helper function to get player display name - fix for API bug where fullName="Unknown" and real name is in position
+            const getPlayerDisplayName = (player: any) => {
+              // If fullName exists and is not "Unknown" or "string", use it
+              if (player.fullName && player.fullName !== "Unknown" && player.fullName !== "string") {
+                return player.fullName;
+              }
+              // If position field has actual data (not "string"), use it as name
+              if (player.position && player.position !== "string") {
+                return player.position;
+              }
+              // Fallback to player ID if available
+              return player.id ? `Player #${player.id}` : 'Unknown Player';
+            };
+
+            // Helper function to get player position - since real name might be in position field
+            const getPlayerPosition = (player: any) => {
+              // If fullName is "Unknown" or "string", then position field might contain the name, not the position
+              if (player.fullName === "Unknown" || player.fullName === "string") {
+                // If position field also has placeholder data, try to use a meaningful fallback
+                if (player.position === "string") {
+                  return player.club && player.club !== "string" ? player.club : 'Position not specified';
+                }
+                // If position has real data but fullName is placeholder, position might be the actual name
+                // In this case, use club as position fallback
+                return player.club && player.club !== "string" ? player.club : 'Position not specified';
+              }
+              // If fullName is valid, then position field should contain actual position
+              return player.position && player.position !== "string" ? player.position : 'Position not specified';
+            };
+            
             // Create a more descriptive player name
-            let displayName = '';
-            
-            // Use position if available
-            const position = player.position ? `(${player.position})` : '';
-            
-            // Use nationality if available for additional context
+            const displayName = getPlayerDisplayName(player);
+            const position = getPlayerPosition(player);
             const nationality = player.nationality ? `[${player.nationality}]` : '';
             
             // Format the display name with all available information
-            displayName = `${player.club ? player.club : 'Unknown team'} - Player #${player.id} ${position} ${nationality}`.trim();
+            const fullDisplayName = `${displayName} - ${position} ${nationality}`.trim();
             
             return {
               id: player.id,
-              name: displayName,
+              name: fullDisplayName,
               teamName: player.club
             };
           });

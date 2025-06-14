@@ -5,14 +5,13 @@ import type { TeamFilterParams } from '../../api/teams';
 import TeamForm from '../../components/teams/TeamForm';
 import Modal from '../../components/ui/Modal';
 import { usePerformanceMonitor } from '../../hooks/usePerformanceMonitor';
+import { useSportTypeStore } from '../../store/sportTypeStore';
 import { useTeamStore } from '../../store/teamStore';
 import type { CreateTeamRequest } from '../../types/teams';
 
 const TeamsPage: React.FC = () => {
     // Performance monitoring
-    usePerformanceMonitor('TeamsPage');
-
-    const { t } = useTranslation();
+    usePerformanceMonitor('TeamsPage');    const { t } = useTranslation();
     const { 
         teams, 
         isLoading, 
@@ -28,6 +27,8 @@ const TeamsPage: React.FC = () => {
         setFilters 
     } = useTeamStore();
     
+    const { sportTypes, fetchSportTypes } = useSportTypeStore();
+    
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [teamToDelete, setTeamToDelete] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -38,6 +39,7 @@ const TeamsPage: React.FC = () => {
     const [filterName, setFilterName] = useState(filters.name || '');
     const [filterPrimaryColor, setFilterPrimaryColor] = useState(filters.primaryColor || '');
     const [filterSecondaryColor, setFilterSecondaryColor] = useState(filters.secondaryColor || '');
+    const [filterSportTypeId, setFilterSportTypeId] = useState<number | undefined>(filters.sportTypeId);
 
     // Memoized filtered teams to avoid recalculation on every render
     const filteredTeams = useMemo(() => {
@@ -50,21 +52,20 @@ const TeamsPage: React.FC = () => {
             team.name.toLowerCase().includes(query) ||
             team.description.toLowerCase().includes(query)
         );
-    }, [teams, searchQuery]);
-
-    // Ensure we fetch teams on mount and when returning to page
+    }, [teams, searchQuery]);    // Ensure we fetch teams on mount and when returning to page
     useEffect(() => {
         // Fetch teams with pagination and filters
         fetchTeams(true, page, pageSize, filters);
-    }, [fetchTeams, page, pageSize, filters]);
-
-    // Apply filters and fetch teams
+        // Also fetch sport types for filter dropdown
+        fetchSportTypes();
+    }, [fetchTeams, fetchSportTypes, page, pageSize, filters]);    // Apply filters and fetch teams
     const applyFilters = () => {
         const newFilters: TeamFilterParams = {};
         
         if (filterName) newFilters.name = filterName;
         if (filterPrimaryColor) newFilters.primaryColor = filterPrimaryColor;
         if (filterSecondaryColor) newFilters.secondaryColor = filterSecondaryColor;
+        if (filterSportTypeId) newFilters.sportTypeId = filterSportTypeId;
         
         setFilters(newFilters);
         // Reset to first page when applying new filters
@@ -78,6 +79,7 @@ const TeamsPage: React.FC = () => {
         setFilterName('');
         setFilterPrimaryColor('');
         setFilterSecondaryColor('');
+        setFilterSportTypeId(undefined);
         setFilters({});
         setPage(0);
         fetchTeams(true, 0, pageSize, {});
@@ -203,8 +205,7 @@ const TeamsPage: React.FC = () => {
                                 className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold transition-colors duration-200"
                             />
                         </div>
-                        
-                        {/* Secondary Color filter */}
+                          {/* Secondary Color filter */}
                         <div className="space-y-1">
                             <label className="text-sm text-gray-400">{t('teams.secondaryColor')}</label>
                             <input
@@ -214,6 +215,23 @@ const TeamsPage: React.FC = () => {
                                 placeholder={t('teams.secondaryColor')}
                                 className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold transition-colors duration-200"
                             />
+                        </div>
+                        
+                        {/* Sport Type filter */}
+                        <div className="space-y-1">
+                            <label className="text-sm text-gray-400">{t('teams.sportType')}</label>
+                            <select
+                                value={filterSportTypeId || ''}
+                                onChange={(e) => setFilterSportTypeId(e.target.value ? Number(e.target.value) : undefined)}
+                                className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold transition-colors duration-200"
+                            >
+                                <option value="">{t('common.all')}</option>
+                                {sportTypes.map((sportType) => (
+                                    <option key={sportType.id} value={sportType.id}>
+                                        {sportType.name}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
                     

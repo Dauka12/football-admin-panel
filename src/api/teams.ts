@@ -13,6 +13,7 @@ export interface TeamFilterParams {
     tournamentId?: number;
     primaryColor?: string;
     secondaryColor?: string;
+    sportTypeId?: number;
 }
 
 // Remove redundant base URL prefix to prevent double paths

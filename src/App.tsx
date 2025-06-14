@@ -12,6 +12,10 @@ const TeamsPage = React.lazy(() => import('./pages/teams'));
 const TeamDetailPage = React.lazy(() => import('./pages/teams/detail'));
 const PlayersPage = React.lazy(() => import('./pages/players'));
 const PlayerDetailPage = React.lazy(() => import('./pages/players/detail'));
+const SportTypesPage = React.lazy(() => import('./pages/sportTypes'));
+const SportTypeDetailPage = React.lazy(() => import('./pages/sportTypes/detail'));
+const CitiesPage = React.lazy(() => import('./pages/cities'));
+const CityDetailPage = React.lazy(() => import('./pages/cities/detail'));
 const TournamentsPage = React.lazy(() => import('./pages/tournaments'));
 const TournamentDetailPage = React.lazy(() => import('./pages/tournaments/detail'));
 const MatchesPage = React.lazy(() => import('./pages/matches'));
@@ -106,7 +110,50 @@ const App: React.FC = () => {
                 </ErrorBoundary>
               </Suspense>
             } 
-          />          <Route 
+          />
+          
+          <Route 
+            path="sport-types" 
+            element={
+              <Suspense fallback={<RouteLoadingSpinner />}>
+                <ErrorBoundary>
+                  <SportTypesPage />
+                </ErrorBoundary>
+              </Suspense>
+            } 
+          />
+          
+          <Route 
+            path="sport-types/:id" 
+            element={
+              <Suspense fallback={<RouteLoadingSpinner />}>
+                <ErrorBoundary>
+                  <SportTypeDetailPage />
+                </ErrorBoundary>
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="cities" 
+            element={
+              <Suspense fallback={<RouteLoadingSpinner />}>
+                <ErrorBoundary>
+                  <CitiesPage />
+                </ErrorBoundary>
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="cities/:id" 
+            element={
+              <Suspense fallback={<RouteLoadingSpinner />}>
+                <ErrorBoundary>
+                  <CityDetailPage />
+                </ErrorBoundary>
+              </Suspense>
+            } 
+          />
+          <Route 
             path="tournaments" 
             element={
               <Suspense fallback={<RouteLoadingSpinner />}>

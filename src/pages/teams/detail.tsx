@@ -37,6 +37,36 @@ const TeamDetailPage: React.FC = () => {
     // Check if current language is Russian for adaptive text sizing
     const isRussian = i18n.language === 'ru';
 
+    // Helper function to get player display name - fix for API bug where fullName="Unknown" and real name is in position
+    const getPlayerDisplayName = (player: any) => {
+        // If fullName exists and is not "Unknown" or "string", use it
+        if (player.fullName && player.fullName !== "Unknown" && player.fullName !== "string") {
+            return player.fullName;
+        }
+        // If position field has actual data (not "string"), use it as name
+        if (player.position && player.position !== "string") {
+            return player.position;
+        }
+        // Fallback to player ID if available
+        return player.id ? `Player #${player.id}` : t('players.unknownPlayer') || 'Unknown Player';
+    };
+
+    // Helper function to get player position - since real name might be in position field
+    const getPlayerPosition = (player: any) => {
+        // If fullName is "Unknown" or "string", then position field might contain the name, not the position
+        if (player.fullName === "Unknown" || player.fullName === "string") {
+            // If position field also has placeholder data, try to use a meaningful fallback
+            if (player.position === "string") {
+                return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
+            }
+            // If position has real data but fullName is placeholder, position might be the actual name
+            // In this case, use club as position fallback
+            return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
+        }
+        // If fullName is valid, then position field should contain actual position
+        return player.position && player.position !== "string" ? player.position : t('common.notSpecified');
+    };
+
     // Fetch team data - Fixed with useCallback and proper dependency array
     const loadTeam = useCallback(() => {
         if (teamId > 0) {
@@ -325,8 +355,8 @@ const TeamDetailPage: React.FC = () => {
                                             {player.id}
                                         </div>
                                         <div className="min-w-0">
-                                            <h4 className="font-medium text-sm whitespace-nowrap overflow-hidden text-ellipsis">{player.position}</h4>
-                                            <p className="text-xs text-gray-400 whitespace-nowrap overflow-hidden text-ellipsis">{player.club}</p>
+                                            <h4 className="font-medium text-sm whitespace-nowrap overflow-hidden text-ellipsis">{getPlayerDisplayName(player)}</h4>
+                                            <p className="text-xs text-gray-400 whitespace-nowrap overflow-hidden text-ellipsis">{getPlayerPosition(player)}</p>
                                         </div>
                                     </div>
                                 </div>

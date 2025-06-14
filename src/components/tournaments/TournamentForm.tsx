@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useCityStore } from '../../store/cityStore';
+import { useSportTypeStore } from '../../store/sportTypeStore';
 import { useTeamStore } from '../../store/teamStore';
 import type { CreateTournamentRequest, UpdateTournamentRequest } from '../../types/tournaments';
 import { ErrorHandler } from '../../utils/errorHandler';
@@ -20,15 +22,18 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
     onCancel,
     initialData,
     isEdit = false
-}) => {
-    const { t } = useTranslation();
+}) => {    const { t } = useTranslation();
     const { teams, fetchTeams } = useTeamStore();
+    const { sportTypes, fetchSportTypes } = useSportTypeStore();
+    const { cities, fetchCities } = useCityStore();
 
     const [formData, setFormData] = useState<CreateTournamentRequest>({
         name: initialData?.name || '',
         startDate: initialData?.startDate || '',
         endDate: initialData?.endDate || '',
-        teams: initialData?.teams || []
+        teams: initialData?.teams || [],
+        cityId: initialData?.cityId || 0,
+        sportTypeId: initialData?.sportTypeId || 0
     });
 
     const { 
@@ -36,14 +41,37 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
         validateForm, 
         validateField, 
         clearFieldError 
-    } = useFormValidation(tournamentValidators.create);
-    const [showTeamSelector, setShowTeamSelector] = useState(false);
+    } = useFormValidation(tournamentValidators.create);    const [showTeamSelector, setShowTeamSelector] = useState(false);
     const [selectedTeams, setSelectedTeams] = useState<(typeof teams[0])[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingSportTypes, setIsLoadingSportTypes] = useState(false);
+    const [isLoadingCities, setIsLoadingCities] = useState(false);
 
     useEffect(() => {
-        fetchTeams();
-    }, [fetchTeams]);
+        const loadData = async () => {
+            fetchTeams();
+            
+            setIsLoadingSportTypes(true);
+            try {
+                await fetchSportTypes();
+            } catch (error) {
+                console.error('Failed to load sport types:', error);
+            } finally {
+                setIsLoadingSportTypes(false);
+            }
+
+            setIsLoadingCities(true);
+            try {
+                await fetchCities();
+            } catch (error) {
+                console.error('Failed to load cities:', error);
+            } finally {
+                setIsLoadingCities(false);
+            }
+        };
+        
+        loadData();
+    }, [fetchTeams, fetchSportTypes, fetchCities]);
 
     // Update selected teams when form data changes
     useEffect(() => {
@@ -171,6 +199,64 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
                                     required
                                     placeholder={t('tournaments.selectEndDate')}
                                 />
+                            </div>                        </div>
+
+                        {/* City and Sport Type Selection */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            {/* Sport Type Selection */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">
+                                    {t('tournaments.sportType')} *
+                                </label>
+                                <select
+                                    value={formData.sportTypeId || ''}
+                                    onChange={(e) => {
+                                        const value = parseInt(e.target.value) || 0;
+                                        setFormData(prev => ({ ...prev, sportTypeId: value }));
+                                        if (errors.sportTypeId) {
+                                            clearFieldError('sportTypeId');
+                                        }
+                                    }}
+                                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg 
+                                     focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200 text-white"
+                                    disabled={isLoadingSportTypes}
+                                >
+                                    <option value="">{isLoadingSportTypes ? t('common.loading') : t('sportTypes.selectSportType')}</option>
+                                    {sportTypes.map((sportType) => (
+                                        <option key={sportType.id} value={sportType.id}>
+                                            {sportType.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors.sportTypeId && <p className="text-red-400 text-sm mt-1">{errors.sportTypeId}</p>}
+                            </div>
+
+                            {/* City Selection */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">
+                                    {t('tournaments.city')} *
+                                </label>
+                                <select
+                                    value={formData.cityId || ''}
+                                    onChange={(e) => {
+                                        const value = parseInt(e.target.value) || 0;
+                                        setFormData(prev => ({ ...prev, cityId: value }));
+                                        if (errors.cityId) {
+                                            clearFieldError('cityId');
+                                        }
+                                    }}
+                                    className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg 
+                                     focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200 text-white"
+                                    disabled={isLoadingCities}
+                                >
+                                    <option value="">{isLoadingCities ? t('common.loading') : t('cities.selectCity')}</option>
+                                    {cities.map((city) => (
+                                        <option key={city.id} value={city.id}>
+                                            {city.name}, {city.region}, {city.country}
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors.cityId && <p className="text-red-400 text-sm mt-1">{errors.cityId}</p>}
                             </div>
                         </div>
 

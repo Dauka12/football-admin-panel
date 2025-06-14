@@ -9,8 +9,9 @@ export const PreferredFoot = {
 // Player type used in team responses
 export interface Player {
     id: number;
+    fullName: string;
     position: string;
-    club: string;
+    teamId: number;
     age: number;
     height: number;
     weight: number;
@@ -18,6 +19,7 @@ export interface Player {
     birthplace: string;
     preferredFoot: PreferredFoot;
     bio: string;
+    sportTypeId: number;
 }
 
 // Basic team interface with common properties
@@ -26,6 +28,8 @@ export interface TeamBase {
     description: string;
     primaryColor: string;
     secondaryColor: string;
+    cityId: number;
+    sportTypeId: number;
 }
 
 // Request interfaces
@@ -45,6 +49,11 @@ export interface TeamBaseResponse extends TeamBase {
 
 export interface TeamFullResponse extends TeamBaseResponse {
     players: Player[];
+    teamId: number;
+}
+
+export interface TeamPublicResponse extends TeamBaseResponse {
+    teamId: number;
 }
 
 export interface TeamCreateResponse {

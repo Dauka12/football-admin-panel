@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useCityStore } from '../../store/cityStore';
 import { usePlayerStore } from '../../store/playerStore';
+import { useSportTypeStore } from '../../store/sportTypeStore';
 import type { CreateTeamRequest, UpdateTeamRequest } from '../../types/teams';
 import { ErrorHandler } from '../../utils/errorHandler';
 import { showToast } from '../../utils/toast';
@@ -22,24 +24,76 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
         players: initialData?.players || [],
         primaryColor: initialData?.primaryColor || '#ffcc00',
         secondaryColor: initialData?.secondaryColor || '#002b3d',
-    });
-      const { players, fetchPlayers } = usePlayerStore();
+        cityId: initialData?.cityId || 0,
+        sportTypeId: initialData?.sportTypeId || 0,
+    });    const { players, fetchPlayers } = usePlayerStore();
+    const { sportTypes, fetchSportTypes } = useSportTypeStore();
+    const { cities, fetchCities } = useCityStore();
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingSportTypes, setIsLoadingSportTypes] = useState(false);
+    const [isLoadingCities, setIsLoadingCities] = useState(false);
     const { 
         errors, 
         validateForm, 
         validateField, 
         clearFieldError 
-    } = useFormValidation(teamValidators.create);    const [showPlayerSelector, setShowPlayerSelector] = useState(false);
+    } = useFormValidation(teamValidators.create);const [showPlayerSelector, setShowPlayerSelector] = useState(false);
     const [selectedPlayers, setSelectedPlayers] = useState<(typeof players[0])[]>([]);
     
     // Check if current language is Russian for adaptive text sizing
-    const isRussian = i18n.language === 'ru';
-    
-    // Fetch players when component mounts
+    const isRussian = i18n.language === 'ru';    // Helper function to get player display name - fix for API bug where fullName="Unknown" and real name is in position
+    const getPlayerDisplayName = (player: any) => {
+        // If fullName exists and is not "Unknown" or "string", use it
+        if (player.fullName && player.fullName !== "Unknown" && player.fullName !== "string") {
+            return player.fullName;
+        }
+        // If position field has actual data (not "string"), use it as name
+        if (player.position && player.position !== "string") {
+            return player.position;
+        }        // Fallback to player ID if available
+        return player.id ? `Player #${player.id}` : t('players.unknownPlayer') || 'Unknown Player';
+    };
+
+    // Helper function to get player position - since real name might be in position field
+    const getPlayerPosition = (player: any) => {
+        // If fullName is "Unknown" or "string", then position field might contain the name, not the position
+        if (player.fullName === "Unknown" || player.fullName === "string") {
+            // If position field also has placeholder data, try to use a meaningful fallback
+            if (player.position === "string") {
+                return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
+            }
+            // If position has real data but fullName is placeholder, position might be the actual name
+            // In this case, use club as position fallback
+            return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
+        }
+        // If fullName is valid, then position field should contain actual position
+        return player.position && player.position !== "string" ? player.position : t('common.notSpecified');
+    };    // Fetch players, sport types, and cities when component mounts
     useEffect(() => {
-        fetchPlayers();
-    }, [fetchPlayers]);
+        const loadData = async () => {
+            fetchPlayers();
+            
+            setIsLoadingSportTypes(true);
+            try {
+                await fetchSportTypes();
+            } catch (error) {
+                console.error('Failed to load sport types:', error);
+            } finally {
+                setIsLoadingSportTypes(false);
+            }
+
+            setIsLoadingCities(true);
+            try {
+                await fetchCities();
+            } catch (error) {
+                console.error('Failed to load cities:', error);
+            } finally {
+                setIsLoadingCities(false);
+            }
+        };
+        
+        loadData();
+    }, [fetchPlayers, fetchSportTypes, fetchCities]);
     
     // Update selected players when form data changes
     useEffect(() => {
@@ -49,10 +103,15 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
         } else {
             setSelectedPlayers([]);
         }    }, [players, formData.players]);
-    
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        
+        // Handle numeric fields
+        if (name === 'cityId' || name === 'sportTypeId') {
+            setFormData(prev => ({ ...prev, [name]: Number(value) || 0 }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
 
         // Clear error when field is edited
         if (errors[name]) {
@@ -60,9 +119,14 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
         }
     };
 
-    const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        validateField(name as keyof CreateTeamRequest, value);
+        
+        if (name === 'cityId' || name === 'sportTypeId') {
+            validateField(name as keyof CreateTeamRequest, Number(value) || 0);
+        } else {
+            validateField(name as keyof CreateTeamRequest, value);
+        }
     };
     
     const handlePlayerSelection = (selectedIds: number[]) => {
@@ -116,9 +180,7 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
                     ${errors.name ? 'border-red-500' : 'border-gray-700'}`}
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
-            </div>
-
-            <div>
+            </div>            <div>
                 <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="description">
                     {t('teams.description')} *
                 </label>
@@ -133,6 +195,57 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
                     ${errors.description ? 'border-red-500' : 'border-gray-700'}`}
                 />
                 {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+            </div>
+
+            {/* Sport Type and City Selection */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="sportTypeId">
+                        {t('sportTypes.sportType')} *
+                    </label>
+                    <select
+                        id="sportTypeId"
+                        name="sportTypeId"
+                        value={formData.sportTypeId || ''}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 focus:ring-gold
+                        ${errors.sportTypeId ? 'border-red-500' : 'border-gray-700'}`}
+                        disabled={isLoadingSportTypes}
+                    >
+                        <option value="">
+                            {isLoadingSportTypes ? t('common.loading') : t('sportTypes.selectSportType')}
+                        </option>
+                        {sportTypes.map((sportType) => (
+                            <option key={sportType.id} value={sportType.id}>
+                                {sportType.name}
+                            </option>
+                        ))}
+                    </select>
+                    {errors.sportTypeId && <p className="text-red-500 text-xs mt-1">{errors.sportTypeId}</p>}
+                </div>                <div>
+                    <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="cityId">
+                        {t('teams.city')} *
+                    </label>
+                    <select
+                        id="cityId"
+                        name="cityId"
+                        value={formData.cityId || ''}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 focus:ring-gold
+                        ${errors.cityId ? 'border-red-500' : 'border-gray-700'}`}
+                        disabled={isLoadingCities}
+                    >
+                        <option value="">{isLoadingCities ? t('common.loading') : t('cities.selectCity')}</option>
+                        {cities.map((city) => (
+                            <option key={city.id} value={city.id}>
+                                {city.name}, {city.region}, {city.country}
+                            </option>
+                        ))}
+                    </select>
+                    {errors.cityId && <p className="text-red-500 text-xs mt-1">{errors.cityId}</p>}
+                </div>
             </div>
 
             {/* Improved color selection section with larger inputs */}
@@ -229,10 +342,9 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
                                     <div className="flex items-center">
                                         <div className="w-6 h-6 bg-gold text-darkest-bg rounded-full flex items-center justify-center mr-2 text-xs font-bold">
                                             {player.id}
-                                        </div>
-                                        <div>
-                                            <div className="text-sm font-medium">{player.position}</div>
-                                            <div className="text-xs text-gray-400">{player.club}</div>
+                                        </div>                                        <div>
+                                            <div className="text-sm font-medium">{getPlayerDisplayName(player)}</div>
+                                            <div className="text-xs text-gray-400">{getPlayerPosition(player)}</div>
                                         </div>
                                     </div>
                                     <button

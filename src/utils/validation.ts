@@ -178,8 +178,11 @@ export const playerValidators = {
         position: [
             validationRules.required('Position is required')
         ],
-        club: [
-            validationRules.required('Club is required')
+        teamId: [
+            validationRules.required('Team is required')
+        ],
+        sportTypeId: [
+            validationRules.required('Sport type is required')
         ],
         nationality: [
             validationRules.required('Nationality is required')
@@ -201,9 +204,6 @@ export const playerValidators = {
             validationRules.required('Weight is required'),
             validationRules.min(50, 'Weight must be at least 50kg'),
             validationRules.max(150, 'Weight must be less than 150kg')
-        ],
-        identificationNumber: [
-            validationRules.required('Identification number is required')
         ]
     })
 };
@@ -224,9 +224,69 @@ export const teamValidators = {
         secondaryColor: [
             validationRules.required('Secondary color is required')
         ],
+        cityId: [
+            validationRules.required('City is required')
+        ],
+        sportTypeId: [
+            validationRules.required('Sport type is required')
+        ],
         players: [
             validationRules.arrayMinLength(1, 'At least one player is required'),
             validationRules.arrayMaxLength(30, 'Maximum 30 players allowed')
+        ]
+    })
+};
+
+// City validators
+interface CityFormData {
+    name: string;
+    country: string;
+    region: string;
+    population: number;
+    latitude: number;
+    longitude: number;
+    description: string;
+    postalCode: string;
+    active: boolean;
+}
+
+export const cityValidators = {
+    create: new Validator<CityFormData>({
+        name: [
+            validationRules.required('City name is required'),
+            validationRules.minLength(2, 'City name must be at least 2 characters'),
+            validationRules.maxLength(100, 'City name must be less than 100 characters')
+        ],
+        country: [
+            validationRules.required('Country is required'),
+            validationRules.minLength(2, 'Country must be at least 2 characters'),
+            validationRules.maxLength(100, 'Country must be less than 100 characters')
+        ],
+        region: [
+            validationRules.required('Region is required'),
+            validationRules.minLength(2, 'Region must be at least 2 characters'),
+            validationRules.maxLength(100, 'Region must be less than 100 characters')
+        ],
+        population: [
+            validationRules.required('Population is required'),
+            validationRules.min(0, 'Population must be a positive number')
+        ],
+        latitude: [
+            validationRules.required('Latitude is required'),
+            validationRules.min(-90, 'Latitude must be between -90 and 90'),
+            validationRules.max(90, 'Latitude must be between -90 and 90')
+        ],
+        longitude: [
+            validationRules.required('Longitude is required'),
+            validationRules.min(-180, 'Longitude must be between -180 and 180'),
+            validationRules.max(180, 'Longitude must be between -180 and 180')
+        ],
+        description: [
+            validationRules.maxLength(500, 'Description must be less than 500 characters')
+        ],
+        postalCode: [
+            validationRules.required('Postal code is required'),
+            validationRules.maxLength(20, 'Postal code must be less than 20 characters')
         ]
     })
 };
@@ -236,6 +296,8 @@ interface TournamentFormData {
     startDate: string;
     endDate: string;
     teams: any[];
+    cityId: number;
+    sportTypeId: number;
 }
 
 export const tournamentValidators = {
@@ -258,6 +320,14 @@ export const tournamentValidators = {
         teams: [
             validationRules.arrayMinLength(2, 'At least 2 teams are required'),
             validationRules.arrayMaxLength(32, 'Maximum 32 teams allowed')
+        ],
+        cityId: [
+            validationRules.required('City is required'),
+            validationRules.min(1, 'Please select a valid city')
+        ],
+        sportTypeId: [
+            validationRules.required('Sport type is required'),
+            validationRules.min(1, 'Please select a valid sport type')
         ]
     })
 };

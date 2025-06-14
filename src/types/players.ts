@@ -14,6 +14,7 @@ export interface PlayerBase {
 
 export interface PlayerPublicResponse extends PlayerBase {
     id: number;
+    fullName?: string; // Added to handle API response that has fullName field
 }
 
 // Paginated response structure from API
@@ -51,8 +52,10 @@ export interface PageResponse<T> {
 export interface PlayersPageResponse extends PageResponse<PlayerPublicResponse> {}
 
 export interface PlayerCreateRequest extends PlayerBase {
+    teamId?: number; // Add teamId field for team selection
     identificationNumber?: string;
     userId?: number;
+    sportTypeId?: number; // Add sportTypeId to match API spec
 }
 
 export interface PlayerUpdateRequest extends PlayerCreateRequest { }

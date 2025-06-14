@@ -87,7 +87,7 @@ const DashboardLayout: React.FC = () => {
                         </svg>
                     </button>
 
-                    <h1 className="text-xl font-semibold flex-1">{t('appTitle')}</h1>
+                    <h1 className="font-semibold flex-1">{t('appTitle')}</h1>
 
                     {/* Language Switcher */}
                     <LanguageSwitcher />

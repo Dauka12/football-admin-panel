@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { sportTypeApi } from '../../api/sportTypes';
+import { teamApi } from '../../api/teams';
 import type { PlayerCreateRequest, PlayerPublicResponse } from '../../types/players';
+import type { SportType } from '../../types/sportTypes';
+import type { TeamFullResponse } from '../../types/teams';
 import { PreferredFoot } from '../../types/teams';
 import { ErrorHandler } from '../../utils/errorHandler';
 import { showToast } from '../../utils/toast';
@@ -16,7 +20,8 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
     const { t } = useTranslation();
     const [formData, setFormData] = useState<PlayerCreateRequest>({
         position: initialData?.position || '',
-        club: initialData?.club || '',
+        teamId: undefined, // Replace club with teamId
+        sportTypeId: undefined, // Add sportTypeId field
         age: initialData?.age || 0,
         height: initialData?.height || 0,
         weight: initialData?.weight || 0,
@@ -29,21 +34,47 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
     });
 
     const [isLoading, setIsLoading] = useState(false);
-    const { 
+    const [teams, setTeams] = useState<TeamFullResponse[]>([]);
+    const [sportTypes, setSportTypes] = useState<SportType[]>([]);
+    const [isLoadingTeams, setIsLoadingTeams] = useState(false);
+    const [isLoadingSportTypes, setIsLoadingSportTypes] = useState(false);    const { 
         errors, 
         validateForm, 
         validateField, 
         clearFieldError 
     } = useFormValidation(playerValidators.create);
 
+    // Load teams and sport types on component mount
+    useEffect(() => {
+        const loadTeamsAndSportTypes = async () => {
+            try {
+                // Load teams
+                setIsLoadingTeams(true);
+                const teamsResponse = await teamApi.getAll(0, 100); // Get all teams
+                setTeams(teamsResponse.content);
+                setIsLoadingTeams(false);
+
+                // Load sport types
+                setIsLoadingSportTypes(true);
+                const sportTypesResponse = await sportTypeApi.getAll(0, 100, { active: true }); // Get active sport types
+                setSportTypes(sportTypesResponse.content);
+                setIsLoadingSportTypes(false);
+            } catch (error) {
+                console.error('Failed to load teams or sport types:', error);
+                setIsLoadingTeams(false);
+                setIsLoadingSportTypes(false);
+            }
+        };
+
+        loadTeamsAndSportTypes();
+    }, []);
+
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => {
-        const { name, value } = e.target;
-
-        // Handle numeric values
-        if (name === 'age' || name === 'height' || name === 'weight' || name === 'userId') {
-            setFormData(prev => ({ ...prev, [name]: Number(value) }));
+        const { name, value } = e.target;        // Handle numeric values
+        if (name === 'age' || name === 'height' || name === 'weight' || name === 'userId' || name === 'teamId' || name === 'sportTypeId') {
+            setFormData(prev => ({ ...prev, [name]: Number(value) || undefined }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
@@ -53,28 +84,42 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
         if (validatedFields.includes(name as any) && errors[name as keyof typeof errors]) {
             clearFieldError(name as any);
         }
-    };
-
-    const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    };    const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         
         // Only validate fields that are in the validator rules
         const validatedFields = playerValidators.create.fieldNames;
         if (validatedFields.includes(name as any)) {
             // Validate field on blur
-            if (name === 'age' || name === 'height' || name === 'weight') {
+            if (name === 'age' || name === 'height' || name === 'weight' || name === 'teamId' || name === 'sportTypeId') {
                 validateField(name as any, Number(value));
             } else {
                 validateField(name as any, value);
             }
         }
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
+    };    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!validateForm(formData)) {
+        // Create validation data with required fields
+        const validationData = {
+            ...formData,
+            teamId: formData.teamId || 0,
+            sportTypeId: formData.sportTypeId || 0
+        };
+
+        if (!validateForm(validationData)) {
             showToast('Please fix the validation errors', 'error');
+            return;
+        }
+
+        // Check if teamId and sportTypeId are actually selected
+        if (!formData.teamId) {
+            showToast('Please select a team', 'error');
+            return;
+        }
+
+        if (!formData.sportTypeId) {
+            showToast('Please select a sport type', 'error');
             return;
         }
 
@@ -94,9 +139,7 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
         <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
             {/* Basic Info Section */}
             <div className="bg-darkest-bg p-4 rounded-md mb-4">
-                <h3 className="text-gold font-medium mb-3">{t('players.basicInfo')}</h3>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <h3 className="text-gold font-medium mb-3">{t('players.basicInfo')}</h3>                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                     <div>
                         <label className="block text-sm font-medium mb-1" htmlFor="position">
                             {t('players.position')} *
@@ -114,19 +157,49 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium mb-1" htmlFor="club">
-                            {t('players.club')} *
+                        <label className="block text-sm font-medium mb-1" htmlFor="teamId">
+                            {t('players.team')} *
                         </label>
-                        <input
-                            type="text"
-                            id="club"
-                            name="club"
-                            value={formData.club}
+                        <select
+                            id="teamId"
+                            name="teamId"
+                            value={formData.teamId || ''}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            className={`form-input ${errors.club ? 'border-red-500' : ''}`}
-                        />
-                        {errors.club && <p className="text-red-500 text-xs mt-1">{errors.club}</p>}
+                            className={`form-input ${errors.teamId ? 'border-red-500' : ''}`}
+                            disabled={isLoadingTeams}
+                        >
+                            <option value="">{isLoadingTeams ? t('common.loadingTeams') : t('common.selectTeam')}</option>
+                            {teams.map((team) => (
+                                <option key={team.id} value={team.id}>
+                                    {team.name}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.teamId && <p className="text-red-500 text-xs mt-1">{errors.teamId}</p>}
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium mb-1" htmlFor="sportTypeId">
+                            {t('sportTypes.sportType')} *
+                        </label>
+                        <select
+                            id="sportTypeId"
+                            name="sportTypeId"
+                            value={formData.sportTypeId || ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            className={`form-input ${errors.sportTypeId ? 'border-red-500' : ''}`}
+                            disabled={isLoadingSportTypes}
+                        >
+                            <option value="">{isLoadingSportTypes ? t('common.loading') : t('sportTypes.selectSportType')}</option>
+                            {sportTypes.map((sportType) => (
+                                <option key={sportType.id} value={sportType.id}>
+                                    {sportType.name}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.sportTypeId && <p className="text-red-500 text-xs mt-1">{errors.sportTypeId}</p>}
                     </div>
                 </div>
 

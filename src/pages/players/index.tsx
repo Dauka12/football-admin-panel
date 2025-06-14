@@ -7,6 +7,7 @@ import Modal from '../../components/ui/Modal';
 import { usePlayerStore } from '../../store/playerStore';
 import { useTeamStore } from '../../store/teamStore';
 import type { PlayerCreateRequest } from '../../types/players';
+                                    
 
 const PlayersPage: React.FC = () => {
     const { t } = useTranslation();
@@ -125,6 +126,36 @@ const PlayersPage: React.FC = () => {
             case 'BOTH': return t('players.bothFeet');
             default: return foot;
         }
+    };
+
+    // Helper function to get player display name - fix for API bug where fullName="Unknown" and real name is in position
+    const getPlayerDisplayName = (player: any) => {
+        // If fullName exists and is not "Unknown" or "string", use it
+        if (player.fullName && player.fullName !== "Unknown" && player.fullName !== "string") {
+            return player.fullName;
+        }
+        // If position field has actual data (not "string"), use it as name
+        if (player.position && player.position !== "string") {
+            return player.position;
+        }
+        // Fallback to player ID if available
+        return player.id ? `Player #${player.id}` : t('players.unknownPlayer') || 'Unknown Player';
+    };
+
+    // Helper function to get player position - since real name might be in position field
+    const getPlayerPosition = (player: any) => {
+        // If fullName is "Unknown" or "string", then position field might contain the name, not the position
+        if (player.fullName === "Unknown" || player.fullName === "string") {
+            // If position field also has placeholder data, try to use a meaningful fallback
+            if (player.position === "string") {
+                return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
+            }
+            // If position has real data but fullName is placeholder, position might be the actual name
+            // In this case, use club as position fallback
+            return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
+        }
+        // If fullName is valid, then position field should contain actual position
+        return player.position && player.position !== "string" ? player.position : t('common.notSpecified');
     };
 
     return (
@@ -345,8 +376,8 @@ const PlayersPage: React.FC = () => {
                             <table className="w-full">
                                 <thead className="bg-darkest-bg">
                                     <tr>
+                                        <th className="px-4 py-3 text-left">{t('players.fullName') || 'Name'}</th>
                                         <th className="px-4 py-3 text-left">{t('players.position')}</th>
-                                        <th className="px-4 py-3 text-left">{t('players.club')}</th>
                                         <th className="px-4 py-3 text-left hidden md:table-cell">{t('players.nationality')}</th>
                                         <th className="px-4 py-3 text-center hidden sm:table-cell">{t('players.age')}</th>
                                         <th className="px-4 py-3 text-center hidden lg:table-cell">{t('players.preferredFoot')}</th>
@@ -361,10 +392,10 @@ const PlayersPage: React.FC = () => {
                                                     <div className="w-8 h-8 bg-gold text-darkest-bg rounded-full flex items-center justify-center font-bold mr-3">
                                                         {player.id}
                                                     </div>
-                                                    <span>{player.position}</span>
+                                                    <span>{getPlayerDisplayName(player)}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-3">{player.club || '-'}</td>
+                                            <td className="px-4 py-3">{getPlayerPosition(player)}</td>
                                             <td className="px-4 py-3 hidden md:table-cell">{player.nationality}</td>
                                             <td className="px-4 py-3 text-center hidden sm:table-cell">{player.age}</td>
                                             <td className="px-4 py-3 text-center hidden lg:table-cell">{getPreferredFootLabel(player.preferredFoot)}</td>
@@ -410,7 +441,7 @@ const PlayersPage: React.FC = () => {
                                         <div className="w-8 h-8 bg-gold text-darkest-bg rounded-full flex items-center justify-center font-bold mr-2">
                                             {player.id}
                                         </div>
-                                        <h3 className="font-medium">{player.position}</h3>
+                                        <h3 className="font-medium">{getPlayerDisplayName(player)}</h3>
                                     </div>
                                     <div className="flex space-x-2">
                                         <Link
@@ -435,6 +466,10 @@ const PlayersPage: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-2 text-sm">
+                                    <div>
+                                        <span className="text-gray-400">{t('players.position')}: </span>
+                                        <span>{getPlayerPosition(player)}</span>
+                                    </div>
                                     <div>
                                         <span className="text-gray-400">{t('players.age')}: </span>
                                         <span>{player.age}</span>
