@@ -32,16 +32,14 @@ const PlayerSelectionModal: React.FC<PlayerSelectionModalProps> = ({
         if (isOpen) {
             fetchPlayers();
         }
-    }, [isOpen, fetchPlayers]);
-
-    // Filter players when search query changes or players load
+    }, [isOpen, fetchPlayers]);    // Filter players when search query changes or players load
     useEffect(() => {
         // Filter by search query
         const filtered = players.filter(player => {
             const matchesSearch = searchQuery.trim() === '' ||
                 player.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 player.nationality.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                player.club.toLowerCase().includes(searchQuery.toLowerCase());
+                (player.club && player.club.toLowerCase().includes(searchQuery.toLowerCase()));
 
             return matchesSearch;
         });
@@ -134,7 +132,7 @@ const PlayerSelectionModal: React.FC<PlayerSelectionModalProps> = ({
                                             <div className="font-medium">{player.position}</div>
                                             <div className="text-sm text-gray-400">{player.nationality}</div>
                                         </div>
-                                        <div className="text-xs text-gray-400 truncate">{player.club}</div>
+                                        <div className="text-xs text-gray-400 truncate">{player.club || 'No club'}</div>
                                     </div>
                                 </div>
                             ))}
