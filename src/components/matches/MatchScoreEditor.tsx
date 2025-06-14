@@ -15,7 +15,7 @@ const MatchScoreEditor: React.FC<MatchScoreEditorProps> = ({
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState<Record<number, boolean>>({});
   const [scoreValues, setScoreValues] = useState<Record<number, number>>(
-    participants.reduce((acc, p) => ({ ...acc, [p.id]: p.score }), {})
+    participants.reduce((acc, p) => ({ ...acc, [p.id]: p.score ?? 0 }), {})
   );
   const [isLoading, setIsLoading] = useState<Record<number, boolean>>({});
 
@@ -38,7 +38,7 @@ const MatchScoreEditor: React.FC<MatchScoreEditorProps> = ({
     // Reset to original value
     const participant = participants.find(p => p.id === participantId);
     if (participant) {
-      setScoreValues(prev => ({ ...prev, [participantId]: participant.score }));
+      setScoreValues(prev => ({ ...prev, [participantId]: participant.score ?? 0 }));
     }
   };
 
@@ -47,7 +47,7 @@ const MatchScoreEditor: React.FC<MatchScoreEditorProps> = ({
     const newScore = scoreValues[participantId];
     const participant = participants.find(p => p.id === participantId);
     
-    if (!participant || participant.score === newScore) {
+    if (!participant || (participant.score ?? 0) === newScore) {
       setIsEditing(prev => ({ ...prev, [participantId]: false }));
       return;
     }
@@ -72,16 +72,16 @@ const MatchScoreEditor: React.FC<MatchScoreEditorProps> = ({
               <div 
                 className="w-8 h-8 rounded-full mr-3 flex items-center justify-center"
                 style={{
-                  backgroundColor: participant.team.primaryColor || '#ffcc00',
-                  color: participant.team.secondaryColor || '#002b3d'
+                  backgroundColor: (participant.team?.primaryColor) || '#ffcc00',
+                  color: (participant.team?.secondaryColor) || '#002b3d'
                 }}
               >
                 <span className="font-bold text-sm">
-                  {participant.team.name.substring(0, 2).toUpperCase()}
+                  {((participant.team?.name) || participant.teamName || 'Team').substring(0, 2).toUpperCase()}
                 </span>
               </div>
               <div>
-                <div className="font-medium">{participant.team.name}</div>
+                <div className="font-medium">{(participant.team?.name) || participant.teamName || 'Unknown Team'}</div>
                 {participant.player && participant.player.user && (
                   <div className="text-sm text-gray-400">
                     {participant.player.position}
@@ -127,7 +127,7 @@ const MatchScoreEditor: React.FC<MatchScoreEditorProps> = ({
               ) : (
                 <div className="flex items-center">
                   <div className="text-2xl font-bold text-gold mr-3">
-                    {participant.score}
+                    {participant.score ?? 0}
                   </div>
                   <button
                     onClick={() => startEditing(participant.id)}

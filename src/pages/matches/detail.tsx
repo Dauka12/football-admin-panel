@@ -123,10 +123,11 @@ const MatchDetailPage: React.FC = () => {
                 ]}
             />
 
-            {/* Header section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center my-6 space-y-4 md:space-y-0">
+            {/* Header section */}            <div className="flex flex-col md:flex-row justify-between items-start md:items-center my-6 space-y-4 md:space-y-0">
                 <div>
-                    <h1 className="text-xl sm:text-2xl font-bold">{currentMatch.tournament.name}</h1>
+                    <h1 className="text-xl sm:text-2xl font-bold">
+                        {currentMatch.tournament ? currentMatch.tournament.name : `${t('matches.match')} #${currentMatch.id}`}
+                    </h1>
                     <p className="text-gray-400">
                         {formatDateTime(currentMatch.matchDate)}
                     </p>
@@ -184,36 +185,42 @@ const MatchDetailPage: React.FC = () => {
                             />
                         </div>
                     </div>
-                </div>
-
-                {/* Tournament info */}
+                </div>                {/* Tournament info */}
                 <div>
                     <div className="bg-card-bg rounded-lg overflow-hidden shadow-md">
                         <div className="p-4 border-b border-darkest-bg">
                             <h2 className="font-semibold">{t('matches.tournamentInfo')}</h2>
                         </div>
                         <div className="p-4">
-                            <div className="mb-4">
-                                <div className="text-sm text-gray-400 mb-1">{t('tournaments.name')}</div>
-                                <div>{currentMatch.tournament.name}</div>
-                            </div>
+                            {currentMatch.tournament ? (
+                                <>
+                                    <div className="mb-4">
+                                        <div className="text-sm text-gray-400 mb-1">{t('tournaments.name')}</div>
+                                        <div>{currentMatch.tournament.name}</div>
+                                    </div>
 
-                            <div className="mb-4">
-                                <div className="text-sm text-gray-400 mb-1">{t('tournaments.dates')}</div>
-                                <div>
-                                    {formatDateTime(currentMatch.tournament.startDate, 'date')} - {formatDateTime(currentMatch.tournament.endDate, 'date')}
-                                </div>
-                            </div>
+                                    <div className="mb-4">
+                                        <div className="text-sm text-gray-400 mb-1">{t('tournaments.dates')}</div>
+                                        <div>
+                                            {formatDateTime(currentMatch.tournament.startDate, 'date')} - {formatDateTime(currentMatch.tournament.endDate, 'date')}
+                                        </div>
+                                    </div>
 
-                            <div>
-                                <div className="text-sm text-gray-400 mb-1">{t('tournaments.active')}</div>
-                                <div>
-                                    {currentMatch.tournament.active ?
-                                        <span className="text-green-400">{t('common.yes')}</span> :
-                                        <span className="text-gray-400">{t('common.no')}</span>
-                                    }
+                                    <div>
+                                        <div className="text-sm text-gray-400 mb-1">{t('tournaments.active')}</div>
+                                        <div>
+                                            {currentMatch.tournament.active ?
+                                                <span className="text-green-400">{t('common.yes')}</span> :
+                                                <span className="text-gray-400">{t('common.no')}</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="text-center text-gray-400 py-4">
+                                    <p>{t('matches.noTournament') || 'No tournament assigned'}</p>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -281,10 +288,9 @@ const MatchDetailPage: React.FC = () => {
                 onClose={() => setShowEditForm(false)}
                 title={t('matches.editMatch')}
                 hasDatePicker={true}
-            >
-                <MatchForm
+            >                <MatchForm
                     initialData={{
-                        tournamentId: currentMatch.tournament.id,
+                        tournamentId: currentMatch.tournament ? currentMatch.tournament.id : 0,
                         matchDate: currentMatch.matchDate, // Now accepts string | number
                         teams: currentMatch.participants.map(p => {
                             // Handle possible nested team object or teamId property

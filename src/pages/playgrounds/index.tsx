@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import PlaygroundForm from '../../components/playgrounds/PlaygroundForm';
 import Breadcrumb from '../../components/ui/Breadcrumb';
+import ImageCarousel from '../../components/ui/ImageCarousel';
 import Modal from '../../components/ui/Modal';
 import { usePlaygroundStore } from '../../store/playgroundStore';
 import type { CreatePlaygroundRequest, PlaygroundFilters } from '../../types/playgrounds';
@@ -221,17 +222,21 @@ const PlaygroundsPage: React.FC = () => {
                         {playgrounds.content.map((playground) => (
                             <div key={playground.id} className="bg-card-bg rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200">
                                 {/* Playground Image/Icon */}
-                                <div className="h-48 bg-gradient-to-br from-gold/20 to-accent-pink/20 flex items-center justify-center">
+                                <div className="h-48">
                                     {playground.images && playground.images.length > 0 ? (
-                                        <img 
-                                            src={playground.images[0]} 
+                                        <ImageCarousel
+                                            images={playground.images}
                                             alt={playground.name}
-                                            className="w-full h-full object-cover"
+                                            className="h-full"
+                                            showThumbnails={false}
+                                            autoPlay={false}
                                         />
                                     ) : (
-                                        <svg className="w-16 h-16 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                        </svg>
+                                        <div className="h-full bg-gradient-to-br from-gold/20 to-accent-pink/20 flex items-center justify-center">
+                                            <svg className="w-16 h-16 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                            </svg>
+                                        </div>
                                     )}
                                 </div>
 

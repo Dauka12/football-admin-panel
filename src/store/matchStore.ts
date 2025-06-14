@@ -56,6 +56,8 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         try {
             const response = await matchApi.getAll();
             console.log("API Response for matches:", response);
+            console.log("Response type:", typeof response);
+            console.log("Is array:", Array.isArray(response));
             
             // Handle different response formats
             let matches: any[] = [];
@@ -64,8 +66,11 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
                 // Response is already an array
                 matches = response;
             } else if (response && typeof response === 'object') {
-                // Check if response has a matches property
-                if ('matches' in response) {
+                // Check if response has a content property (paginated response)
+                if ('content' in response && Array.isArray(response.content)) {
+                    matches = response.content;
+                } else if ('matches' in response) {
+                    // Check if response has a matches property
                     matches = Array.isArray(response.matches) ? response.matches : [];
                 } else {
                     // If it's just a single match object, wrap it in an array
@@ -83,12 +88,13 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
                     // No need to convert here as we'll format properly when displaying
                     // Just ensure it's passed through properly
                 } else if (typeof normalizedMatchDate === 'string') {
-                    // Try to detect Unix timestamps stored as strings and convert them
+                    // Check if it's a pure numeric string (timestamp)
                     const maybeTimestamp = parseInt(normalizedMatchDate, 10);
-                    if (!isNaN(maybeTimestamp) && maybeTimestamp > 1000000000) {
-                        // It's likely a Unix timestamp as a string
+                    if (!isNaN(maybeTimestamp) && normalizedMatchDate === maybeTimestamp.toString() && maybeTimestamp > 1000000000) {
+                        // It's likely a Unix timestamp as a string (only if the string is purely numeric)
                         normalizedMatchDate = maybeTimestamp;
                     }
+                    // Otherwise keep it as string - it's likely an ISO date string like "2025-06-08"
                 }
                 
                 // Process participants with defensive coding
@@ -103,10 +109,11 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
                 }
 
                 const processedParticipants: ProcessedParticipant[] = Array.isArray(match.participants) ? 
-                    match.participants.map((p: RawParticipant) => {
+                    match.participants.map((p: RawParticipant, index: number) => {
                         // Clone the participant and ensure score exists
                         const processedParticipant = { 
                             ...p, 
+                            id: p.id || p.teamId || index, // Use existing id, teamId, or index as fallback
                             score: p.score !== undefined ? p.score : 0 
                         } as ProcessedParticipant;
                         
@@ -121,6 +128,8 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
             }) : [];
             
             console.log("Processed matches:", processedMatches);
+            console.log("Number of processed matches:", processedMatches.length);
+            
             set({ matches: processedMatches, isLoading: false });
             return true;
         } catch (error) {
@@ -145,14 +154,18 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
             
             // Normalize matchDate for different formats
             let normalizedMatchDate = matchData.matchDate;
-            if (typeof normalizedMatchDate === 'string' && !isNaN(parseInt(normalizedMatchDate))) {
-                const parsedDate = parseInt(normalizedMatchDate);
-                // If it's a Unix timestamp in seconds (10 digits), convert to milliseconds
-                if (String(parsedDate).length === 10) {
-                    normalizedMatchDate = parsedDate * 1000;
-                } else {
-                    normalizedMatchDate = parsedDate;
+            if (typeof normalizedMatchDate === 'string') {
+                // Check if it's a pure numeric string (timestamp)
+                const parsedDate = parseInt(normalizedMatchDate, 10);
+                if (!isNaN(parsedDate) && normalizedMatchDate === parsedDate.toString() && parsedDate > 1000000000) {
+                    // It's a pure numeric string - likely a timestamp (only if it's a reasonable timestamp value)
+                    if (String(parsedDate).length === 10) {
+                        normalizedMatchDate = parsedDate * 1000; // Convert seconds to milliseconds
+                    } else {
+                        normalizedMatchDate = parsedDate;
+                    }
                 }
+                // Otherwise keep it as string - it's likely an ISO date string like "2025-06-08"
             }
             
             // Ensure response is properly formatted as a MatchFullResponse
@@ -163,25 +176,25 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
                 status: matchData.status || 'PENDING',
                 participants: [],
                 events: Array.isArray(matchEvents) ? matchEvents : [], // Use the events from the dedicated endpoint
-                tournament: {
-                    id: matchData.tournament?.id || 0,
-                    name: matchData.tournament?.name || 'Unknown',
-                    startDate: matchData.tournament?.startDate || '',
-                    endDate: matchData.tournament?.endDate || '',
-                    description: matchData.tournament?.description || '',
-                    active: matchData.tournament?.active || false,
-                    teams: matchData.tournament?.teams || [],
-                    matches: matchData.tournament?.matches || []
-                }
+                tournament: matchData.tournament ? {
+                    id: matchData.tournament.id || 0,
+                    name: matchData.tournament.name || 'Unknown',
+                    startDate: matchData.tournament.startDate || '',
+                    endDate: matchData.tournament.endDate || '',
+                    description: matchData.tournament.description || '',
+                    active: matchData.tournament.active || false,
+                    teams: matchData.tournament.teams || [],
+                    matches: matchData.tournament.matches || []
+                } : null
             };
             
             // Process participants if they exist
             if (Array.isArray(matchData.participants)) {
                 // Convert simplified participants to full MatchParticipant objects
-                processedMatch.participants = matchData.participants.map(p => {
+                processedMatch.participants = matchData.participants.map((p, index) => {
                     // Create default participant structure
                     const participant: any = {
-                        id: p.id || 0,
+                        id: p.id || p.teamId || index, // Use existing id, teamId, or index as fallback
                         match: typeof p.match === 'string' ? p.match : String(matchData.id),
                         team: {
                             id: p.teamId || (p.team?.id) || 0,
@@ -191,7 +204,10 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
                             description: p.team?.description || '',
                             players: p.team?.players || []
                         },
-                        score: typeof p.score !== 'undefined' ? p.score : 0
+                        score: typeof p.score !== 'undefined' ? p.score : 0,
+                        // Add API response fields for compatibility
+                        teamId: p.teamId,
+                        teamName: p.teamName
                     };
                     
                     // Add player if available

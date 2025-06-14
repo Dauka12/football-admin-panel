@@ -9,7 +9,7 @@ export type EventType = 'GOAL' | 'YELLOW_CARD' | 'RED_CARD' | 'SECOND_YELLOW' |
 export interface MatchParticipant {
     id: number;
     match: string;
-    team: {
+    team?: {
         id: number;
         name: string;
         primaryColor: string;
@@ -30,7 +30,7 @@ export interface MatchParticipant {
         };
         // Other player properties simplified
     };
-    score: number;
+    score?: number;
     
     // Additional fields for flexibility with API responses
     teamId?: number;
@@ -78,7 +78,7 @@ export interface MatchFullResponse {
         active: boolean;
         teams: string[];
         matches: string[];
-    };
+    } | null;
     events: MatchEvent[];
 }
 
@@ -91,15 +91,15 @@ export interface MatchListResponse {
         name: string;
         startDate: string;
         endDate: string;
-    };
+    } | null;
     participants: {
         teamId: number;
         teamName: string;
         playerId?: number;
         playerFullName?: string;
-        score: number;
+        score?: number;
     }[];
-    status: string;
+    status?: string;
 }
 
 // Request interfaces
@@ -131,3 +131,37 @@ export namespace MatchResponse {
     export type List = MatchListResponse;
     export type Create = MatchCreateResponse;
 }
+
+// Paginated response structure from API
+export interface PageableOptions {
+    pageNumber: number;
+    pageSize: number;
+    sort: {
+        empty: boolean;
+        sorted: boolean;
+        unsorted: boolean;
+    };
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+}
+
+export interface PageResponse<T> {
+    content: T[];
+    pageable: PageableOptions;
+    last: boolean;
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+    sort: {
+        empty: boolean;
+        sorted: boolean;
+        unsorted: boolean;
+    };
+    first: boolean;
+    numberOfElements: number;
+    empty: boolean;
+}
+
+export interface MatchesPageResponse extends PageResponse<MatchListResponse> {}

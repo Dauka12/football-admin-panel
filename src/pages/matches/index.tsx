@@ -50,7 +50,8 @@ const MatchesPage: React.FC = () => {
     }
     
     // Debug log all matches
-    console.log('Matches data:', matches);
+    console.log('Matches data for filtering:', matches);
+    console.log('Number of matches:', matches.length);
     
     let result = [...matches];
     
@@ -85,7 +86,9 @@ const MatchesPage: React.FC = () => {
         case 'date-desc':
           return getDateTimeValue(b.matchDate) - getDateTimeValue(a.matchDate);
         case 'status':
-          return a.status.localeCompare(b.status);
+          const statusA = a.status || '';
+          const statusB = b.status || '';
+          return statusA.localeCompare(statusB);
         default:
           return 0;
       }
@@ -101,16 +104,17 @@ const MatchesPage: React.FC = () => {
         return dateValue;
       }
       
-      // Try to parse as timestamp string
+      // Check if it's a pure numeric string (timestamp)
       const maybeTimestamp = parseInt(dateValue, 10);
-      if (!isNaN(maybeTimestamp)) {
+      if (!isNaN(maybeTimestamp) && dateValue === maybeTimestamp.toString()) {
+        // It's a pure numeric string - treat as timestamp
         if (maybeTimestamp.toString().length === 10) {
           return maybeTimestamp * 1000; // Convert seconds to milliseconds
         }
         return maybeTimestamp;
       }
       
-      // Parse as date string
+      // Parse as ISO date string (like "2025-06-08")
       return new Date(dateValue).getTime();
     }
     
@@ -138,7 +142,11 @@ const MatchesPage: React.FC = () => {
   };
   
   // Get status badge color
-  const getStatusBadgeClass = (status: string): string => {
+  const getStatusBadgeClass = (status: string | undefined | null): string => {
+    if (!status) {
+      return 'bg-gray-800/50 text-gray-300';
+    }
+    
     switch (status.toUpperCase()) {
       case 'PENDING':
         return 'bg-blue-900/50 text-blue-200';
@@ -276,14 +284,14 @@ const MatchesPage: React.FC = () => {
                 <div>
                   <span className="text-gray-400 text-sm">{t('matches.matchId')}: {match.id}</span>
                   <h3 className="font-semibold text-lg">
-                    {match.tournament && match.tournament.name}
+                    {match.tournament ? match.tournament.name : 'No Tournament'}
                   </h3>
                   <div className="text-sm text-gray-300">
                     {formatDateTime(match.matchDate)}
                   </div>
                 </div>
                 <span className={`px-2 py-1 text-xs rounded-md ${getStatusBadgeClass(match.status)} mt-2 sm:mt-0`}>
-                  {match.status}
+                  {match.status || 'Unknown'}
                 </span>
               </div>
               
@@ -294,7 +302,7 @@ const MatchesPage: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <div className="text-lg font-bold text-gold mr-2">
-                          {participant.score !== undefined ? participant.score : 0}
+                          {participant.score !== undefined && participant.score !== null ? participant.score : 0}
                         </div>
                         <span>{participant.teamName}</span>
                       </div>

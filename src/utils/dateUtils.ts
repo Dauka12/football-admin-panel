@@ -20,9 +20,11 @@ export const formatDateTime = (dateValue: string | number, format: 'datetime' | 
       date = new Date(dateValue);
     }
   } else {
-    // Try to parse as a timestamp (number stored as string)
+    // Handle string input
+    // First check if it's a pure numeric string (timestamp)
     const maybeTimestamp = parseInt(dateValue, 10);
-    if (!isNaN(maybeTimestamp)) {
+    if (!isNaN(maybeTimestamp) && dateValue === maybeTimestamp.toString()) {
+      // It's a pure numeric string - treat as timestamp
       if (maybeTimestamp.toString().length === 10) {
         // Convert seconds to milliseconds for JavaScript Date
         date = new Date(maybeTimestamp * 1000);
@@ -30,11 +32,11 @@ export const formatDateTime = (dateValue: string | number, format: 'datetime' | 
         // If number is big enough to be a millisecond timestamp
         date = new Date(maybeTimestamp);
       } else {
-        // Otherwise treat as ISO string
+        // Small number, treat as ISO string
         date = new Date(dateValue);
       }
     } else {
-      // Otherwise treat as ISO string
+      // Otherwise treat as ISO string (like "2025-06-08")
       date = new Date(dateValue);
     }
   }
