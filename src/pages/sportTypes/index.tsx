@@ -15,7 +15,6 @@ const SportTypesPage: React.FC = () => {
         fetchSportTypes,
         createSportType,
         deleteSportType,
-        totalElements,
         totalPages,
         currentPage,
         pageSize,
@@ -37,6 +36,15 @@ const SportTypesPage: React.FC = () => {
     useEffect(() => {
         fetchSportTypes(page, pageSize);
     }, [fetchSportTypes, page, pageSize]);
+
+    // Sync local filter state with store filters
+    useEffect(() => {
+        setFilterTeamBased(filters.teamBased);
+        setFilterActive(filters.active);
+        if (filters.name) {
+            setSearchQuery(filters.name);
+        }
+    }, [filters]);
 
     // Apply filters
     const applyFilters = () => {

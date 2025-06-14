@@ -9,6 +9,7 @@ export interface City {
     createdAt: string;
     updatedAt: string;
     active: boolean;
+    // Note: population and postalCode are only in create/update requests, not in responses
 }
 
 export interface CityCreateRequest {

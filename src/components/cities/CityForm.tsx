@@ -42,11 +42,11 @@ const CityForm: React.FC<CityFormProps> = ({
                 name: city.name,
                 country: city.country,
                 region: city.region,
-                population: 0, // Not in the response but required for create/update
+                population: 0,
                 latitude: city.latitude,
                 longitude: city.longitude,
                 description: city.description,
-                postalCode: '', // Not in the response but required for create/update
+                postalCode: '',
                 active: city.active
             });
         }
