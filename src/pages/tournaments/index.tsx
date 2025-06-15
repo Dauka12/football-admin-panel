@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import TournamentForm from '../../components/tournaments/TournamentForm';
-import Modal from '../../components/ui/Modal';
+import SimpleModal from '../../components/ui/SimpleModal';
 import { useTournamentStore } from '../../store/tournamentStore';
 import type { CreateTournamentRequest } from '../../types/tournaments';
 
@@ -194,22 +194,22 @@ const TournamentsPage: React.FC = () => {
                         </div>
                     ))}
                 </div>
-            )}
-
-            {/* Create Tournament Modal */}            <Modal
+            )}            {/* Create Tournament Modal */}
+            <SimpleModal
                 isOpen={showCreateForm}
                 onClose={() => setShowCreateForm(false)}
                 title={t('tournaments.createTournament')}
-                hasDatePicker={true}
+                className="max-w-2xl"
             >
                 <TournamentForm onSubmit={handleCreateTournament} onCancel={() => setShowCreateForm(false)} />
-            </Modal>
+            </SimpleModal>
 
             {/* Delete Confirmation Modal */}
-            <Modal
+            <SimpleModal
                 isOpen={tournamentToDelete !== null}
                 onClose={() => setTournamentToDelete(null)}
                 title={t('tournaments.confirmDelete')}
+                className="max-w-md"
             >
                 <div>
                     <p className="text-gray-300 mb-6">{t('tournaments.deleteWarning')}</p>
@@ -228,7 +228,7 @@ const TournamentsPage: React.FC = () => {
                         </button>
                     </div>
                 </div>
-            </Modal>
+            </SimpleModal>
         </div>
     );
 };

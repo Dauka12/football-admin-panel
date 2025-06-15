@@ -700,4 +700,14 @@ export const ru = {
         }
     },
 
+    debug: {
+        performanceMonitor: "Монитор производительности",
+        totalRenders: "Всего рендеров",
+        avgTime: "Среднее время",
+        slowestComponent: "Самый медленный компонент",
+        recentRenders: "Последние рендеры",
+        clear: "Очистить",
+        export: "Экспорт"
+    }
+
 };

@@ -1,45 +1,33 @@
-// Match status enum
-export type MatchStatus = 'PENDING' | 'LIVE' | 'COMPLETED' | 'CANCELLED';
+// Match status enum - matches API specification
+export type MatchStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 
 // Event type enum - updated to match API values
 export type EventType = 'GOAL' | 'YELLOW_CARD' | 'RED_CARD' | 'SECOND_YELLOW' | 
                         'PENALTY_GOAL' | 'MISSED_PENALTY' | 'OWN_GOAL';
 
-// Match participant interface
-export interface MatchParticipant {
+// Tournament info for match responses
+export interface MatchTournament {
     id: number;
-    match: string;
-    team?: {
-        id: number;
-        name: string;
-        primaryColor: string;
-        secondaryColor: string;
-        description: string;
-        players: Array<any>; // Simplified for brevity
-        tournaments?: Array<any>; // Simplified for brevity
-    };
-    player?: {
-        id: number;
-        position: string;
-        club: string;
-        user?: {
-            firstname: string;
-            lastname: string;
-            email?: string;
-            id: number;
-        };
-        // Other player properties simplified
-    };
-    score?: number;
-    
-    // Additional fields for flexibility with API responses
-    teamId?: number;
-    teamName?: string;
-    playerId?: number;
-    playerFullName?: string;
+    name: string;
+    startDate: string;
+    endDate: string;
+    numberOfMatches: number;
+    sportTypeId: number;
+    categoryId: number;
+    cityId: number;
+    active?: boolean; // Add optional active field
 }
 
-// Match event interface
+// Match participant interface - aligned with API response
+export interface MatchParticipant {
+    teamId: number;
+    teamName: string;
+    playerId?: number;
+    playerFullName?: string;
+    score: number;
+}
+
+// Match event interface - matches API specification
 export interface MatchEvent {
     id: number;
     matchId: number;
@@ -62,57 +50,38 @@ export interface MatchEventsResponse {
     events: MatchEvent[];
 }
 
-// Match interfaces for API responses
+// Match interfaces for API responses - aligned with API specification
 export interface MatchFullResponse {
     id: number;
-    matchDate: string | number;  // Accept both ISO date strings and Unix timestamps
-    deleted: boolean;
+    matchDate: string;
+    tournament: MatchTournament;
     participants: MatchParticipant[];
-    status: MatchStatus;
-    tournament: {
-        id: number;
-        name: string;
-        startDate: string | number;  // Also accept timestamps here
-        endDate: string | number;    // Also accept timestamps here
-        description: string;
-        active: boolean;
-        teams: string[];
-        matches: string[];
-    } | null;
-    events: MatchEvent[];
+    status: MatchStatus; // Change from string to MatchStatus
+    events?: MatchEvent[]; // Add optional events field
 }
 
-// Simplified match response for listings
+// Simplified match response for listings - same structure as full response
 export interface MatchListResponse {
     id: number;
-    matchDate: string | number;  // Accept both ISO date strings and Unix timestamps
-    tournament: {
-        id: number;
-        name: string;
-        startDate: string;
-        endDate: string;
-    } | null;
-    participants: {
-        teamId: number;
-        teamName: string;
-        playerId?: number;
-        playerFullName?: string;
-        score?: number;
-    }[];
-    status?: string;
+    matchDate: string;
+    tournament: MatchTournament;
+    participants: MatchParticipant[];
+    status: MatchStatus; // Change from string to MatchStatus
 }
 
-// Request interfaces
+// Request interfaces - aligned with API specification
 export interface CreateMatchRequest {
     tournamentId: number;
-    matchDate: string | number;
+    matchDate: string;
     teams: number[];
+    cityId: number;
 }
 
 export interface UpdateMatchRequest {
     tournamentId: number;
-    matchDate: string | number;
+    matchDate: string;
     teams: number[];
+    cityId: number;
 }
 
 // Response for create/update

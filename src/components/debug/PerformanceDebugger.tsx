@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { clearPerformanceData, exportPerformanceData, usePerformanceData } from '../../hooks/usePerformanceMonitor';
 
 const PerformanceDebugger: React.FC = () => {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const performanceData = usePerformanceData();
 
@@ -15,7 +17,7 @@ const PerformanceDebugger: React.FC = () => {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="bg-blue-600 text-white px-3 py-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
-                title="Performance Monitor"
+                title={t('debug.performanceMonitor')}
             >
                 ⚡ {performanceData.totalRenders}
             </button>
@@ -23,7 +25,7 @@ const PerformanceDebugger: React.FC = () => {
             {isOpen && (
                 <div className="absolute bottom-12 right-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-xl p-4 w-80 max-h-96 overflow-auto">
                     <div className="flex justify-between items-center mb-3">
-                        <h3 className="font-bold text-lg">Performance Monitor</h3>
+                        <h3 className="font-bold text-lg">{t('debug.performanceMonitor')}</h3>
                         <button
                             onClick={() => setIsOpen(false)}
                             className="text-gray-500 hover:text-gray-700 text-xl"
@@ -35,24 +37,24 @@ const PerformanceDebugger: React.FC = () => {
                     <div className="space-y-3">
                         <div className="grid grid-cols-2 gap-2 text-sm">
                             <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                                <div className="font-medium">Total Renders</div>
+                                <div className="font-medium">{t('debug.totalRenders')}</div>
                                 <div className="text-lg">{performanceData.totalRenders}</div>
                             </div>
                             <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                                <div className="font-medium">Avg Time</div>
+                                <div className="font-medium">{t('debug.avgTime')}</div>
                                 <div className="text-lg">{performanceData.averageRenderTime.toFixed(2)}ms</div>
                             </div>
                         </div>
 
                         {performanceData.slowestComponent && (
                             <div className="bg-yellow-100 dark:bg-yellow-900 p-2 rounded text-sm">
-                                <div className="font-medium">Slowest Component</div>
+                                <div className="font-medium">{t('debug.slowestComponent')}</div>
                                 <div>{performanceData.slowestComponent}</div>
                             </div>
                         )}
 
                         <div className="space-y-2">
-                            <h4 className="font-medium">Recent Renders</h4>
+                            <h4 className="font-medium">{t('debug.recentRenders')}</h4>
                             <div className="max-h-32 overflow-y-auto space-y-1">
                                 {performanceData.metrics.slice(-10).reverse().map((metric, index) => (
                                     <div

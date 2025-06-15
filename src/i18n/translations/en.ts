@@ -697,4 +697,14 @@ export const en = {
         }
     },
 
+    debug: {
+        performanceMonitor: "Performance Monitor",
+        totalRenders: "Total Renders",
+        avgTime: "Avg Time",
+        slowestComponent: "Slowest Component",
+        recentRenders: "Recent Renders",
+        clear: "Clear",
+        export: "Export"
+    }
+
 };

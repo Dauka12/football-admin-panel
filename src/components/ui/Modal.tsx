@@ -7,6 +7,7 @@ interface ModalProps {
     children: React.ReactNode;
     className?: string;
     hasDatePicker?: boolean;
+    zIndex?: string; // Add zIndex prop
 }
 
 const Modal: React.FC<ModalProps> = ({ 
@@ -15,7 +16,8 @@ const Modal: React.FC<ModalProps> = ({
     title, 
     children, 
     className = '',
-    hasDatePicker = false 
+    hasDatePicker = false,
+    zIndex = 'z-50' // Default z-index
 }) => {
     const [isActive, setIsActive] = useState(false);
 
@@ -36,7 +38,7 @@ const Modal: React.FC<ModalProps> = ({
     if (!isOpen) {
         return null;
     }    return (
-        <div className={`modal-overlay ${isActive ? 'active' : ''}`}>
+        <div className={`modal-overlay ${isActive ? 'active' : ''} ${zIndex}`}>
             <div className={`
                 modal-content 
                 ${isActive ? 'active' : ''} 

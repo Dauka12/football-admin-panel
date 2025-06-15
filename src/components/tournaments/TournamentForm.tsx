@@ -171,9 +171,9 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
                                 value={formData.name}
                                 onChange={handleNameChange}
                                 onBlur={handleNameBlur}
-                                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg 
-                         focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200
-                         placeholder-gray-400 text-white"
+                                className="w-full px-4 py-3 bg-gray-800/50 border                   border-gray-600           rounded-lg
+                                    focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200
+                                placeholder-gray-400 text-white"
                                 placeholder={t('tournaments.enterName')}
                             />
                             {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name}</p>}

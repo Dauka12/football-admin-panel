@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import TournamentForm from '../../components/tournaments/TournamentForm';
 import TournamentStatistics from '../../components/tournaments/TournamentStatistics';
 import Bread from '../../components/ui/Breadcrumb';
-import Modal from '../../components/ui/Modal';
+import SimpleModal from '../../components/ui/SimpleModal';
 import { useStatisticsStore } from '../../store/statisticsStore';
 import { useTeamStore } from '../../store/teamStore';
 import { useTournamentStore } from '../../store/tournamentStore';
@@ -42,7 +42,7 @@ const TournamentDetailPage: React.FC = () => {
 
     useEffect(() => {
         loadTournament();
-    }, [tournamentId]);
+    }, [loadTournament]);
     
     // Fetch tournament statistics
     useEffect(() => {
@@ -53,37 +53,49 @@ const TournamentDetailPage: React.FC = () => {
     
     // Fetch team details
     useEffect(() => {
+        let isCancelled = false;
+        
         const getTeamDetails = async () => {
             if (currentTournament && Array.isArray(currentTournament.teams) && currentTournament.teams.length > 0) {
-                // Skip if we already have the teams loaded
-                if (tournamentTeams.length > 0) return;
+                // Skip if we already have the teams loaded or if request is cancelled
+                if (tournamentTeams.length > 0 || isCancelled) return;
                 
                 setIsLoadingTeams(true);
                 setTeamError(null);
                 
                 try {
-                    // currentTournament.teams should be an array of team IDs (numbers)
-                    const teamIds = currentTournament.teams.filter(id => typeof id === 'number');
-                    if (teamIds.length > 0) {
+                    // currentTournament.teams is an array of TournamentTeam objects
+                    const teamIds = currentTournament.teams.map(team => team.id);
+                    if (teamIds.length > 0 && !isCancelled) {
                         const teams = await fetchTeamsByIds(teamIds);
-                        setTournamentTeams(teams);
-                    } else {
+                        if (!isCancelled) {
+                            setTournamentTeams(teams);
+                        }
+                    } else if (!isCancelled) {
                         setTournamentTeams([]);
                     }
                 } catch (error) {
-                    console.error('Failed to fetch teams:', error);
-                    setTeamError(t('errors.failedToLoadTeams'));
+                    if (!isCancelled) {
+                        console.error('Failed to fetch teams:', error);
+                        setTeamError(t('errors.failedToLoadTeams'));
+                    }
                 } finally {
-                    setIsLoadingTeams(false);
+                    if (!isCancelled) {
+                        setIsLoadingTeams(false);
+                    }
                 }
-            } else {
+            } else if (!isCancelled) {
                 setTournamentTeams([]);
                 setIsLoadingTeams(false);
             }
         };
 
         getTeamDetails();
-    }, [currentTournament, fetchTeamsByIds, t]);
+        
+        return () => {
+            isCancelled = true;
+        };
+    }, [currentTournament, fetchTeamsByIds, t, tournamentTeams.length]);
 
     const handleUpdate = async (data: UpdateTournamentRequest) => {
         if (tournamentId > 0) {
@@ -266,29 +278,32 @@ const TournamentDetailPage: React.FC = () => {
             />
 
             {/* Edit Tournament Modal */}
-            <Modal 
+            <SimpleModal 
                 isOpen={isEditing}
                 onClose={() => setIsEditing(false)}
                 title={t('tournaments.editTournament')}
-                hasDatePicker={true}
+                className="max-w-2xl"
             >
                 <TournamentForm 
                     initialData={{
                         name: currentTournament.name,
                         startDate: currentTournament.startDate,
                         endDate: currentTournament.endDate,
-                        teams: currentTournament.teams?.map(team => team.id) || []
+                        teams: currentTournament.teams?.map(team => team.id) || [],
+                        cityId: 1, // Default city ID
+                        sportTypeId: currentTournament.sportTypeId || 1 // Default sport type
                     }}
                     onSubmit={handleUpdate} 
                     onCancel={() => setIsEditing(false)} 
                 />
-            </Modal>
+            </SimpleModal>
 
             {/* Delete Confirmation Modal */}
-            <Modal
+            <SimpleModal
                 isOpen={showDeleteConfirm}
                 onClose={() => setShowDeleteConfirm(false)}
                 title={t('tournaments.confirmDelete')}
+                className="max-w-md"
             >
                 <div>
                     <p className="text-gray-300 mb-6">
@@ -309,7 +324,7 @@ const TournamentDetailPage: React.FC = () => {
                         </button>
                     </div>
                 </div>
-            </Modal>
+            </SimpleModal>
         </div>
     );
 };

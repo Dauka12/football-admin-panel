@@ -30,7 +30,7 @@ const MatchesPage: React.FC = () => {
     const loadData = async () => {
       try {
         await Promise.all([
-          fetchMatches(true), // Force refresh
+          fetchMatches(undefined, true), // Force refresh
           fetchTournaments()
         ]);
       } catch (error) {

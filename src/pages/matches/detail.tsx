@@ -292,13 +292,8 @@ const MatchDetailPage: React.FC = () => {
                     initialData={{
                         tournamentId: currentMatch.tournament ? currentMatch.tournament.id : 0,
                         matchDate: currentMatch.matchDate, // Now accepts string | number
-                        teams: currentMatch.participants.map(p => {
-                            // Handle possible nested team object or teamId property
-                            if (p.team && typeof p.team === 'object' && 'id' in p.team) {
-                                return p.team.id;
-                            }
-                            return p.teamId || 0;
-                        })
+                        teams: currentMatch.participants.map(p => p.teamId || 0),
+                        cityId: currentMatch.tournament?.cityId || 0
                     }}
                     onSubmit={handleUpdateMatch}
                     onCancel={() => setShowEditForm(false)}
