@@ -42,11 +42,11 @@ const CityForm: React.FC<CityFormProps> = ({
                 name: city.name,
                 country: city.country,
                 region: city.region,
-                population: 0,
+                population: 0, // Default value as this field is not returned from API
                 latitude: city.latitude,
                 longitude: city.longitude,
                 description: city.description,
-                postalCode: '',
+                postalCode: '', // Default value as this field is not returned from API
                 active: city.active
             });
         }
