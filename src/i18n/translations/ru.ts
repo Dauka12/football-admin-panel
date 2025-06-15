@@ -16,7 +16,8 @@ export const ru = {
         categories: "Категории",
         sportTypes: "Виды спорта",
         playgrounds: "Площадки",
-        cities: "Города"
+        cities: "Города",
+        users: "Пользователи"
     },    auth: {
         status: {
             allStatuses: "Все статусы",
@@ -649,4 +650,54 @@ export const ru = {
             descriptionMaxLength: "Описание не должно превышать 500 символов"
         }
     },
+    
+    // Users
+    users: {
+        title: "Пользователи",
+        subtitle: "Управление пользователями системы и их ролями",
+        createUser: "Создать пользователя",
+        editUser: "Редактировать пользователя",
+        userDetails: "Детали пользователя",
+        noUsers: "Пользователи не найдены",
+        createFirst: "Создайте первого пользователя",
+        basicInfo: "Основная информация",
+        firstname: "Имя",
+        lastname: "Фамилия",
+        phone: "Телефон",
+        password: "Пароль",
+        passwordOptional: "Оставьте пустым для сохранения текущего пароля",
+        passwordHint: "Оставьте пустым для сохранения текущего пароля",
+        roles: "Роли",
+        manageRoles: "Управление ролями",
+        name: "Имя",
+        userId: "ID пользователя",
+        totalRoles: "Всего ролей",
+        userStatus: "Статус",
+        noRoles: "Роли не назначены",
+        confirmDelete: "Подтвердить удаление",
+        deleteWarning: "Вы уверены, что хотите удалить пользователя {name}? Это действие нельзя отменить.",
+        deleteWarningDetail: "Вы уверены, что хотите удалить пользователя {name}? Это действие нельзя отменить и удалит все связанные данные.",
+        notFound: "Пользователь не найден",
+        
+        // Form placeholders
+        firstnamePlaceholder: "Введите имя",
+        lastnamePlaceholder: "Введите фамилию",
+        phonePlaceholder: "Введите номер телефона",
+        passwordPlaceholder: "Введите пароль",
+        
+        // Filter and search
+        searchByFirstname: "Поиск по имени...",
+        searchByLastname: "Поиск по фамилии...",
+        searchByPhone: "Поиск по телефону...",
+        sortBy: "Сортировать по",
+        sortDirection: "Направление сортировки",
+        ascending: "По возрастанию",
+        descending: "По убыванию",
+        
+        // Validation messages
+        validation: {
+            selectRole: "Должна быть выбрана хотя бы одна роль"
+        }
+    },
+
 };

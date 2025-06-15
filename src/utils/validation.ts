@@ -399,6 +399,77 @@ export const achievementValidators = {
     })
 };
 
+// User validators
+interface UserFormData {
+    firstname: string;
+    lastname: string;
+    phone: string;
+    password: string;
+    roleIds: number[];
+}
+
+export const userValidators = {
+    create: new Validator<UserFormData>({
+        firstname: [
+            validationRules.required('First name is required'),
+            validationRules.minLength(2, 'First name must be at least 2 characters'),
+            validationRules.maxLength(50, 'First name must not exceed 50 characters')
+        ],
+        lastname: [
+            validationRules.required('Last name is required'),
+            validationRules.minLength(2, 'Last name must be at least 2 characters'),
+            validationRules.maxLength(50, 'Last name must not exceed 50 characters')
+        ],
+        phone: [
+            validationRules.required('Phone number is required'),
+            validationRules.phone('Phone must start with + and contain 10-15 digits')
+        ],
+        password: [
+            validationRules.required('Password is required'),
+            validationRules.minLength(6, 'Password must be at least 6 characters long'),
+            validationRules.maxLength(100, 'Password must not exceed 100 characters')
+        ],
+        roleIds: [
+            validationRules.arrayMinLength(1, 'At least one role must be selected')
+        ]
+    }),
+    
+    update: new Validator<UserFormData>({
+        firstname: [
+            validationRules.required('First name is required'),
+            validationRules.minLength(2, 'First name must be at least 2 characters'),
+            validationRules.maxLength(50, 'First name must not exceed 50 characters')
+        ],
+        lastname: [
+            validationRules.required('Last name is required'),
+            validationRules.minLength(2, 'Last name must be at least 2 characters'),
+            validationRules.maxLength(50, 'Last name must not exceed 50 characters')
+        ],
+        phone: [
+            validationRules.required('Phone number is required'),
+            validationRules.phone('Phone must start with + and contain 10-15 digits')
+        ],
+        // Password is optional for updates - only validate if provided
+        password: [
+            validationRules.custom((value: string) => {
+                if (!value || value.trim() === '') return true; // Allow empty password for updates
+                return value.length >= 6;
+            }, 'Password must be at least 6 characters long'),
+            validationRules.maxLength(100, 'Password must not exceed 100 characters')
+        ],
+        roleIds: [
+            validationRules.arrayMinLength(1, 'At least one role must be selected')
+        ]
+    }),
+    
+    roles: new Validator<{ roleIds: number[] }>({
+        roleIds: [
+            validationRules.arrayMinLength(1, 'At least one role must be selected'),
+            validationRules.arrayMaxLength(10, 'Maximum 10 roles allowed')
+        ]
+    })
+};
+
 // Utility hook for form validation
 export const useFormValidation = <T extends Record<string, any>>(
     validator: Validator<T>

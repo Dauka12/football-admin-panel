@@ -36,7 +36,8 @@ export const en = {
         categories: "Categories",
         sportTypes: "Sport Types",
         playgrounds: "Playgrounds",
-        cities: "Cities"
+        cities: "Cities",
+        users: "Users"
     },
     matches: {
         title: "Matches",
@@ -644,6 +645,55 @@ export const en = {
             descriptionRequired: "Description is required", 
             descriptionMinLength: "Description must be at least 5 characters",
             descriptionMaxLength: "Description must not exceed 500 characters"
+        }
+    },
+    
+    // Users
+    users: {
+        title: "Users",
+        subtitle: "Manage system users and their roles",
+        createUser: "Create User",
+        editUser: "Edit User",
+        userDetails: "User Details",
+        noUsers: "No users found",
+        createFirst: "Create your first user",
+        basicInfo: "Basic Information",
+        firstname: "First Name",
+        lastname: "Last Name",
+        phone: "Phone",
+        password: "Password",
+        passwordOptional: "Leave empty to keep current password",
+        passwordHint: "Leave empty to keep current password",
+        roles: "Roles",
+        manageRoles: "Manage Roles",
+        name: "Name",
+        userId: "User ID",
+        totalRoles: "Total Roles",
+        userStatus: "Status",
+        noRoles: "No roles assigned",
+        confirmDelete: "Confirm Delete",
+        deleteWarning: "Are you sure you want to delete user {name}? This action cannot be undone.",
+        deleteWarningDetail: "Are you sure you want to delete user {name}? This action cannot be undone and will remove all associated data.",
+        notFound: "User not found",
+        
+        // Form placeholders
+        firstnamePlaceholder: "Enter first name",
+        lastnamePlaceholder: "Enter last name",
+        phonePlaceholder: "Enter phone number",
+        passwordPlaceholder: "Enter password",
+        
+        // Filter and search
+        searchByFirstname: "Search by first name...",
+        searchByLastname: "Search by last name...",
+        searchByPhone: "Search by phone...",
+        sortBy: "Sort by",
+        sortDirection: "Sort direction",
+        ascending: "Ascending",
+        descending: "Descending",
+        
+        // Validation messages
+        validation: {
+            selectRole: "At least one role must be selected"
         }
     },
 

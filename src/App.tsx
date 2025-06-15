@@ -29,6 +29,8 @@ const RegionsPage = React.lazy(() => import('./pages/regions'));
 const CategoriesPage = React.lazy(() => import('./pages/categories'));
 const PlaygroundsPage = React.lazy(() => import('./pages/playgrounds'));
 const PlaygroundDetailPage = React.lazy(() => import('./pages/playgrounds/detail'));
+const UsersPage = React.lazy(() => import('./pages/users'));
+const UserDetailPage = React.lazy(() => import('./pages/users/detail'));
 const FilesPage = React.lazy(() => import('./pages/files'));
 
 // Loading component for lazy-loaded routes
@@ -263,13 +265,32 @@ const App: React.FC = () => {
                     <PlaygroundDetailPage />
                   </ErrorBoundary>
                 </Suspense>
-              } />
-            <Route
+              } />            <Route
               path="files"
               element={
                 <Suspense fallback={<RouteLoadingSpinner />}>
                   <ErrorBoundary>
                     <FilesPage />
+                  </ErrorBoundary>
+                </Suspense>
+              }
+            />
+            <Route
+              path="users"
+              element={
+                <Suspense fallback={<RouteLoadingSpinner />}>
+                  <ErrorBoundary>
+                    <UsersPage />
+                  </ErrorBoundary>
+                </Suspense>
+              }
+            />
+            <Route
+              path="users/:id"
+              element={
+                <Suspense fallback={<RouteLoadingSpinner />}>
+                  <ErrorBoundary>
+                    <UserDetailPage />
                   </ErrorBoundary>
                 </Suspense>
               }
