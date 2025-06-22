@@ -45,10 +45,22 @@ export const useSportTypeStore = create<SportTypeStore>((set, get) => ({
     filters: {},
 
     fetchSportTypes: async (page = 0, size = 10) => {
+        const { isLoading, sportTypes } = get();
+        
+        console.log('fetchSportTypes called with:', { page, size, isLoading, hasData: sportTypes.length > 0 });
+        
+        // Prevent multiple concurrent requests and avoid refetching if we already have data
+        if (isLoading || (page === 0 && sportTypes.length > 0)) {
+            console.log('fetchSportTypes skipped - already loading or data exists');
+            return;
+        }
+        
+        console.log('fetchSportTypes executing...');
         set({ isLoading: true, error: null });
         try {
             const { filters } = get();
             const response = await sportTypeApi.getAll(page, size, filters);
+            console.log('fetchSportTypes completed:', response);
             set({
                 sportTypes: response.content,
                 totalElements: response.totalElements,
@@ -58,6 +70,7 @@ export const useSportTypeStore = create<SportTypeStore>((set, get) => ({
                 isLoading: false
             });
         } catch (error) {
+            console.error('fetchSportTypes error:', error);
             set({ 
                 error: error instanceof Error ? error.message : 'Failed to fetch sport types',
                 isLoading: false 

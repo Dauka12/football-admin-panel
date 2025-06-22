@@ -48,9 +48,13 @@ const SportClubsPage: React.FC = () => {
     // Load data on component mount
     useEffect(() => {
         fetchSportClubs(false, page, pageSize);
+    }, [fetchSportClubs, page, pageSize]);
+
+    // Load cities and sport types once on mount
+    useEffect(() => {
         fetchCities();
         fetchSportTypes();
-    }, [fetchSportClubs, fetchCities, fetchSportTypes, page, pageSize]);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Sync local filter state with store filters
     useEffect(() => {

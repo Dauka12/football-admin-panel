@@ -31,13 +31,12 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
     const { cities, fetchCities } = useCityStore();
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingSportTypes, setIsLoadingSportTypes] = useState(false);
-    const [isLoadingCities, setIsLoadingCities] = useState(false);
-    const { 
+    const [isLoadingCities, setIsLoadingCities] = useState(false);    const { 
         errors, 
         validateForm, 
         validateField, 
         clearFieldError 
-    } = useFormValidation(teamValidators.create);const [showPlayerSelector, setShowPlayerSelector] = useState(false);
+    } = useFormValidation(currentTeamId ? teamValidators.edit : teamValidators.create);const [showPlayerSelector, setShowPlayerSelector] = useState(false);
     const [selectedPlayers, setSelectedPlayers] = useState<(typeof players[0])[]>([]);
     
     // Check if current language is Russian for adaptive text sizing
@@ -93,7 +92,7 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
         };
         
         loadData();
-    }, [fetchPlayers, fetchSportTypes, fetchCities]);
+    }, []); // Remove dependencies to prevent infinite loops
     
     // Update selected players when form data changes
     useEffect(() => {

@@ -73,10 +73,9 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
                 console.error('Failed to load categories:', error);
             } finally {
                 setIsLoadingCategories(false);
-            }
-        };        
+            }        };        
         loadData();
-    }, [fetchTeams, fetchSportTypes, fetchCities, fetchCategories]);
+    }, []); // Remove dependencies to prevent infinite loops
 
     // Update selected teams when form data changes
     useEffect(() => {

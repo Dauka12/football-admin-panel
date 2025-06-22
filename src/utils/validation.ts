@@ -232,7 +232,33 @@ export const teamValidators = {
             validationRules.required('Sport type is required')
         ],
         players: [
-            validationRules.arrayMinLength(1, 'At least one player is required'),
+            // Players are optional - teams can be created without players and populated later
+            validationRules.arrayMaxLength(30, 'Maximum 30 players allowed')
+        ]
+    }),
+    edit: new Validator({
+        name: [
+            validationRules.required('Team name is required'),
+            validationRules.minLength(2, 'Team name must be at least 2 characters')
+        ],
+        description: [
+            validationRules.required('Description is required'),
+            validationRules.minLength(10, 'Description must be at least 10 characters')
+        ],
+        primaryColor: [
+            validationRules.required('Primary color is required')
+        ],
+        secondaryColor: [
+            validationRules.required('Secondary color is required')
+        ],
+        cityId: [
+            validationRules.required('City is required')
+        ],
+        sportTypeId: [
+            validationRules.required('Sport type is required')
+        ],
+        players: [
+            // Players are optional for edit as well
             validationRules.arrayMaxLength(30, 'Maximum 30 players allowed')
         ]
     })

@@ -26,8 +26,7 @@ const TeamsPage: React.FC = () => {
         filters,
         setFilters 
     } = useTeamStore();
-    
-    const { sportTypes, fetchSportTypes } = useSportTypeStore();
+      const { sportTypes, fetchSportTypes } = useSportTypeStore();
     
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [teamToDelete, setTeamToDelete] = useState<number | null>(null);
@@ -52,13 +51,14 @@ const TeamsPage: React.FC = () => {
             team.name.toLowerCase().includes(query) ||
             team.description.toLowerCase().includes(query)
         );
-    }, [teams, searchQuery]);    // Ensure we fetch teams on mount and when returning to page
+    }, [teams, searchQuery]);    // Fetch teams on mount and when pagination/filters change
     useEffect(() => {
-        // Fetch teams with pagination and filters
         fetchTeams(true, page, pageSize, filters);
-        // Also fetch sport types for filter dropdown
+    }, [fetchTeams, page, pageSize, filters]);    // Fetch sport types once on mount for filter dropdown
+    useEffect(() => {
+        console.log('Teams page useEffect for sportTypes triggered');
         fetchSportTypes();
-    }, [fetchTeams, fetchSportTypes, page, pageSize, filters]);    // Apply filters and fetch teams
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps// Apply filters and fetch teams
     const applyFilters = () => {
         const newFilters: TeamFilterParams = {};
         

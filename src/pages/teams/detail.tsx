@@ -85,7 +85,7 @@ const TeamDetailPage: React.FC = () => {
         if (teamId > 0) {
             fetchTeamMatches(teamId);
         }
-    }, [teamId, fetchTeamMatches]);
+    }, [teamId]); // Remove fetchTeamMatches from dependencies
     
     // Fetch player details - Fixed to prevent infinite loop
     useEffect(() => {
