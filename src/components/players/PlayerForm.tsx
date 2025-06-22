@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { sportTypeApi } from '../../api/sportTypes';
 import { teamApi } from '../../api/teams';
-import type { PlayerCreateRequest, PlayerPublicResponse } from '../../types/players';
+import type { PlayerCreateRequest, PlayerPublicResponse, PlayerPosition } from '../../types/players';
 import type { SportType } from '../../types/sportTypes';
 import type { TeamFullResponse } from '../../types/teams';
 import { PreferredFoot } from '../../types/teams';
@@ -17,11 +17,10 @@ interface PlayerFormProps {
 }
 
 const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmit, onCancel }) => {
-    const { t } = useTranslation();
-    const [formData, setFormData] = useState<PlayerCreateRequest>({
-        position: initialData?.position || '',
+    const { t } = useTranslation();    const [formData, setFormData] = useState<PlayerCreateRequest>({
+        position: initialData?.position || 'GOALKEEPER' as PlayerPosition,
         teamId: undefined, // Replace club with teamId
-        sportTypeId: undefined, // Add sportTypeId field
+        sportTypeId: 0, // Add sportTypeId field - use 0 as default instead of undefined
         age: initialData?.age || 0,
         height: initialData?.height || 0,
         weight: initialData?.weight || 0,
@@ -67,14 +66,17 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
         };
 
         loadTeamsAndSportTypes();
-    }, []);
-
-    const handleChange = (
+    }, []);    const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => {
-        const { name, value } = e.target;        // Handle numeric values
+        const { name, value } = e.target;
+        
+        // Handle numeric values
         if (name === 'age' || name === 'height' || name === 'weight' || name === 'userId' || name === 'teamId' || name === 'sportTypeId') {
             setFormData(prev => ({ ...prev, [name]: Number(value) || undefined }));
+        } else if (name === 'position') {
+            // Handle position as PlayerPosition enum
+            setFormData(prev => ({ ...prev, [name]: value as PlayerPosition }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
@@ -84,7 +86,7 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
         if (validatedFields.includes(name as any) && errors[name as keyof typeof errors]) {
             clearFieldError(name as any);
         }
-    };    const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    };const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         
         // Only validate fields that are in the validator rules
@@ -100,11 +102,15 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
     };    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Create validation data with required fields
+        // Create validation data with required fields, providing defaults for optional fields
         const validationData = {
             ...formData,
             teamId: formData.teamId || 0,
-            sportTypeId: formData.sportTypeId || 0
+            sportTypeId: formData.sportTypeId || 0,
+            nationality: formData.nationality || '',
+            birthplace: formData.birthplace || '',
+            height: formData.height || 0,
+            weight: formData.weight || 0
         };
 
         if (!validateForm(validationData)) {
@@ -144,15 +150,30 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
                         <label className="block text-sm font-medium mb-1" htmlFor="position">
                             {t('players.position')} *
                         </label>
-                        <input
-                            type="text"
+                        <select
                             id="position"
                             name="position"
                             value={formData.position}
                             onChange={handleChange}
                             onBlur={handleBlur}
                             className={`form-input ${errors.position ? 'border-red-500' : ''}`}
-                        />
+                        >
+                            <option value="GOALKEEPER">{t('players.positions.goalkeeper')}</option>
+                            <option value="CENTER_BACK">{t('players.positions.centerBack')}</option>
+                            <option value="LEFT_BACK">{t('players.positions.leftBack')}</option>
+                            <option value="RIGHT_BACK">{t('players.positions.rightBack')}</option>
+                            <option value="LEFT_WING_BACK">{t('players.positions.leftWingBack')}</option>
+                            <option value="RIGHT_WING_BACK">{t('players.positions.rightWingBack')}</option>
+                            <option value="CENTRAL_DEFENSIVE_MIDFIELDER">{t('players.positions.centralDefensiveMidfielder')}</option>
+                            <option value="CENTRAL_MIDFIELDER">{t('players.positions.centralMidfielder')}</option>
+                            <option value="LEFT_MIDFIELDER">{t('players.positions.leftMidfielder')}</option>
+                            <option value="RIGHT_MIDFIELDER">{t('players.positions.rightMidfielder')}</option>
+                            <option value="CENTRAL_ATTACKING_MIDFIELDER">{t('players.positions.centralAttackingMidfielder')}</option>
+                            <option value="LEFT_WING">{t('players.positions.leftWing')}</option>
+                            <option value="RIGHT_WING">{t('players.positions.rightWing')}</option>
+                            <option value="STRIKER">{t('players.positions.striker')}</option>
+                            <option value="CENTER_FORWARD">{t('players.positions.centerForward')}</option>
+                        </select>
                         {errors.position && <p className="text-red-500 text-xs mt-1">{errors.position}</p>}
                     </div>
 

@@ -3,38 +3,42 @@ import type {
     PlayerCreateResponse,
     PlayerPublicResponse,
     PlayerUpdateRequest,
-    PlayersPageResponse
+    PlayersPageResponse,
+    PlayerPosition
 } from '../types/players';
+import type { PreferredFoot } from '../types/teams';
 import axiosInstance from './axios';
 
-// Define a type for filter parameters
+// Filter parameters matching the API spec exactly
 export interface PlayerFilterParams {
-    position?: string;
     teamId?: number;
+    age?: number;
     nationality?: string;
-    minAge?: number;
-    maxAge?: number;
-    preferredFoot?: string;
+    birthplace?: string;
+    preferredFoot?: PreferredFoot;
+    fullName?: string;
+    sportTypeId?: number;
+    position?: PlayerPosition;
+    page?: number;
+    size?: number;
 }
 
 // Remove redundant base URL prefix to prevent double paths
 export const playerApi = {
-    getAll: async (
-        page = 0, 
-        size = 10, 
-        filters?: PlayerFilterParams
-    ): Promise<PlayersPageResponse> => {
+    getAll: async (filters?: PlayerFilterParams): Promise<PlayersPageResponse> => {
+        const { page = 0, size = 10, ...otherFilters } = filters || {};
         const response = await axiosInstance.get(`/players/public`, {
             params: { 
                 page, 
                 size,
-                ...filters // Spread the filter parameters
+                ...otherFilters
             }
         });
         return response.data;
     },
 
     getById: async (id: number): Promise<PlayerPublicResponse> => {
+        // Use the correct public endpoint as shown in API documentation
         const response = await axiosInstance.get(`/players/public/${id}`);
         return response.data;
     },

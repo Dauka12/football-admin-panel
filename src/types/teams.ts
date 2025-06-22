@@ -13,13 +13,14 @@ export interface Player {
     position: string;
     teamId: number;
     age: number;
-    height: number;
-    weight: number;
-    nationality: string;
-    birthplace: string;
+    height?: number; // Made optional to match API
+    weight?: number; // Made optional to match API
+    nationality?: string; // Made optional to match API
+    birthplace?: string; // Made optional to match API
     preferredFoot: PreferredFoot;
-    bio: string;
+    bio?: string; // Made optional to match API
     sportTypeId: number;
+    number?: number; // Added player number from API
 }
 
 // Basic team interface with common properties

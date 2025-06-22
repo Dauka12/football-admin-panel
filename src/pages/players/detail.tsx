@@ -81,20 +81,43 @@ const PlayerDetailPage: React.FC = () => {
 
 
 
-    // Helper function to get player position - since real name might be in position field
+    // Helper function to translate position
+    const translatePosition = (position: string) => {
+        const positionMap: Record<string, string> = {
+            'GOALKEEPER': t('players.positions.goalkeeper'),
+            'CENTER_BACK': t('players.positions.centerBack'),
+            'LEFT_BACK': t('players.positions.leftBack'),
+            'RIGHT_BACK': t('players.positions.rightBack'),
+            'LEFT_WING_BACK': t('players.positions.leftWingBack'),
+            'RIGHT_WING_BACK': t('players.positions.rightWingBack'),
+            'CENTRAL_DEFENSIVE_MIDFIELDER': t('players.positions.centralDefensiveMidfielder'),
+            'CENTRAL_MIDFIELDER': t('players.positions.centralMidfielder'),
+            'LEFT_MIDFIELDER': t('players.positions.leftMidfielder'),
+            'RIGHT_MIDFIELDER': t('players.positions.rightMidfielder'),
+            'CENTRAL_ATTACKING_MIDFIELDER': t('players.positions.centralAttackingMidfielder'),
+            'LEFT_WING': t('players.positions.leftWing'),
+            'RIGHT_WING': t('players.positions.rightWing'),
+            'STRIKER': t('players.positions.striker'),
+            'CENTER_FORWARD': t('players.positions.centerForward')
+        };
+        return positionMap[position] || position;
+    };
+
+    // Helper function to get player position
     const getPlayerPosition = (player: any) => {
         // If fullName is "Unknown" or "string", then position field might contain the name, not the position
         if (player.fullName === "Unknown" || player.fullName === "string") {
-            // If position field also has placeholder data, try to use a meaningful fallback
+            // If position field also has placeholder data, return not specified
             if (player.position === "string") {
-                return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
+                return t('common.notSpecified');
             }
             // If position has real data but fullName is placeholder, position might be the actual name
-            // In this case, use club as position fallback
-            return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
+            // Return not specified as fallback
+            return t('common.notSpecified');
         }
         // If fullName is valid, then position field should contain actual position
-        return player.position && player.position !== "string" ? player.position : t('common.notSpecified');
+        const position = player.position && player.position !== "string" ? player.position : '';
+        return position ? translatePosition(position) : t('common.notSpecified');
     };
 
     if (isLoading) {
@@ -262,9 +285,15 @@ const PlayerDetailPage: React.FC = () => {
                                 <span className="text-white font-semibold">{getPlayerPosition(currentPlayer)}</span>
                             </div>
                             <div className="flex justify-between items-center py-2 border-b border-gray-700">
-                                <span className="text-gray-400 font-medium">{t('players.club')}:</span>
-                                <span className="text-white font-semibold">{currentPlayer.club && currentPlayer.club !== "string" ? currentPlayer.club : t('common.notSpecified')}</span>
+                                <span className="text-gray-400 font-medium">{t('players.age')}:</span>
+                                <span className="text-white font-semibold">{currentPlayer.age}</span>
                             </div>
+                            {currentPlayer.number !== undefined && currentPlayer.number !== 0 && (
+                                <div className="flex justify-between items-center py-2 border-b border-gray-700">
+                                    <span className="text-gray-400 font-medium">{t('players.number')}:</span>
+                                    <span className="text-gold font-bold">#{currentPlayer.number}</span>
+                                </div>
+                            )}
                             <div className="flex justify-between items-center py-2 border-b border-gray-700">
                                 <span className="text-gray-400 font-medium">ID:</span>
                                 <span className="text-gold font-bold">#{currentPlayer.id}</span>
@@ -272,25 +301,55 @@ const PlayerDetailPage: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Информация о национальности */}
+                    {/* Физические данные */}
                     <div className="bg-card-bg rounded-xl shadow-lg overflow-hidden">
-                        <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4">
+                        <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-4">
                             <h3 className="text-white font-bold text-lg flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-2">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3s-4.5 4.03-4.5 9 2.015 9 4.5 9z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.254 48.254 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.589-1.202L18.75 4.97z" />
                                 </svg>
-                                {t('players.nationalityInfo')}
+                                {t('players.physicalData')}
                             </h3>
                         </div>
                         <div className="p-6 space-y-4">
+                            {currentPlayer.height && (
+                                <div className="flex justify-between items-center py-2 border-b border-gray-700">
+                                    <span className="text-gray-400 font-medium">{t('players.height')}:</span>
+                                    <span className="text-white font-semibold">{currentPlayer.height} см</span>
+                                </div>
+                            )}
+                            {currentPlayer.weight && (
+                                <div className="flex justify-between items-center py-2 border-b border-gray-700">
+                                    <span className="text-gray-400 font-medium">{t('players.weight')}:</span>
+                                    <span className="text-white font-semibold">{currentPlayer.weight} кг</span>
+                                </div>
+                            )}
                             <div className="flex justify-between items-center py-2 border-b border-gray-700">
-                                <span className="text-gray-400 font-medium">{t('players.nationality')}:</span>
-                                <span className="text-white font-semibold">{currentPlayer.nationality && currentPlayer.nationality !== "string" ? currentPlayer.nationality : t('common.notSpecified')}</span>
+                                <span className="text-gray-400 font-medium">{t('players.preferredFoot')}:</span>
+                                <span className="text-white font-semibold">{getPreferredFootLabel(currentPlayer.preferredFoot)}</span>
                             </div>
-                            <div className="flex justify-between items-center py-2 border-b border-gray-700">
-                                <span className="text-gray-400 font-medium">{t('players.birthplace')}:</span>
-                                <span className="text-white font-semibold">{currentPlayer.birthplace && currentPlayer.birthplace !== "string" ? currentPlayer.birthplace : t('common.notSpecified')}</span>
-                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Информация о национальности */}
+                <div className="bg-card-bg rounded-xl shadow-lg overflow-hidden">
+                    <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4">
+                        <h3 className="text-white font-bold text-lg flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3s-4.5 4.03-4.5 9 2.015 9 4.5 9z" />
+                            </svg>
+                            {t('players.nationalityInfo')}
+                        </h3>
+                    </div>
+                    <div className="p-6 space-y-4">
+                        <div className="flex justify-between items-center py-2 border-b border-gray-700">
+                            <span className="text-gray-400 font-medium">{t('players.nationality')}:</span>
+                            <span className="text-white font-semibold">{currentPlayer.nationality && currentPlayer.nationality !== "string" ? currentPlayer.nationality : t('common.notSpecified')}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-gray-700">
+                            <span className="text-gray-400 font-medium">{t('players.birthplace')}:</span>
+                            <span className="text-white font-semibold">{currentPlayer.birthplace && currentPlayer.birthplace !== "string" ? currentPlayer.birthplace : t('common.notSpecified')}</span>
                         </div>
                     </div>
                 </div>

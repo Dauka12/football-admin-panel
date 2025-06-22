@@ -6,7 +6,7 @@ import PlayerForm from '../../components/players/PlayerForm';
 import Modal from '../../components/ui/Modal';
 import { usePlayerStore } from '../../store/playerStore';
 import { useTeamStore } from '../../store/teamStore';
-import type { PlayerCreateRequest } from '../../types/players';
+import type { PlayerCreateRequest, PlayerPosition } from '../../types/players';
                                     
 
 const PlayersPage: React.FC = () => {
@@ -40,12 +40,11 @@ const PlayersPage: React.FC = () => {
     
     // Filter state
     const [isFilterOpen, setIsFilterOpen] = useState(false);
-    const [filterPosition, setFilterPosition] = useState(filters.position || '');
+    const [filterPosition, setFilterPosition] = useState<PlayerPosition | ''>(filters.position || '');
     const [filterTeamId, setFilterTeamId] = useState<number | undefined>(filters.teamId);
     const [filterNationality, setFilterNationality] = useState(filters.nationality || '');
-    const [filterMinAge, setFilterMinAge] = useState<string>(filters.minAge?.toString() || '');
-    const [filterMaxAge, setFilterMaxAge] = useState<string>(filters.maxAge?.toString() || '');
-    const [filterPreferredFoot, setFilterPreferredFoot] = useState(filters.preferredFoot || '');
+    const [filterAge, setFilterAge] = useState<string>(filters.age?.toString() || '');
+    const [filterPreferredFoot, setFilterPreferredFoot] = useState<string>(filters.preferredFoot || '');
 
     // Load teams on component mount
     useEffect(() => {
@@ -69,12 +68,11 @@ const PlayersPage: React.FC = () => {
     const applyFilters = () => {
         const newFilters: PlayerFilterParams = {};
         
-        if (filterPosition) newFilters.position = filterPosition;
+        if (filterPosition) newFilters.position = filterPosition as PlayerPosition;
         if (filterTeamId) newFilters.teamId = filterTeamId;
         if (filterNationality) newFilters.nationality = filterNationality;
-        if (filterMinAge) newFilters.minAge = parseInt(filterMinAge);
-        if (filterMaxAge) newFilters.maxAge = parseInt(filterMaxAge);
-        if (filterPreferredFoot) newFilters.preferredFoot = filterPreferredFoot;
+        if (filterAge) newFilters.age = parseInt(filterAge);
+        if (filterPreferredFoot) newFilters.preferredFoot = filterPreferredFoot as any; // Cast to PreferredFoot
         
         setFilters(newFilters);
         // Reset to first page when applying new filters
@@ -88,8 +86,7 @@ const PlayersPage: React.FC = () => {
         setFilterPosition('');
         setFilterTeamId(undefined);
         setFilterNationality('');
-        setFilterMinAge('');
-        setFilterMaxAge('');
+        setFilterAge('');
         setFilterPreferredFoot('');
         setFilters({});
         setPage(0);
@@ -142,6 +139,28 @@ const PlayersPage: React.FC = () => {
         return player.id ? `Player #${player.id}` : t('players.unknownPlayer') || 'Unknown Player';
     };
 
+    // Helper function to translate position
+    const translatePosition = (position: string) => {
+        const positionMap: Record<string, string> = {
+            'GOALKEEPER': t('players.positions.goalkeeper'),
+            'CENTER_BACK': t('players.positions.centerBack'),
+            'LEFT_BACK': t('players.positions.leftBack'),
+            'RIGHT_BACK': t('players.positions.rightBack'),
+            'LEFT_WING_BACK': t('players.positions.leftWingBack'),
+            'RIGHT_WING_BACK': t('players.positions.rightWingBack'),
+            'CENTRAL_DEFENSIVE_MIDFIELDER': t('players.positions.centralDefensiveMidfielder'),
+            'CENTRAL_MIDFIELDER': t('players.positions.centralMidfielder'),
+            'LEFT_MIDFIELDER': t('players.positions.leftMidfielder'),
+            'RIGHT_MIDFIELDER': t('players.positions.rightMidfielder'),
+            'CENTRAL_ATTACKING_MIDFIELDER': t('players.positions.centralAttackingMidfielder'),
+            'LEFT_WING': t('players.positions.leftWing'),
+            'RIGHT_WING': t('players.positions.rightWing'),
+            'STRIKER': t('players.positions.striker'),
+            'CENTER_FORWARD': t('players.positions.centerForward')
+        };
+        return positionMap[position] || position;
+    };
+
     // Helper function to get player position - since real name might be in position field
     const getPlayerPosition = (player: any) => {
         // If fullName is "Unknown" or "string", then position field might contain the name, not the position
@@ -155,7 +174,8 @@ const PlayersPage: React.FC = () => {
             return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
         }
         // If fullName is valid, then position field should contain actual position
-        return player.position && player.position !== "string" ? player.position : t('common.notSpecified');
+        const position = player.position && player.position !== "string" ? player.position : '';
+        return position ? translatePosition(position) : t('common.notSpecified');
     };
 
     return (
@@ -237,13 +257,28 @@ const PlayersPage: React.FC = () => {
                         {/* Position filter */}
                         <div className="space-y-1">
                             <label className="text-sm text-gray-400">{t('players.position')}</label>
-                            <input
-                                type="text"
+                            <select
                                 value={filterPosition}
-                                onChange={(e) => setFilterPosition(e.target.value)}
-                                placeholder={t('players.position')}
+                                onChange={(e) => setFilterPosition(e.target.value as PlayerPosition | '')}
                                 className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold transition-colors duration-200"
-                            />
+                            >
+                                <option value="">{t('common.all')}</option>
+                                <option value="GOALKEEPER">{t('players.positions.goalkeeper')}</option>
+                                <option value="CENTER_BACK">{t('players.positions.centerBack')}</option>
+                                <option value="LEFT_BACK">{t('players.positions.leftBack')}</option>
+                                <option value="RIGHT_BACK">{t('players.positions.rightBack')}</option>
+                                <option value="LEFT_WING_BACK">{t('players.positions.leftWingBack')}</option>
+                                <option value="RIGHT_WING_BACK">{t('players.positions.rightWingBack')}</option>
+                                <option value="CENTRAL_DEFENSIVE_MIDFIELDER">{t('players.positions.centralDefensiveMidfielder')}</option>
+                                <option value="CENTRAL_MIDFIELDER">{t('players.positions.centralMidfielder')}</option>
+                                <option value="LEFT_MIDFIELDER">{t('players.positions.leftMidfielder')}</option>
+                                <option value="RIGHT_MIDFIELDER">{t('players.positions.rightMidfielder')}</option>
+                                <option value="CENTRAL_ATTACKING_MIDFIELDER">{t('players.positions.centralAttackingMidfielder')}</option>
+                                <option value="LEFT_WING">{t('players.positions.leftWing')}</option>
+                                <option value="RIGHT_WING">{t('players.positions.rightWing')}</option>
+                                <option value="STRIKER">{t('players.positions.striker')}</option>
+                                <option value="CENTER_FORWARD">{t('players.positions.centerForward')}</option>
+                            </select>
                         </div>
                         
                         {/* Team filter - new dropdown */}
@@ -279,26 +314,14 @@ const PlayersPage: React.FC = () => {
                             />
                         </div>
 
-                        {/* Age range */}
+                        {/* Age filter */}
                         <div className="space-y-1">
-                            <label className="text-sm text-gray-400">{t('players.age')} ({t('common.min')})</label>
+                            <label className="text-sm text-gray-400">{t('players.age')}</label>
                             <input
                                 type="number"
-                                value={filterMinAge}
-                                onChange={(e) => setFilterMinAge(e.target.value)}
-                                placeholder={t('common.min')}
-                                min="0"
-                                className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold transition-colors duration-200"
-                            />
-                        </div>
-                        
-                        <div className="space-y-1">
-                            <label className="text-sm text-gray-400">{t('players.age')} ({t('common.max')})</label>
-                            <input
-                                type="number"
-                                value={filterMaxAge}
-                                onChange={(e) => setFilterMaxAge(e.target.value)}
-                                placeholder={t('common.max')}
+                                value={filterAge}
+                                onChange={(e) => setFilterAge(e.target.value)}
+                                placeholder={t('players.age')}
                                 min="0"
                                 className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold transition-colors duration-200"
                             />
@@ -474,6 +497,12 @@ const PlayersPage: React.FC = () => {
                                         <span className="text-gray-400">{t('players.age')}: </span>
                                         <span>{player.age}</span>
                                     </div>
+                                    {player.number !== undefined && player.number !== 0 && (
+                                        <div>
+                                            <span className="text-gray-400">{t('players.number')}: </span>
+                                            <span className="text-gold font-bold">#{player.number}</span>
+                                        </div>
+                                    )}
                                     <div>
                                         <span className="text-gray-400">{t('players.nationality')}: </span>
                                         <span>{player.nationality}</span>

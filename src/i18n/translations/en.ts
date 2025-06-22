@@ -217,6 +217,7 @@ export const en = {
         bio: "Biography",
         noBio: "No biography provided",
         identificationNumber: "ID Number",
+        number: "Number",
         userId: "User ID",
         confirmDelete: "Delete Player",
         deleteWarning: "Are you sure you want to delete this player? This action cannot be undone.",
@@ -224,6 +225,7 @@ export const en = {
         notFound: "Player not found",
         playerDetails: "Player Details",
         basicInfo: "Basic Info",
+        physicalData: "Physical Data",
         nationalityInfo: "Nationality",
         additionalInfo: "Additional Info",
         biography: "Biography",
@@ -236,6 +238,23 @@ export const en = {
             byPosition: "Filter by position",
             byNationality: "Filter by nationality"
         },
+        positions: {
+            goalkeeper: "Goalkeeper",
+            centerBack: "Center Back",
+            leftBack: "Left Back",
+            rightBack: "Right Back",
+            leftWingBack: "Left Wing Back",
+            rightWingBack: "Right Wing Back",
+            centralDefensiveMidfielder: "Central Defensive Midfielder",
+            centralMidfielder: "Central Midfielder",
+            leftMidfielder: "Left Midfielder",
+            rightMidfielder: "Right Midfielder",
+            centralAttackingMidfielder: "Central Attacking Midfielder",
+            leftWing: "Left Wing",
+            rightWing: "Right Wing",
+            striker: "Striker",
+            centerForward: "Center Forward"
+        }
     },
     sportTypes: {
         title: "Sport Types",
