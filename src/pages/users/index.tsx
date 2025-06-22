@@ -23,15 +23,13 @@ const UsersPage: React.FC = () => {
         currentPage,
         pageSize,
         filters,
-        setFilters,
-        clearError
+        setFilters
     } = useUserStore();
 
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [userToDelete, setUserToDelete] = useState<User | null>(null);
     const [showRoleModal, setShowRoleModal] = useState<User | null>(null);
-    const [page, setPage] = useState(0);
     
     // Filter state
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -44,9 +42,9 @@ const UsersPage: React.FC = () => {
 
     // Load users on component mount
     useEffect(() => {
-        fetchUsers(page, pageSize);
+        fetchUsers(currentPage, pageSize);
         fetchRoles();
-    }, [fetchUsers, fetchRoles, page, pageSize]);
+    }, [fetchUsers, fetchRoles, currentPage, pageSize]);
 
     // Sync local filter state with store filters
     useEffect(() => {
@@ -70,7 +68,6 @@ const UsersPage: React.FC = () => {
         };
         setFilters(newFilters);
         fetchUsers(0, pageSize);
-        setPage(0);
         setIsFilterOpen(false);
     };
 
@@ -84,7 +81,6 @@ const UsersPage: React.FC = () => {
         setSortDirection('asc');
         setFilters({});
         fetchUsers(0, pageSize);
-        setPage(0);
         setIsFilterOpen(false);
     };
 
@@ -122,7 +118,6 @@ const UsersPage: React.FC = () => {
     };
 
     const handlePageChange = (newPage: number) => {
-        setPage(newPage);
         fetchUsers(newPage, pageSize);
     };
 

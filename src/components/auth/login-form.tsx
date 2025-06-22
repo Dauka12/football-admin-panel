@@ -3,9 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth';
 import { authValidators, useFormValidation } from '../../utils/validation';
+import { formatPhoneDisplay, extractPhoneNumber } from '../../utils/phoneFormatter';
 
 export const LoginForm: React.FC = () => {
     const [phone, setPhone] = useState('');
+    const [displayPhone, setDisplayPhone] = useState('');
     const [password, setPassword] = useState('');
 
     const { login, isLoading, error } = useAuthStore();
@@ -15,25 +17,31 @@ export const LoginForm: React.FC = () => {
     // Use the new validation system
     const { errors, validateField, validateForm, clearErrors } = useFormValidation(
         authValidators.login
-    );
-
-    const handleSubmit = async (e: React.FormEvent) => {
+    );    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const isValid = validateForm({ phone, password });
+        // Extract clean phone number for backend
+        const cleanPhone = extractPhoneNumber(displayPhone);
+        
+        const isValid = validateForm({ phone: cleanPhone, password });
         if (isValid) {
-            const success = await login(phone, password);
+            const success = await login(cleanPhone, password);
             if (success) {
                 clearErrors();
                 navigate('/dashboard');
             }
         }
-    };
-
-    const handlePhoneChange = (value: string) => {
-        setPhone(value);
+    };    const handlePhoneChange = (value: string) => {
+        // Format for display
+        const formatted = formatPhoneDisplay(value);
+        setDisplayPhone(formatted);
+        
+        // Extract clean phone for validation
+        const cleanPhone = extractPhoneNumber(formatted);
+        setPhone(cleanPhone);
+        
         if (errors.phone) {
-            validateField('phone', value);
+            validateField('phone', cleanPhone);
         }
     };
 
@@ -57,17 +65,16 @@ export const LoginForm: React.FC = () => {
                 </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
+            <form onSubmit={handleSubmit} className="space-y-4">                <div className="space-y-2">
                     <label className="text-sm font-medium block" htmlFor="phone">
                         {t('auth.phone')}
                     </label>
                     <input
                         id="phone"
                         type="tel"
-                        placeholder="+1234567890"
+                        placeholder="+7 (777) 777 77 77"
                         className={`form-input ${errors.phone ? 'border-red-500' : ''}`}
-                        value={phone}
+                        value={displayPhone}
                         onChange={(e) => handlePhoneChange(e.target.value)}
                         onBlur={() => validateField('phone', phone)}
                     />

@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/auth';
 import { authValidators, useFormValidation } from '../../utils/validation';
+import { formatPhoneDisplay, extractPhoneNumber } from '../../utils/phoneFormatter';
 
 export const RegisterForm: React.FC = () => {
     const [firstname, setFirstname] = useState('');
     const [lastname, setLastname] = useState('');
     const [phone, setPhone] = useState('');
+    const [displayPhone, setDisplayPhone] = useState('');
     const [password, setPassword] = useState('');
 
     const { register, isLoading, error } = useAuthStore();
@@ -15,25 +17,38 @@ export const RegisterForm: React.FC = () => {
     // Use the new validation system
     const { errors, validateField, validateForm, clearErrors } = useFormValidation(
         authValidators.register
-    );
-
-    const handleSubmit = async (e: React.FormEvent) => {
+    );    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const isValid = validateForm({ firstname, lastname, phone, password });
+        // Extract clean phone number for backend
+        const cleanPhone = extractPhoneNumber(displayPhone);
+
+        const isValid = validateForm({ firstname, lastname, phone: cleanPhone, password });
         if (isValid) {
-            const success = await register(firstname, lastname, phone, password);
+            const success = await register(firstname, lastname, cleanPhone, password);
             if (success) {
                 clearErrors();
                 // Form will reset and show success message via toast
             }
         }
-    };
-
-    const handleFieldChange = (field: 'firstname' | 'lastname' | 'phone' | 'password', value: string, setter: (value: string) => void) => {
-        setter(value);
-        if (errors[field]) {
-            validateField(field, value);
+    };    const handleFieldChange = (field: 'firstname' | 'lastname' | 'phone' | 'password', value: string, setter: (value: string) => void) => {
+        if (field === 'phone') {
+            // Format for display
+            const formatted = formatPhoneDisplay(value);
+            setDisplayPhone(formatted);
+            
+            // Extract clean phone for validation
+            const cleanPhone = extractPhoneNumber(formatted);
+            setPhone(cleanPhone);
+            
+            if (errors.phone) {
+                validateField('phone', cleanPhone);
+            }
+        } else {
+            setter(value);
+            if (errors[field]) {
+                validateField(field, value);
+            }
         }
     };
 
@@ -83,18 +98,16 @@ export const RegisterForm: React.FC = () => {
                         />
                         {errors.lastname && <p className="text-red-500 text-xs mt-1">{errors.lastname}</p>}
                     </div>
-                </div>
-
-                <div className="space-y-2">
+                </div>                <div className="space-y-2">
                     <label className="text-sm font-medium block" htmlFor="phone">
                         {t('auth.phone')}
                     </label>
                     <input
                         id="phone"
                         type="tel"
-                        placeholder="+1234567890"
+                        placeholder="+7 (777) 777 77 77"
                         className={`form-input ${errors.phone ? 'border-red-500' : ''}`}
-                        value={phone}
+                        value={displayPhone}
                         onChange={(e) => handleFieldChange('phone', e.target.value, setPhone)}
                         onBlur={() => validateField('phone', phone)}
                     />

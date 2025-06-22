@@ -19,6 +19,13 @@ export const ru = {
         cities: "Города",
         users: "Пользователи",
         sportClubs: "Спортивные секции"
+    },
+    navigation: {
+        dashboard: "Панель управления",
+        tournamentCategories: "Категории турниров"
+    },
+    nav: {
+        dashboard: "Панель управления"
     },    auth: {
         status: {
             allStatuses: "Все статусы",
@@ -86,9 +93,11 @@ export const ru = {
             pending: "Ожидание",
             inProgress: "В процессе",
             completed: "Завершён",
-            cancelled: "Отменён"
+            cancelled: "Отменён",
+            in_progress: "В процессе"
         },
         statusUpdated: "Статус матча успешно обновлён",
+        eventsCanOnlyBeManaged: "События можно управлять только для матчей со статусом \"В процессе\"",
         actions: {
             startMatch: "Начать матч",
             endMatch: "Завершить матч",
@@ -263,6 +272,9 @@ export const ru = {
         no: "Нет",
         metadata: "Метаданные",
         updatedAt: "Обновлено",
+        years: "лет",
+        none: "Нет",
+        close: "Закрыть",
     },
     players: {
         title: "Игроки",
@@ -290,6 +302,7 @@ export const ru = {
         identificationNumber: "Идентификационный номер",
         number: "Номер",
         userId: "ID пользователя",
+        player: "Игрок",
         confirmDelete: "Удалить игрока",
         deleteWarning: "Вы уверены, что хотите удалить этого игрока? Это действие нельзя отменить.",
         deleteWarningDetail: "Вы уверены, что хотите удалить игрока с позицией '{position}'? Это действие нельзя отменить.",
@@ -667,6 +680,7 @@ export const ru = {
         notFound: "Категория не найдена",
         notFoundDescription: "Категория, которую вы ищете, не существует или была удалена.",
         deleteConfirmation: "Вы уверены, что хотите удалить категорию '{name}'? Это действие нельзя отменить.",
+        selectCategory: "Выберите категорию",
         
         // Validation messages
         validation: {

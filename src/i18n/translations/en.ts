@@ -40,6 +40,13 @@ export const en = {
         users: "Users",
         sportClubs: "Sport Clubs"
     },
+    navigation: {
+        dashboard: "Dashboard",
+        tournamentCategories: "Tournament Categories"
+    },
+    nav: {
+        dashboard: "Dashboard"
+    },
     matches: {
         title: "Matches",
         match: "Match",
@@ -73,9 +80,11 @@ export const en = {
             pending: "Pending",
             inProgress: "In Progress", 
             completed: "Completed",
-            cancelled: "Cancelled"
+            cancelled: "Cancelled",
+            in_progress: "In Progress"
         },
         statusUpdated: "Match status updated successfully",
+        eventsCanOnlyBeManaged: "Events can only be managed for matches with status \"In Progress\"",
         actions: {
             startMatch: "Start Match",
             endMatch: "End Match", 
@@ -222,6 +231,7 @@ export const en = {
         identificationNumber: "ID Number",
         number: "Number",
         userId: "User ID",
+        player: "Player",
         confirmDelete: "Delete Player",
         deleteWarning: "Are you sure you want to delete this player? This action cannot be undone.",
         deleteWarningDetail: "Are you sure you want to delete the player with position '{position}'? This action cannot be undone.",
@@ -367,6 +377,9 @@ export const en = {
         no: "No",
         metadata: "Metadata",
         updatedAt: "Updated At",
+        years: "years",
+        none: "None",
+        close: "Close",
         creation: {
             success: "Created successfully",
             error: "Creation failed"
@@ -663,6 +676,7 @@ export const en = {
         notFound: "Category not found",
         notFoundDescription: "The category you're looking for doesn't exist or has been removed.",
         deleteConfirmation: "Are you sure you want to delete the category '{name}'? This action cannot be undone.",
+        selectCategory: "Select category",
         
         // Validation messages
         validation: {
