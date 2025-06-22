@@ -14,6 +14,8 @@ const PlayersPage = React.lazy(() => import('./pages/players'));
 const PlayerDetailPage = React.lazy(() => import('./pages/players/detail'));
 const SportTypesPage = React.lazy(() => import('./pages/sportTypes'));
 const SportTypeDetailPage = React.lazy(() => import('./pages/sportTypes/detail'));
+const SportClubsPage = React.lazy(() => import('./pages/sportClubs'));
+const SportClubDetailPage = React.lazy(() => import('./pages/sportClubs/detail'));
 const CitiesPage = React.lazy(() => import('./pages/cities'));
 const CityDetailPage = React.lazy(() => import('./pages/cities/detail'));
 const TournamentsPage = React.lazy(() => import('./pages/tournaments'));
@@ -126,9 +128,7 @@ const App: React.FC = () => {
                   </ErrorBoundary>
                 </Suspense>
               }
-            />
-
-            <Route
+            />            <Route
               path="sport-types/:id"
               element={
                 <Suspense fallback={<RouteLoadingSpinner />}>
@@ -138,6 +138,29 @@ const App: React.FC = () => {
                 </Suspense>
               }
             />
+
+            <Route
+              path="sport-clubs"
+              element={
+                <Suspense fallback={<RouteLoadingSpinner />}>
+                  <ErrorBoundary>
+                    <SportClubsPage />
+                  </ErrorBoundary>
+                </Suspense>
+              }
+            />
+
+            <Route
+              path="sport-clubs/:id"
+              element={
+                <Suspense fallback={<RouteLoadingSpinner />}>
+                  <ErrorBoundary>
+                    <SportClubDetailPage />
+                  </ErrorBoundary>
+                </Suspense>
+              }
+            />
+
             <Route
               path="cities"
               element={

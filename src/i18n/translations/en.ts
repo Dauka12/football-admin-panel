@@ -37,7 +37,8 @@ export const en = {
         sportTypes: "Sport Types",
         playgrounds: "Playgrounds",
         cities: "Cities",
-        users: "Users"
+        users: "Users",
+        sportClubs: "Sport Clubs"
     },
     matches: {
         title: "Matches",
@@ -705,6 +706,95 @@ export const en = {
         recentRenders: "Recent Renders",
         clear: "Clear",
         export: "Export"
+    },
+
+    // Sport Clubs
+    sportClubs: {
+        title: "Sport Clubs",
+        subtitle: "Manage sport clubs and sections",
+        sportClub: "Sport Club",
+        createSportClub: "Create Sport Club",
+        editSportClub: "Edit Sport Club",
+        noSportClubs: "No sport clubs found",
+        createFirst: "Create your first sport club",
+        searchPlaceholder: "Search by club name...",
+        
+        // Basic Information
+        basicInfo: "Basic Information",
+        name: "Club Name",
+        namePlaceholder: "Enter sport club name",
+        description: "Description",
+        descriptionPlaceholder: "Enter club description",
+        clubType: "Club Type",
+        sportType: "Sport Type",
+        ageRange: "Age Range",
+        minAge: "Minimum Age",
+        maxAge: "Maximum Age",
+        establishmentYear: "Establishment Year",
+        established: "Established",
+        membershipFee: "Membership Fee",
+        
+        // Club Types
+        clubTypes: {
+            kids: "Kids",
+            regular: "Regular",
+            professional: "Professional",
+            mixed: "Mixed"
+        },
+        
+        // Contact Information
+        contactInfo: "Contact Information",
+        contactEmail: "Email",
+        contactPhone: "Phone",
+        website: "Website",
+        
+        // Addresses
+        addresses: "Addresses",
+        address: "Address",
+        addAddress: "Add Address",
+        streetLine1: "Street Address (Line 1)",
+        streetLine1Placeholder: "Enter street address",
+        streetLine2: "Street Address (Line 2)",
+        streetLine2Placeholder: "Additional address information",
+        zipCode: "ZIP Code",
+        addressDescription: "Address Description",
+        addressDescriptionPlaceholder: "Description of location (e.g., 'main entrance')",
+        primary: "Primary",
+        setPrimary: "Set as Primary",
+        
+        // Additional Information
+        additionalInfo: "Additional Information",
+        facilities: "Facilities & Equipment",
+        facilitiesPlaceholder: "Describe available facilities and sports equipment",
+        membershipBenefits: "Membership Benefits",
+        membershipBenefitsPlaceholder: "Describe benefits and perks for club members",
+        operatingHours: "Operating Hours",
+        operatingHoursPlaceholder: "e.g., Mon-Fri 9:00-21:00, Sat-Sun 10:00-18:00",
+        
+        // Teams
+        teams: "Teams",
+        selectTeams: "Select Teams",
+        
+        // Validation
+        nameRequired: "Club name is required",
+        sportTypeRequired: "Sport type is required",
+        minAgeInvalid: "Minimum age must be greater than 0",
+        maxAgeInvalid: "Maximum age must be greater than minimum age",
+        addressRequired: "At least one address is required",
+        streetRequired: "Street address (line 1) is required",
+        cityRequired: "City is required",
+        emailInvalid: "Invalid email format",
+        
+        // Actions and States
+        confirmDelete: "Delete Sport Club",
+        deleteWarning: "Are you sure you want to delete this sport club? This action cannot be undone.",
+        deleteWarningDetail: "Are you sure you want to delete club '{name}'? This action cannot be undone.",
+        notFound: "Sport club not found",
+        
+        // Common
+        years: "years",
+        activeFilters: "Active Filters",
+        goBack: "Go Back"
     }
 
 };

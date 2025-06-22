@@ -17,7 +17,8 @@ export const ru = {
         sportTypes: "Виды спорта",
         playgrounds: "Площадки",
         cities: "Города",
-        users: "Пользователи"
+        users: "Пользователи",
+        sportClubs: "Спортивные секции"
     },    auth: {
         status: {
             allStatuses: "Все статусы",
@@ -708,6 +709,95 @@ export const ru = {
         recentRenders: "Последние рендеры",
         clear: "Очистить",
         export: "Экспорт"
+    },
+
+    // Sport Clubs
+    sportClubs: {
+        title: "Спортивные секции",
+        subtitle: "Управление спортивными секциями и клубами",
+        sportClub: "Спортивная секция",
+        createSportClub: "Создать спортивную секцию",
+        editSportClub: "Редактировать спортивную секцию",
+        noSportClubs: "Спортивные секции не найдены",
+        createFirst: "Создайте вашу первую спортивную секцию",
+        searchPlaceholder: "Поиск по названию секции...",
+        
+        // Basic Information
+        basicInfo: "Основная информация",
+        name: "Название секции",
+        namePlaceholder: "Введите название спортивной секции",
+        description: "Описание",
+        descriptionPlaceholder: "Введите описание секции",
+        clubType: "Тип клуба",
+        sportType: "Вид спорта",
+        ageRange: "Возрастной диапазон",
+        minAge: "Минимальный возраст",
+        maxAge: "Максимальный возраст",
+        establishmentYear: "Год основания",
+        established: "Основано в",
+        membershipFee: "Членский взнос",
+        
+        // Club Types
+        clubTypes: {
+            kids: "Детский",
+            regular: "Обычный",
+            professional: "Профессиональный",
+            mixed: "Смешанный"
+        },
+        
+        // Contact Information
+        contactInfo: "Контактная информация",
+        contactEmail: "Email",
+        contactPhone: "Телефон",
+        website: "Веб-сайт",
+        
+        // Addresses
+        addresses: "Адреса",
+        address: "Адрес",
+        addAddress: "Добавить адрес",
+        streetLine1: "Адрес (строка 1)",
+        streetLine1Placeholder: "Введите основной адрес",
+        streetLine2: "Адрес (строка 2)",
+        streetLine2Placeholder: "Дополнительная информация об адресе",
+        zipCode: "Почтовый индекс",
+        addressDescription: "Описание адреса",
+        addressDescriptionPlaceholder: "Описание расположения (например, 'главный вход')",
+        primary: "Основной",
+        setPrimary: "Сделать основным",
+        
+        // Additional Information
+        additionalInfo: "Дополнительная информация",
+        facilities: "Удобства и оборудование",
+        facilitiesPlaceholder: "Опишите доступные удобства и спортивное оборудование",
+        membershipBenefits: "Преимущества членства",
+        membershipBenefitsPlaceholder: "Опишите преимущества и льготы для членов секции",
+        operatingHours: "Часы работы",
+        operatingHoursPlaceholder: "Например: Пн-Пт 9:00-21:00, Сб-Вс 10:00-18:00",
+        
+        // Teams
+        teams: "Команды",
+        selectTeams: "Выбрать команды",
+        
+        // Validation
+        nameRequired: "Название секции обязательно",
+        sportTypeRequired: "Вид спорта обязателен",
+        minAgeInvalid: "Минимальный возраст должен быть больше 0",
+        maxAgeInvalid: "Максимальный возраст должен быть больше минимального",
+        addressRequired: "Необходимо указать хотя бы один адрес",
+        streetRequired: "Адрес (строка 1) обязателен",
+        cityRequired: "Город обязателен",
+        emailInvalid: "Неверный формат email",
+        
+        // Actions and States
+        confirmDelete: "Удалить спортивную секцию",
+        deleteWarning: "Вы уверены, что хотите удалить эту спортивную секцию? Это действие нельзя отменить.",
+        deleteWarningDetail: "Вы уверены, что хотите удалить секцию '{name}'? Это действие нельзя отменить.",
+        notFound: "Спортивная секция не найдена",
+        
+        // Common
+        years: "лет",
+        activeFilters: "Активные фильтры",
+        goBack: "Вернуться"
     }
 
 };
