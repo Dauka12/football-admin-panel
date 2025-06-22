@@ -75,59 +75,62 @@ export const ru = {
         notFound: "Матч не найден",
         tournamentInfo: "Информация о турнире",
         teamsAndScores: "Команды и счёт",
-        matchEvents: "События матча",
-        noEvents: "Для этого матча не записаны события",
-        minute: "Минута",
-        eventType: "Тип события",
         sort: {
             dateDesc: "Сначала новые",
             dateAsc: "Сначала старые",
             status: "По статусу"
         },
         status: {
+            title: "Статус",
+            allStatuses: "Все статусы",
             pending: "Ожидание",
-            live: "В прямом эфире",
+            inProgress: "В процессе",
             completed: "Завершён",
             cancelled: "Отменён"
         },
         statusUpdated: "Статус матча успешно обновлён",
-        scoreUpdated: "Счёт успешно обновлён",
         actions: {
             startMatch: "Начать матч",
             endMatch: "Завершить матч",
-            updateStatus: "Обновить статус",
-            manageEvents: "Управление событиями",
-            updateScore: "Обновить счет"
-        },
-        events: {
-            goal: "Гол",
-            card: "Карточка",
-            substitution: "Замена",
-            injury: "Травма",
-            add: "Добавить событие",
-            addButton: "Добавить",
-            current: "Текущие события",
-            addSuccess: "Событие успешно добавлено",
-            deleteSuccess: "Событие успешно удалено",
-            confirmDelete: "Вы уверены что хотите удалить это событие?",
-            selectPlayer: "Пожалуйста выберите игрока",
-            invalidMinute: "Пожалуйста, укажите корректную минуту",
-            playerNotFound: "Выбранный игрок не найден",
-            manageEvents: "Управление событиями"
+            updateStatus: "Обновить статус"
         },
         form: {
-            tournament: "Турнир",
+            tournament: "Турнир (необязательно)",
             matchDate: "Дата и время матча",
+            city: "Город",
+            selectCity: "Выберите город",
             teams: "Выбрать команды",
             selectTournament: "Выберите турнир",
             noTeams: "Нет доступных команд",
             success: "Матч успешно сохранён",
             errors: {
-                tournamentRequired: "Турнир обязателен",
                 dateRequired: "Дата матча обязательна",
                 teamsRequired: "Требуется выбрать хотя бы одну команду",
                 minimumTwoTeams: "Необходимо выбрать минимум две команды"
             }
+        }
+    },
+    matchEvents: {
+        title: "События матча",
+        addEvent: "Добавить событие",
+        noEvents: "Для этого матча не записано событий",
+        eventType: "Тип события",
+        eventTime: "Время события",
+        minutes: "минуты",
+        eventTimePlaceholder: "Введите минуту (например, 45)",
+        descriptionPlaceholder: "Дополнительное описание...",
+        addEventSuccess: "Событие успешно добавлено",
+        deleteEventSuccess: "Событие успешно удалено",
+        deleteEventConfirm: "Вы уверены, что хотите удалить это событие?",
+        eventsTitle: "События матча",
+        types: {
+            goal: "Гол",
+            yellow_card: "Жёлтая карточка",
+            red_card: "Красная карточка",
+            second_yellow: "Вторая жёлтая",
+            penalty_goal: "Гол с пенальти",
+            missed_penalty: "Не забитый пенальти",
+            own_goal: "Автогол"
         }
     },
     teams: {
@@ -513,6 +516,11 @@ export const ru = {
         descriptionPlaceholder: "Введите описание достижения",
         pointsPlaceholder: "Введите очки (опционально)",
         
+        // Player achievements
+        noAchievements: "Достижения для этого игрока не найдены",
+        playerAchievements: "Достижения игрока",
+        achievementsTitle: "Достижения",
+        
         // Categories
         categories: {
             tournament_winner: "Победитель турнира",
@@ -555,7 +563,6 @@ export const ru = {
         uniquePlayers: "Уникальные игроки",
         
         // States
-        noAchievements: "Достижения не найдены",
         noResultsFound: "Достижения по вашему запросу не найдены",
         createFirst: "Создайте первое достижение",
         tryDifferentFilters: "Попробуйте изменить фильтры поиска",

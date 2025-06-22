@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useCityStore } from '../../store/cityStore';
 import { useTeamStore } from '../../store/teamStore';
 import { useTournamentStore } from '../../store/tournamentStore';
 import type { CreateMatchRequest, UpdateMatchRequest } from '../../types/matches';
@@ -18,32 +19,38 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
     const [isLoading, setIsLoading] = useState(false);
     const { teams, fetchTeams } = useTeamStore();
     const { tournaments, fetchTournaments } = useTournamentStore();
+    const { cities, fetchCities } = useCityStore();
 
     // Form data
     const [formData, setFormData] = useState<CreateMatchRequest>({
-        tournamentId: initialData?.tournamentId || 0,
+        tournamentId: initialData?.tournamentId,
         matchDate: initialData?.matchDate || new Date().toISOString(),
-        teams: initialData?.teams || []
+        teams: initialData?.teams || [],
+        cityId: initialData?.cityId,
+        status: initialData?.status || 'PENDING'
     });
     
-    // Normalize initial matchDate if it's a timestamp
+    // Normalize initial matchDate 
     useEffect(() => {
         if (initialData?.matchDate) {
-            let matchDate = initialData.matchDate;
+            const matchDate = initialData.matchDate as string | number;
+            let normalizedDate: Date;
             
-            // If it's a number (Unix timestamp)
             if (typeof matchDate === 'number') {
-                // Convert to ISO string for form handling
-                const date = new Date(
-                    // If it's seconds (10 digits), convert to milliseconds
-                    matchDate.toString().length === 10 ? matchDate * 1000 : matchDate
-                );
-                if (!isNaN(date.getTime())) {
-                    setFormData(prev => ({
-                        ...prev,
-                        matchDate: date.toISOString()
-                    }));
-                }
+                // Handle Unix timestamp (check if it's in seconds or milliseconds)
+                const timestampStr = String(matchDate);
+                const timestamp = timestampStr.length === 10 ? matchDate * 1000 : matchDate;
+                normalizedDate = new Date(timestamp);
+            } else {
+                // Handle string date
+                normalizedDate = new Date(matchDate);
+            }
+            
+            if (!isNaN(normalizedDate.getTime())) {
+                setFormData(prev => ({
+                    ...prev,
+                    matchDate: normalizedDate.toISOString()
+                }));
             }
         }
     }, [initialData]);
@@ -51,20 +58,23 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
     // Form validation
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    // Fetch teams and tournaments on mount
+    // Fetch teams, tournaments, and cities on mount
     useEffect(() => {
         const loadData = async () => {
-            await Promise.all([fetchTeams(), fetchTournaments()]);
+            await Promise.all([fetchTeams(), fetchTournaments(), fetchCities()]);
         };
         loadData();
-    }, [fetchTeams, fetchTournaments]);
+    }, [fetchTeams, fetchTournaments, fetchCities]);
 
     // Handle form field changes
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const { name, value } = e.target;
 
-        if (name === 'tournamentId') {
-            setFormData(prev => ({ ...prev, [name]: parseInt(value, 10) || 0 }));
+        if (name === 'tournamentId' || name === 'cityId') {
+            setFormData(prev => ({ 
+                ...prev, 
+                [name]: value ? parseInt(value, 10) : undefined 
+            }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
@@ -127,10 +137,8 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
     const validateForm = (): boolean => {
         const newErrors: Record<string, string> = {};
 
-        // Check tournament
-        if (!formData.tournamentId) {
-            newErrors.tournamentId = t('matches.form.errors.tournamentRequired');
-        }
+        // Tournament is optional - matches can be created without tournaments
+        // No validation needed for tournamentId
 
         // Check match date
         if (!formData.matchDate) {
@@ -174,7 +182,7 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
             {/* Tournament selection */}
             <div>
                 <label className="block font-medium mb-1 text-sm" htmlFor="tournamentId">
-                    {t('matches.form.tournament')} *
+                    {t('matches.form.tournament')}
                 </label>
                 <select
                     id="tournamentId"
@@ -197,6 +205,32 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
                 )}
             </div>
 
+            {/* City selection */}
+            <div>
+                <label className="block font-medium mb-1 text-sm" htmlFor="cityId">
+                    {t('matches.form.city')}
+                </label>
+                <select
+                    id="cityId"
+                    name="cityId"
+                    value={formData.cityId || ''}
+                    onChange={handleChange}
+                    className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 focus:ring-gold
+          ${errors.cityId ? 'border-red-500' : 'border-gray-700'}`}
+                    disabled={isLoading}
+                >
+                    <option value="">{t('matches.form.selectCity')}</option>
+                    {cities.map(city => (
+                        <option key={city.id} value={city.id}>
+                            {city.name}
+                        </option>
+                    ))}
+                </select>
+                {errors.cityId && (
+                    <p className="text-red-500 text-xs mt-1">{errors.cityId}</p>
+                )}
+            </div>
+
             {/* Match date/time */}
             <div className="w-full">
                 <div className="block font-medium mb-1 text-sm sr-only">
@@ -211,6 +245,30 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
                 />
                 {errors.matchDate && (
                     <p className="text-red-500 text-xs mt-1">{errors.matchDate}</p>
+                )}
+            </div>
+
+            {/* Status selection */}
+            <div>
+                <label className="block font-medium mb-1 text-sm" htmlFor="status">
+                    {t('matches.status.title')}
+                </label>
+                <select
+                    id="status"
+                    name="status"
+                    value={formData.status || 'PENDING'}
+                    onChange={handleChange}
+                    className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 focus:ring-gold
+          ${errors.status ? 'border-red-500' : 'border-gray-700'}`}
+                    disabled={isLoading}
+                >
+                    <option value="PENDING">{t('matches.status.pending')}</option>
+                    <option value="IN_PROGRESS">{t('matches.status.inProgress')}</option>
+                    <option value="COMPLETED">{t('matches.status.completed')}</option>
+                    <option value="CANCELLED">{t('matches.status.cancelled')}</option>
+                </select>
+                {errors.status && (
+                    <p className="text-red-500 text-xs mt-1">{errors.status}</p>
                 )}
             </div>
 

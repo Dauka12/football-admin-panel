@@ -1,11 +1,14 @@
 // Match status enum - matches API specification
 export type MatchStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 
-// Event type enum - updated to match API values
-export type EventType = 'GOAL' | 'YELLOW_CARD' | 'RED_CARD' | 'SECOND_YELLOW' | 
-                        'PENALTY_GOAL' | 'MISSED_PENALTY' | 'OWN_GOAL';
+export const MatchStatus = {
+    PENDING: 'PENDING' as MatchStatus,
+    IN_PROGRESS: 'IN_PROGRESS' as MatchStatus,
+    COMPLETED: 'COMPLETED' as MatchStatus,
+    CANCELLED: 'CANCELLED' as MatchStatus
+} as const;
 
-// Tournament info for match responses
+// Tournament info for match responses - updated to match backend
 export interface MatchTournament {
     id: number;
     name: string;
@@ -15,93 +18,60 @@ export interface MatchTournament {
     sportTypeId: number;
     categoryId: number;
     cityId: number;
-    active?: boolean; // Add optional active field
 }
 
 // Match participant interface - aligned with API response
 export interface MatchParticipant {
     teamId: number;
     teamName: string;
-    playerId?: number;
-    playerFullName?: string;
+    playerId: number;
+    playerFullName: string;
     score: number;
 }
 
-// Match event interface - matches API specification
-export interface MatchEvent {
-    id: number;
-    matchId: number;
-    playerId: number;
-    playerName: string;
-    type: EventType;
-    minute: number;
-}
-
-// Match event request interface
-export interface MatchEventRequest {
-    matchId: number;
-    playerId: number;
-    type: EventType;
-    minute: number;
-}
-
-// Match events response
-export interface MatchEventsResponse {
-    events: MatchEvent[];
-}
-
-// Match interfaces for API responses - aligned with API specification
+// Match response interface - aligned with API specification
 export interface MatchFullResponse {
     id: number;
     matchDate: string;
     tournament: MatchTournament;
     participants: MatchParticipant[];
-    status: MatchStatus; // Change from string to MatchStatus
-    events?: MatchEvent[]; // Add optional events field
-}
-
-// Simplified match response for listings - same structure as full response
-export interface MatchListResponse {
-    id: number;
-    matchDate: string;
-    tournament: MatchTournament;
-    participants: MatchParticipant[];
-    status: MatchStatus; // Change from string to MatchStatus
+    status: string; // Backend returns string, not enum
 }
 
 // Request interfaces - aligned with API specification
 export interface CreateMatchRequest {
-    tournamentId: number;
+    tournamentId?: number; // Optional when creating matches outside tournaments
     matchDate: string;
     teams: number[];
-    cityId: number;
+    cityId?: number; // Optional field
+    status?: string; // Optional, defaults to PENDING
 }
 
 export interface UpdateMatchRequest {
-    tournamentId: number;
+    tournamentId?: number;
     matchDate: string;
     teams: number[];
-    cityId: number;
+    cityId?: number;
+    status?: string;
 }
 
-// Response for create/update
+// Response for create operations
 export interface MatchCreateResponse {
     id: number;
 }
 
-// Namespaces for consistent API
-export namespace MatchRequest {
-    export type Create = CreateMatchRequest;
-    export type Update = UpdateMatchRequest;
+// Filter parameters for match queries
+export interface MatchFilterParams {
+    date?: string;
+    status?: MatchStatus;
+    cityId?: number;
+    tournamentId?: number;
+    teamId?: number;
+    page?: number;
+    size?: number;
 }
 
-export namespace MatchResponse {
-    export type Full = MatchFullResponse;
-    export type List = MatchListResponse;
-    export type Create = MatchCreateResponse;
-}
-
-// Paginated response structure from API
+// Paginated response structure
 export interface PageableOptions {
     pageNumber: number;
     pageSize: number;
@@ -133,4 +103,15 @@ export interface PageResponse<T> {
     empty: boolean;
 }
 
-export interface MatchesPageResponse extends PageResponse<MatchListResponse> {}
+export interface MatchesPageResponse extends PageResponse<MatchFullResponse> {}
+
+// Namespaces for consistent API
+export namespace MatchRequest {
+    export type Create = CreateMatchRequest;
+    export type Update = UpdateMatchRequest;
+}
+
+export namespace MatchResponse {
+    export type Full = MatchFullResponse;
+    export type Create = MatchCreateResponse;
+}

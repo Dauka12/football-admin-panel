@@ -5,7 +5,7 @@ import MatchForm from '../../components/matches/MatchForm';
 import Modal from '../../components/ui/Modal';
 import { useMatchStore } from '../../store/matchStore';
 import { useTournamentStore } from '../../store/tournamentStore';
-import type { CreateMatchRequest, MatchListResponse, MatchStatus } from '../../types/matches';
+import type { CreateMatchRequest, MatchStatus, MatchFullResponse } from '../../types/matches';
 import { formatDateTime } from '../../utils/dateUtils.ts';
 import { showToast } from '../../utils/toast';
 
@@ -123,8 +123,8 @@ const MatchesPage: React.FC = () => {
   
   // Handle create match form submission
   const handleCreateMatch = async (data: CreateMatchRequest) => {
-    const matchId = await createMatch(data);
-    if (matchId) {
+    const success = await createMatch(data);
+    if (success) {
       setShowCreateForm(false);
       showToast(t('matches.createSuccess'), 'success');
     }
@@ -150,7 +150,7 @@ const MatchesPage: React.FC = () => {
     switch (status.toUpperCase()) {
       case 'PENDING':
         return 'bg-blue-900/50 text-blue-200';
-      case 'LIVE':
+      case 'IN_PROGRESS':
         return 'bg-green-900/50 text-green-200';
       case 'COMPLETED':
         return 'bg-gray-800/50 text-gray-300';
@@ -227,7 +227,7 @@ const MatchesPage: React.FC = () => {
           >
             <option value="">{t('matches.status.allStatuses')}</option>
             <option value="PENDING">{t('matches.status.pending')}</option>
-            <option value="LIVE">{t('matches.status.live')}</option>
+            <option value="IN_PROGRESS">{t('matches.status.inProgress')}</option>
             <option value="COMPLETED">{t('matches.status.completed')}</option>
             <option value="CANCELLED">{t('matches.status.cancelled')}</option>
           </select>
@@ -277,7 +277,7 @@ const MatchesPage: React.FC = () => {
       ) : (
         /* Matches list */
         <div className="space-y-4">
-          {Array.isArray(filteredMatches) && filteredMatches.map((match: MatchListResponse) => (
+          {Array.isArray(filteredMatches) && filteredMatches.map((match: MatchFullResponse) => (
             <div key={match.id} className="bg-card-bg rounded-lg overflow-hidden shadow-md transition-transform duration-300 hover:transform hover:scale-[1.01] hover:shadow-lg">
               {/* Match header */}
               <div className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-darkest-bg/70">

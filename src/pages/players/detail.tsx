@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import PlayerForm from '../../components/players/PlayerForm';
+import PlayerAchievements from '../../components/players/PlayerAchievements';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import FileUpload from '../../components/ui/FileUpload';
 import ImageDisplay from '../../components/ui/ImageDisplay';
@@ -375,6 +376,21 @@ const PlayerDetailPage: React.FC = () => {
                                 {t('players.noBio')}
                             </p>
                         )}
+                    </div>
+                </div>
+
+                {/* Player Achievements */}
+                <div className="bg-card-bg rounded-xl shadow-lg overflow-hidden">
+                    <div className="bg-gradient-to-r from-gold to-yellow-600 p-4">
+                        <h3 className="text-darkest-bg font-bold text-lg flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52a6.003 6.003 0 00-4.334 5.749 7.951 7.951 0 01-1.993-1.35A7.954 7.954 0 003.94 6.42c1.021-.13 2.042-.314 3.061-.555M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236C7.176 3.928 9.324 3.75 11.6 3.75h.8c2.276 0 4.424.178 6.35.486M19.75 4.236c.982.143 1.954.317 2.916.52a6.003 6.003 0 014.334 5.749 7.951 7.951 0 001.993-1.35A7.954 7.954 0 0020.06 6.42c-1.021-.13-2.042-.314-3.061-.555M19.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228" />
+                            </svg>
+                            {t('achievements.achievementsTitle')}
+                        </h3>
+                    </div>
+                    <div className="p-6">
+                        <PlayerAchievements playerId={playerId} />
                     </div>
                 </div>
             </div>

@@ -62,60 +62,62 @@ export const en = {
         notFound: "Match not found",
         tournamentInfo: "Tournament Info",
         teamsAndScores: "Teams & Scores",
-        matchEvents: "Match Events",
-        noEvents: "No events recorded for this match",
-        minute: "Minute",
-        eventType: "Event Type",
         sort: {
             dateDesc: "Newest first",
             dateAsc: "Oldest first",
             status: "By status"
         },
         status: {
+            title: "Status",
             allStatuses: "All Statuses",
             pending: "Pending",
-            live: "Live",
+            inProgress: "In Progress", 
             completed: "Completed",
             cancelled: "Cancelled"
         },
         statusUpdated: "Match status updated successfully",
-        scoreUpdated: "Score updated successfully",
         actions: {
             startMatch: "Start Match",
-            endMatch: "End Match",
-            updateStatus: "Update Status",
-            manageEvents: "Manage Events",
-            updateScore: "Update Score"
-        },
-        events: {
-            goal: "Goal",
-            card: "Card",
-            substitution: "Substitution",
-            injury: "Injury",
-            add: "Add Event",
-            addButton: "Add Event",
-            current: "Current Events",
-            addSuccess: "Event added successfully",
-            deleteSuccess: "Event deleted successfully",
-            confirmDelete: "Are you sure you want to delete this event?",
-            selectPlayer: "Please select a player",
-            invalidMinute: "Please enter a valid minute",
-            playerNotFound: "Selected player not found",
-            manageEvents: "Manage Events"
+            endMatch: "End Match", 
+            updateStatus: "Update Status"
         },
         form: {
-            tournament: "Tournament",
+            tournament: "Tournament (Optional)",
             matchDate: "Match Date & Time",
+            city: "City",
+            selectCity: "Select a city",
             teams: "Select Teams",
             selectTournament: "Select a tournament",
             noTeams: "No teams available",
             success: "Match saved successfully",
             errors: {
-                tournamentRequired: "Tournament is required",
                 dateRequired: "Match date is required",
                 teamsRequired: "At least one team is required",
                 minimumTwoTeams: "At least two teams must be selected"
             }
+        }
+    },
+    matchEvents: {
+        title: "Match Events",
+        addEvent: "Add Event",
+        noEvents: "No events recorded for this match",
+        eventType: "Event Type",
+        eventTime: "Event Time",
+        minutes: "minutes",
+        eventTimePlaceholder: "Enter minute (e.g. 45)",
+        descriptionPlaceholder: "Optional description...",
+        addEventSuccess: "Event added successfully",
+        deleteEventSuccess: "Event deleted successfully",
+        deleteEventConfirm: "Are you sure you want to delete this event?",
+        eventsTitle: "Match Events",
+        types: {
+            goal: "Goal",
+            yellow_card: "Yellow Card",
+            red_card: "Red Card",
+            second_yellow: "Second Yellow",
+            penalty_goal: "Penalty Goal",
+            missed_penalty: "Missed Penalty",
+            own_goal: "Own Goal"
         }
     },
     teams: {
@@ -562,6 +564,11 @@ export const en = {
         descriptionPlaceholder: "Enter achievement description",
         pointsPlaceholder: "Enter points (optional)",
         
+        // Player achievements
+        noAchievements: "No achievements found for this player",
+        playerAchievements: "Player Achievements",
+        achievementsTitle: "Achievements",
+        
         // Categories
         categories: {
             tournament_winner: "Tournament Winner",
@@ -604,7 +611,6 @@ export const en = {
         uniquePlayers: "Unique Players",
         
         // States
-        noAchievements: "No achievements found",
         noResultsFound: "No achievements found matching your search",
         createFirst: "Create your first achievement",
         tryDifferentFilters: "Try adjusting your search filters",

@@ -2,24 +2,12 @@ import type {
     CreateMatchRequest,
     MatchCreateResponse,
     MatchesPageResponse,
-    MatchEvent,
-    MatchEventRequest,
-    MatchEventsResponse,
+    MatchFilterParams,
     MatchFullResponse,
     MatchStatus,
     UpdateMatchRequest
 } from '../types/matches';
 import axiosInstance from './axios';
-
-// Match filter parameters
-export interface MatchFilterParams {
-    date?: string;
-    status?: MatchStatus;
-    cityId?: number;
-    tournamentId?: number;
-    page?: number;
-    size?: number;
-}
 
 export const matchApi = {
     // Get all matches with filtering and pagination (public)
@@ -30,6 +18,7 @@ export const matchApi = {
         if (filters.status) params.append('status', filters.status);
         if (filters.cityId) params.append('cityId', filters.cityId.toString());
         if (filters.tournamentId) params.append('tournamentId', filters.tournamentId.toString());
+        if (filters.teamId) params.append('teamId', filters.teamId.toString());
         if (filters.page !== undefined) params.append('page', filters.page.toString());
         if (filters.size !== undefined) params.append('size', filters.size.toString());
 
@@ -59,43 +48,8 @@ export const matchApi = {
         await axiosInstance.delete(`/matches/admin/${id}`);
     },
 
-    // Match Events API
-
-    // Create match event
-    createEvent: async (eventData: MatchEventRequest): Promise<MatchEvent> => {
-        const response = await axiosInstance.post(`/match-events`, eventData);
-        return response.data;
-    },
-
-    // Get event by ID
-    getEventById: async (id: number): Promise<MatchEvent> => {
-        const response = await axiosInstance.get(`/match-events/public/${id}`);
-        return response.data;
-    },
-    
-    // Get all events for a match
-    getMatchEvents: async (matchId: number): Promise<MatchEventsResponse> => {
-        const response = await axiosInstance.get(`/match-events/public/match/${matchId}`);
-        return response.data;
-    },
-
-    // Legacy methods for backward compatibility
-    addEvent: async (matchId: number, eventData: { playerId: number, type: string, minute: number }): Promise<MatchEvent> => {
-        return matchApi.createEvent({
-            matchId,
-            playerId: eventData.playerId,
-            type: eventData.type as any,
-            minute: eventData.minute
-        });
-    },
-
-    // Update match status (custom endpoint - may need to be implemented)
-    updateStatus: async (matchId: number, status: MatchStatus): Promise<void> => {
-        await axiosInstance.patch(`/matches/admin/${matchId}/status`, { status });
-    },
-
-    // Update participant score (custom endpoint - may need to be implemented)
-    updateScore: async (matchId: number, participantId: number, score: number): Promise<void> => {
-        await axiosInstance.patch(`/matches/admin/${matchId}/participants/${participantId}/score`, { score });
+    // Update match status (admin only) - uses PATCH with status in body
+    updateStatus: async (id: number, status: MatchStatus): Promise<void> => {
+        await axiosInstance.patch(`/matches/admin/${id}`, { status });
     }
 };

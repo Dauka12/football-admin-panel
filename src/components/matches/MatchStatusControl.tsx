@@ -4,13 +4,11 @@ import type { MatchStatus } from '../../types/matches';
 import { showToast } from '../../utils/toast';
 
 interface MatchStatusControlProps {
-  matchId: number;
   currentStatus: MatchStatus;
   onStatusChange: (status: MatchStatus) => Promise<boolean>;
 }
 
 const MatchStatusControl: React.FC<MatchStatusControlProps> = ({
-  matchId,
   currentStatus,
   onStatusChange
 }) => {
@@ -18,18 +16,18 @@ const MatchStatusControl: React.FC<MatchStatusControlProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [showStatusOptions, setShowStatusOptions] = useState(false);
 
-  // Possible status transitions
+  // Possible status transitions based on backend API
   const getAvailableStatuses = (): MatchStatus[] => {
     switch (currentStatus) {
       case 'PENDING':
-        return ['LIVE', 'CANCELLED'];
-      case 'LIVE':
+        return ['IN_PROGRESS', 'CANCELLED'];
+      case 'IN_PROGRESS':
         return ['COMPLETED', 'CANCELLED'];
       case 'COMPLETED':
       case 'CANCELLED':
         return [];
       default:
-        return ['PENDING', 'LIVE', 'COMPLETED', 'CANCELLED'];
+        return ['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
     }
   };
 
@@ -51,7 +49,7 @@ const MatchStatusControl: React.FC<MatchStatusControlProps> = ({
     switch (status) {
       case 'PENDING':
         return 'bg-blue-900/50 text-blue-200 border-blue-700/50 hover:bg-blue-800/50';
-      case 'LIVE':
+      case 'IN_PROGRESS':
         return 'bg-green-900/50 text-green-200 border-green-700/50 hover:bg-green-800/50';
       case 'COMPLETED':
         return 'bg-gray-800/50 text-gray-300 border-gray-700/50 hover:bg-gray-700/50';
