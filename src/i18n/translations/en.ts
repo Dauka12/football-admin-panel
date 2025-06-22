@@ -169,7 +169,6 @@ export const en = {
         tournamentDetails: "Tournament Details",
         basicInfo: "Tournament Info",
         dateRange: "Date Range",
-        participatingTeams: "Participating Teams",
         searchByTournament: "Search by tournament name or description...",
         registrationDeadline: "Registration Deadline",
         status: "Status",
@@ -191,6 +190,8 @@ export const en = {
         selectedTeams: "Selected Teams",
         city: "City",
         sportType: "Sport Type",
+        category: "Tournament Category",
+        numberOfMatches: "Number of Matches",
         location: "Location"
     },
     players: {

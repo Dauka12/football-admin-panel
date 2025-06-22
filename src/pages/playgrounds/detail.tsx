@@ -34,9 +34,7 @@ const PlaygroundDetailPage: React.FC = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [showAvatarUpload, setShowAvatarUpload] = useState(false);
-    const [selectedTab, setSelectedTab] = useState<'details' | 'reservations'>('details');
-
-    const isRussian = i18n.language === 'ru';
+    const [selectedTab, setSelectedTab] = useState<'details' | 'reservations'>('details');    const isRussian = i18n.language === 'ru';
 
     // Load playground data
     const loadPlayground = useCallback(() => {

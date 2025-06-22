@@ -181,7 +181,6 @@ export const ru = {
         tournamentDetails: "Детали турнира",
         basicInfo: "Информация о турнире",
         dateRange: "Период проведения",
-        participatingTeams: "Участвующие команды",
         searchByTournament: "Поиск по названию турнира или описанию...",
         registrationDeadline: "Крайний срок регистрации",
         status: "Статус",
@@ -203,6 +202,8 @@ export const ru = {
         enterName: "Введите название турнира",
         city: "Город",
         sportType: "Вид спорта",
+        category: "Категория турнира",
+        numberOfMatches: "Количество матчей",
         location: "Местоположение"
     },
     common: {

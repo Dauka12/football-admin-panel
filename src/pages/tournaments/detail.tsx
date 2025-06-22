@@ -98,13 +98,24 @@ const TournamentDetailPage: React.FC = () => {
     }, [currentTournament, fetchTeamsByIds, t, tournamentTeams.length]);
 
     const handleUpdate = async (data: UpdateTournamentRequest) => {
+        console.log('handleUpdate called with data:', data);
+        console.log('tournamentId:', tournamentId);
+        
         if (tournamentId > 0) {
-            const success = await updateTournament(tournamentId, data);
-            if (success) {
-                setIsEditing(false);
-                // Refresh tournament data after update
-                loadTournament();
+            try {
+                const success = await updateTournament(tournamentId, data);
+                console.log('updateTournament result:', success);
+                
+                if (success) {
+                    setIsEditing(false);
+                    // Refresh tournament data after update
+                    loadTournament();
+                }
+            } catch (error) {
+                console.error('Error in handleUpdate:', error);
             }
+        } else {
+            console.error('Invalid tournamentId:', tournamentId);
         }
     };
 
@@ -200,6 +211,31 @@ const TournamentDetailPage: React.FC = () => {
             {/* Tournament Details */}
             <div className="bg-card-bg rounded-lg p-6">
                 <h2 className={`font-semibold mb-4 ${isRussian ? 'text-lg' : 'text-xl'}`}>
+                    {t('tournaments.basicInfo')}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div>
+                        <div className="text-gray-400 text-sm mb-1">{t('tournaments.sportType')}</div>
+                        <div>ID: {currentTournament.sportTypeId}</div>
+                    </div>
+                    <div>
+                        <div className="text-gray-400 text-sm mb-1">{t('tournaments.category')}</div>
+                        <div>ID: {currentTournament.categoryId}</div>
+                    </div>
+                    <div>
+                        <div className="text-gray-400 text-sm mb-1">{t('tournaments.city')}</div>
+                        <div>ID: {currentTournament.cityId}</div>
+                    </div>
+                    <div>
+                        <div className="text-gray-400 text-sm mb-1">{t('tournaments.numberOfMatches')}</div>
+                        <div>{currentTournament.numberOfMatches}</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Tournament Date Range */}
+            <div className="bg-card-bg rounded-lg p-6">
+                <h2 className={`font-semibold mb-4 ${isRussian ? 'text-lg' : 'text-xl'}`}>
                     {t('tournaments.dateRange')}
                 </h2>
                 <div className="space-y-4">
@@ -212,62 +248,6 @@ const TournamentDetailPage: React.FC = () => {
                         <div>{formatDate(currentTournament.endDate)}</div>
                     </div>
                 </div>
-            </div>
-
-            {/* Participating Teams */}
-            <div className="bg-card-bg rounded-lg p-6">
-                <h2 className={`font-semibold mb-4 ${isRussian ? 'text-lg' : 'text-xl'}`}>
-                    {t('tournaments.participatingTeams')} ({tournamentTeams.length})
-                </h2>
-                
-                {teamError && (
-                    <div className="bg-red-500/20 border border-red-500 p-3 rounded-md text-red-500 mb-4">
-                        {teamError}
-                    </div>
-                )}
-                
-                {isLoadingTeams ? (
-                    <div className="flex justify-center py-8">
-                        <svg className="animate-spin h-6 w-6 text-gold" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    </div>
-                ) : tournamentTeams.length === 0 ? (
-                    <p className="text-gray-400 text-center py-8">{t('tournaments.noTeams')}</p>
-                ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {tournamentTeams.map((team) => (
-                            <Link
-                                key={team.id}
-                                to={`/dashboard/teams/${team.id}`}
-                                className="bg-darkest-bg rounded-lg p-4 hover:bg-darkest-bg/70 transition-colors duration-200 border border-gray-700 hover:border-gold"
-                            >
-                                <div className="flex items-center space-x-3">
-                                    <div 
-                                        className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                                        style={{ 
-                                            backgroundColor: team.primaryColor || '#ffcc00',
-                                            color: team.secondaryColor || '#002b3d'
-                                        }}
-                                    >
-                                        {team.avatar ? (
-                                            <img src={team.avatar} alt={team.name} className="w-full h-full object-cover rounded-full" />
-                                        ) : (
-                                            <span className="font-bold text-sm">{team.name.substring(0, 2).toUpperCase()}</span>
-                                        )}
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                        <div className="font-medium truncate">{team.name}</div>
-                                        <div className="text-sm text-gray-400">
-                                            {team.players?.length || 0} {t('common.players')}
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-                )}
             </div>
 
             {/* Tournament Statistics */}
@@ -290,11 +270,13 @@ const TournamentDetailPage: React.FC = () => {
                         startDate: currentTournament.startDate,
                         endDate: currentTournament.endDate,
                         teams: currentTournament.teams?.map(team => team.id) || [],
-                        cityId: 1, // Default city ID
-                        sportTypeId: currentTournament.sportTypeId || 1 // Default sport type
+                        cityId: currentTournament.cityId,
+                        sportTypeId: currentTournament.sportTypeId,
+                        categoryId: currentTournament.categoryId
                     }}
                     onSubmit={handleUpdate} 
                     onCancel={() => setIsEditing(false)} 
+                    isEdit={true}
                 />
             </SimpleModal>
 

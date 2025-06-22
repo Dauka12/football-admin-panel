@@ -37,7 +37,7 @@ export const useTournamentStore = create<TournamentState>()((set, get) => ({
 
         try {
             // Use execute instead of executeWithRetry
-            const tournamentsData = await apiService.execute(
+            const tournamentsResponse = await apiService.execute(
                 () => tournamentApi.getAll(),
                 'fetchTournaments',
                 { 
@@ -47,8 +47,8 @@ export const useTournamentStore = create<TournamentState>()((set, get) => ({
                 }
             );
             
-            // Ensure tournaments is always an array
-            const tournamentsArray = Array.isArray(tournamentsData) ? tournamentsData : [];
+            // Extract tournaments from paginated response
+            const tournamentsArray = tournamentsResponse?.content || [];
             
             set({ 
                 tournaments: tournamentsArray, 
@@ -113,20 +113,25 @@ export const useTournamentStore = create<TournamentState>()((set, get) => ({
     },
 
     updateTournament: async (id: number, data: UpdateTournamentRequest) => {
+        console.log('Store updateTournament called with:', { id, data });
         set({ isLoading: true, error: null });
         
         try {
-            await apiService.execute(
+            console.log('Calling tournamentApi.update...');
+            const result = await apiService.execute(
                 () => tournamentApi.update(id, data),
                 `updateTournament_${id}`
             );
+            console.log('API update result:', result);
             
             // Fetch the latest data to ensure proper typing
+            console.log('Fetching updated tournament data...');
             const updatedTournament = await apiService.execute(
                 () => tournamentApi.getById(id),
                 `fetchTournament_${id}`,
                 { forceRefresh: true }
             );
+            console.log('Updated tournament data:', updatedTournament);
             
             // Clear relevant cache entries
             apiService.clearCache([`fetchTournament_${id}`, 'fetchTournaments']);
@@ -141,9 +146,11 @@ export const useTournamentStore = create<TournamentState>()((set, get) => ({
             }));
             
             showToast('Tournament updated successfully!', 'success');
+            console.log('Tournament update completed successfully');
             return true;
         } 
         catch (error: any) {
+            console.error('Error in updateTournament:', error);
             const errorMessage = ErrorHandler.handle(error);
             set({ 
                 error: errorMessage.message, 

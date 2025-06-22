@@ -2,6 +2,7 @@ import type {
     CreateTournamentRequest,
     TournamentCreateResponse,
     TournamentFullResponse,
+    TournamentPaginatedResponse,
     UpdateTournamentRequest
 } from '../types/tournaments';
 import axiosInstance from './axios';
@@ -13,12 +14,13 @@ export interface TournamentFilterParams {
     date?: string;
     cityId?: number;
     sportTypeId?: number;
+    categoryId?: number;
     page?: number;
     size?: number;
 }
 
 export const tournamentApi = {
-    getAll: async (filters?: TournamentFilterParams): Promise<TournamentFullResponse[]> => {
+    getAll: async (filters?: TournamentFilterParams): Promise<TournamentPaginatedResponse> => {
         const params = new URLSearchParams();
         if (filters) {
             Object.entries(filters).forEach(([key, value]) => {
@@ -28,8 +30,7 @@ export const tournamentApi = {
             });
         }
         const response = await axiosInstance.get(`/tournaments/public?${params}`);
-        // The API returns paginated response with tournaments in 'content' property
-        return response.data.content || [];
+        return response.data;
     },
 
     getById: async (id: number): Promise<TournamentFullResponse> => {
@@ -43,7 +44,9 @@ export const tournamentApi = {
     },
 
     update: async (id: number, data: UpdateTournamentRequest): Promise<TournamentFullResponse> => {
+        console.log('API update called with:', { id, data });
         const response = await axiosInstance.patch(`/tournaments/${id}`, data);
+        console.log('API update response:', response.data);
         return response.data;
     },
 

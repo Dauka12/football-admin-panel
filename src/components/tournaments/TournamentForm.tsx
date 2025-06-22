@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useCityStore } from '../../store/cityStore';
 import { useSportTypeStore } from '../../store/sportTypeStore';
 import { useTeamStore } from '../../store/teamStore';
+import { useTournamentCategoryStore } from '../../store/tournamentCategoryStore';
 import type { CreateTournamentRequest, UpdateTournamentRequest } from '../../types/tournaments';
 import { ErrorHandler } from '../../utils/errorHandler';
 import { showToast } from '../../utils/toast';
@@ -26,26 +27,24 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
     const { teams, fetchTeams } = useTeamStore();
     const { sportTypes, fetchSportTypes } = useSportTypeStore();
     const { cities, fetchCities } = useCityStore();
-
-    const [formData, setFormData] = useState<CreateTournamentRequest>({
+    const { categories, fetchCategories } = useTournamentCategoryStore();const [formData, setFormData] = useState<CreateTournamentRequest>({
         name: initialData?.name || '',
         startDate: initialData?.startDate || '',
         endDate: initialData?.endDate || '',
         teams: initialData?.teams || [],
         cityId: initialData?.cityId || 0,
-        sportTypeId: initialData?.sportTypeId || 0
-    });
-
-    const { 
+        sportTypeId: initialData?.sportTypeId || 0,
+        categoryId: initialData?.categoryId || 0
+    });    const { 
         errors, 
         validateForm, 
         validateField, 
         clearFieldError 
-    } = useFormValidation(tournamentValidators.create);    const [showTeamSelector, setShowTeamSelector] = useState(false);
-    const [selectedTeams, setSelectedTeams] = useState<(typeof teams[0])[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    } = useFormValidation(isEdit ? tournamentValidators.update : tournamentValidators.create);const [showTeamSelector, setShowTeamSelector] = useState(false);
+    const [selectedTeams, setSelectedTeams] = useState<(typeof teams[0])[]>([]);    const [isLoading, setIsLoading] = useState(false);
     const [isLoadingSportTypes, setIsLoadingSportTypes] = useState(false);
     const [isLoadingCities, setIsLoadingCities] = useState(false);
+    const [isLoadingCategories, setIsLoadingCategories] = useState(false);
 
     useEffect(() => {
         const loadData = async () => {
@@ -58,20 +57,26 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
                 console.error('Failed to load sport types:', error);
             } finally {
                 setIsLoadingSportTypes(false);
-            }
-
-            setIsLoadingCities(true);
+            }            setIsLoadingCities(true);
             try {
                 await fetchCities();
             } catch (error) {
                 console.error('Failed to load cities:', error);
             } finally {
                 setIsLoadingCities(false);
+            }            setIsLoadingCategories(true);
+            try {
+                console.log('Loading tournament categories...');
+                await fetchCategories();
+                console.log('Categories loaded:', categories);
+            } catch (error) {
+                console.error('Failed to load categories:', error);
+            } finally {
+                setIsLoadingCategories(false);
             }
-        };
-        
+        };        
         loadData();
-    }, [fetchTeams, fetchSportTypes, fetchCities]);
+    }, [fetchTeams, fetchSportTypes, fetchCities, fetchCategories]);
 
     // Update selected teams when form data changes
     useEffect(() => {
@@ -81,21 +86,55 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
         } else {
             setSelectedTeams([]);
         }
-    }, [teams, formData.teams]);
-
-    const handleSubmit = async (e: React.FormEvent) => {
+    }, [teams, formData.teams]);    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (!validateForm(formData)) {
-            showToast('Please fix the validation errors', 'error');
+        console.log('Form submitted with data:', formData);
+        console.log('Is editing:', isEdit);
+        
+        // Check required fields manually
+        if (!formData.name?.trim()) {
+            showToast('Tournament name is required', 'error');
+            return;
+        }
+        
+        if (!formData.startDate) {
+            showToast('Start date is required', 'error');
+            return;
+        }
+        
+        if (!formData.endDate) {
+            showToast('End date is required', 'error');
+            return;
+        }
+        
+        if (!formData.cityId || formData.cityId === 0) {
+            showToast('City is required', 'error');
+            return;
+        }
+        
+        if (!formData.sportTypeId || formData.sportTypeId === 0) {
+            showToast('Sport type is required', 'error');
+            return;
+        }
+        
+        if (!formData.categoryId || formData.categoryId === 0) {
+            showToast('Category is required', 'error');
+            return;
+        }
+        
+        if (!formData.teams || formData.teams.length < 2) {
+            showToast('At least 2 teams are required', 'error');
             return;
         }
 
         setIsLoading(true);
         try {
+            console.log('Calling onSubmit with data:', formData);
             await onSubmit(formData);
-            showToast('Tournament saved successfully!', 'success');
+            console.log('onSubmit completed successfully');
         } catch (error) {
+            console.error('Error in form submission:', error);
             const errorMessage = ErrorHandler.handle(error);
             showToast(errorMessage.message, 'error');
         } finally {
@@ -255,9 +294,36 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
                                             {city.name}, {city.region}, {city.country}
                                         </option>
                                     ))}
-                                </select>
-                                {errors.cityId && <p className="text-red-400 text-sm mt-1">{errors.cityId}</p>}
+                                </select>                                {errors.cityId && <p className="text-red-400 text-sm mt-1">{errors.cityId}</p>}
                             </div>
+                        </div>
+
+                        {/* Tournament Category Selection */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                                {t('tournaments.category')} *
+                            </label>
+                            <select
+                                value={formData.categoryId || ''}
+                                onChange={(e) => {
+                                    const value = parseInt(e.target.value) || 0;
+                                    setFormData(prev => ({ ...prev, categoryId: value }));
+                                    if (errors.categoryId) {
+                                        clearFieldError('categoryId');
+                                    }
+                                }}
+                                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg 
+                                 focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all duration-200 text-white"
+                                disabled={isLoadingCategories}
+                            >
+                                <option value="">{isLoadingCategories ? t('common.loading') : t('tournamentCategories.selectCategory')}</option>
+                                {categories.map((category) => (
+                                    <option key={category.id} value={category.id}>
+                                        {category.name}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.categoryId && <p className="text-red-400 text-sm mt-1">{errors.categoryId}</p>}
                         </div>
 
                         {/* Team Selection */}
@@ -337,8 +403,7 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
                         </div>
                     </form>
                 </div>                {/* Footer */}
-                <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-700/50 bg-gray-800/30 flex flex-col sm:flex-row sm:justify-end gap-2 sm:space-x-3">
-                    <button
+                <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-700/50 bg-gray-800/30 flex flex-col sm:flex-row sm:justify-end gap-2 sm:space-x-3">                    <button
                         type="button"
                         onClick={onCancel}
                         className="w-full sm:w-auto px-4 sm:px-6 py-2.5 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700/50 
@@ -347,7 +412,8 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
                         {t('common.cancel')}
                     </button>
                     <button
-                        type="submit"
+                        type="button"
+                        onClick={handleSubmit}
                         disabled={isLoading}
                         className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-gradient-to-r from-gold to-gold/80 text-black rounded-lg 
                      hover:from-gold/90 hover:to-gold/70 transition-all duration-200 font-medium text-sm sm:text-base

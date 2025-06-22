@@ -12,6 +12,7 @@ export interface ValidationResult {
     errors: Record<string, string>;
 }
 
+
 // Core validation functions
 export const validationRules = {
     required: <T>(message?: string): ValidationRule<T> => 
@@ -295,9 +296,10 @@ interface TournamentFormData {
     name: string;
     startDate: string;
     endDate: string;
-    teams: any[];
+    teams: number[];
     cityId: number;
     sportTypeId: number;
+    categoryId: number;
 }
 
 export const tournamentValidators = {
@@ -328,6 +330,43 @@ export const tournamentValidators = {
         sportTypeId: [
             validationRules.required('Sport type is required'),
             validationRules.min(1, 'Please select a valid sport type')
+        ],
+        categoryId: [
+            validationRules.required('Tournament category is required'),
+            validationRules.min(1, 'Please select a valid tournament category')
+        ]
+    }),
+    update: new Validator<TournamentFormData>({
+        name: [
+            validationRules.required('Tournament name is required'),
+            validationRules.minLength(3, 'Tournament name must be at least 3 characters')
+        ],
+        startDate: [
+            validationRules.required('Start date is required')
+            // Removed future date requirement for updates
+        ],
+        endDate: [
+            validationRules.required('End date is required'),
+            validationRules.custom((value: string, data?: any) => {
+                if (!value || !data?.startDate) return true;
+                return new Date(value) > new Date(data.startDate);
+            }, 'End date must be after start date')
+        ],
+        teams: [
+            validationRules.arrayMinLength(2, 'At least 2 teams are required'),
+            validationRules.arrayMaxLength(32, 'Maximum 32 teams allowed')
+        ],
+        cityId: [
+            validationRules.required('City is required'),
+            validationRules.min(1, 'Please select a valid city')
+        ],
+        sportTypeId: [
+            validationRules.required('Sport type is required'),
+            validationRules.min(1, 'Please select a valid sport type')
+        ],
+        categoryId: [
+            validationRules.required('Tournament category is required'),
+            validationRules.min(1, 'Please select a valid tournament category')
         ]
     })
 };
