@@ -29,7 +29,7 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
     // Check if current language is Russian for adaptive text sizing
     const isRussian = i18n.language === 'ru';
 
-    const [formData, setFormData] = useState<CreateSportClubRequest>({
+    const [formData, setFormData] = useState<CreateSportClubRequest & { active?: boolean }>({
         name: initialData?.name || '',
         description: initialData?.description || '',
         clubType: initialData?.clubType || 'REGULAR',
@@ -54,7 +54,8 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
         operatingHours: initialData?.operatingHours || '',
         sportTypeId: initialData?.sportTypeId || 0,
         establishmentYear: initialData?.establishmentYear || new Date().getFullYear(),
-        teams: initialData?.teams || []
+        teams: initialData?.teams || [],
+        ...(isEdit && { active: (initialData as any)?.active ?? true }) // Добавляем active только для режима редактирования
     });
 
     const [isLoading, setIsLoading] = useState(false);
@@ -102,10 +103,18 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
     }, [teams, formData.teams]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+        const { name, value, type } = e.target;
 
+        // Handle boolean fields (checkbox)
+        if (type === 'checkbox') {
+            const checked = (e.target as HTMLInputElement).checked;
+            setFormData(prev => ({
+                ...prev,
+                [name]: checked
+            }));
+        }
         // Handle numeric fields
-        if (name === 'minAge' || name === 'maxAge' || name === 'sportTypeId' || name === 'establishmentYear') {
+        else if (name === 'minAge' || name === 'maxAge' || name === 'sportTypeId' || name === 'establishmentYear') {
             setFormData(prev => ({
                 ...prev,
                 [name]: value === '' ? 0 : parseInt(value)
@@ -651,6 +660,23 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
                         placeholder={t('sportClubs.operatingHoursPlaceholder')}
                     />
                 </div>
+
+                {/* Active status - only for edit mode */}
+                {isEdit && (
+                    <div className="flex items-center">
+                        <input
+                            type="checkbox"
+                            id="active"
+                            name="active"
+                            checked={(formData as any).active || false}
+                            onChange={handleChange}
+                            className="w-4 h-4 text-gold bg-darkest-bg border-gray-700 rounded focus:ring-gold focus:ring-2"
+                        />
+                        <label className={`ml-2 font-medium ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="active">
+                            {t('sportClubs.active')}
+                        </label>
+                    </div>
+                )}
             </div>
 
             {/* Teams */}

@@ -2,8 +2,10 @@ import { create } from 'zustand';
 import type { SportClubFilterParams } from '../api/sportClubs';
 import { sportClubApi } from '../api/sportClubs';
 import type {
+    CreateSportClubAddressRequest,
     CreateSportClubRequest,
     SportClub,
+    UpdateSportClubAddressRequest,
     UpdateSportClubRequest
 } from '../types/sportClubs';
 import { apiService } from '../utils/apiService';
@@ -34,6 +36,11 @@ interface SportClubState {
     deleteSportClub: (id: number) => Promise<boolean>;
     addTeamToClub: (clubId: number, teamId: number) => Promise<boolean>;
     removeTeamFromClub: (clubId: number, teamId: number) => Promise<boolean>;
+    // Address management methods
+    addAddress: (clubId: number, data: CreateSportClubAddressRequest) => Promise<boolean>;
+    updateAddress: (addressId: number, data: UpdateSportClubAddressRequest) => Promise<boolean>;
+    deleteAddress: (addressId: number) => Promise<boolean>;
+    setPrimaryAddress: (clubId: number, addressId: number) => Promise<boolean>;
     clearError: () => void;
     reset: () => void;
 }
@@ -288,6 +295,125 @@ export const useSportClubStore = create<SportClubState>()((set, get) => ({
             
             set({ isLoading: false });
             showToast('Команда успешно удалена из секции!', 'success');
+            return true;
+        } catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
+            set({
+                error: errorMessage.message,
+                isLoading: false
+            });
+            return false;
+        }
+    },
+
+    // Address management methods
+    addAddress: async (clubId: number, data: CreateSportClubAddressRequest) => {
+        set({ isLoading: true, error: null });
+        try {
+            await apiService.execute(
+                () => sportClubApi.addAddress(clubId, data),
+                `addAddress_${clubId}`
+            );
+
+            // Refresh the current sport club if it's the one being updated
+            if (get().currentSportClub?.id === clubId) {
+                await get().fetchSportClub(clubId);
+            }
+
+            // Clear cache
+            apiService.clearCache(['fetchSportClubs']);
+            
+            set({ isLoading: false });
+            showToast('Адрес успешно добавлен!', 'success');
+            return true;
+        } catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
+            set({
+                error: errorMessage.message,
+                isLoading: false
+            });
+            return false;
+        }
+    },
+
+    updateAddress: async (addressId: number, data: UpdateSportClubAddressRequest) => {
+        set({ isLoading: true, error: null });
+        try {
+            await apiService.execute(
+                () => sportClubApi.updateAddress(addressId, data),
+                `updateAddress_${addressId}`
+            );
+
+            // Refresh the current sport club to get updated data
+            const currentClub = get().currentSportClub;
+            if (currentClub) {
+                await get().fetchSportClub(currentClub.id);
+            }
+
+            // Clear cache
+            apiService.clearCache(['fetchSportClubs']);
+            
+            set({ isLoading: false });
+            showToast('Адрес успешно обновлен!', 'success');
+            return true;
+        } catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
+            set({
+                error: errorMessage.message,
+                isLoading: false
+            });
+            return false;
+        }
+    },
+
+    deleteAddress: async (addressId: number) => {
+        set({ isLoading: true, error: null });
+        try {
+            await apiService.execute(
+                () => sportClubApi.deleteAddress(addressId),
+                `deleteAddress_${addressId}`
+            );
+
+            // Refresh the current sport club to get updated data
+            const currentClub = get().currentSportClub;
+            if (currentClub) {
+                await get().fetchSportClub(currentClub.id);
+            }
+
+            // Clear cache
+            apiService.clearCache(['fetchSportClubs']);
+            
+            set({ isLoading: false });
+            showToast('Адрес успешно удален!', 'success');
+            return true;
+        } catch (error: any) {
+            const errorMessage = ErrorHandler.handle(error);
+            set({
+                error: errorMessage.message,
+                isLoading: false
+            });
+            return false;
+        }
+    },
+
+    setPrimaryAddress: async (clubId: number, addressId: number) => {
+        set({ isLoading: true, error: null });
+        try {
+            await apiService.execute(
+                () => sportClubApi.setPrimaryAddress(clubId, addressId),
+                `setPrimaryAddress_${clubId}_${addressId}`
+            );
+
+            // Refresh the current sport club if it's the one being updated
+            if (get().currentSportClub?.id === clubId) {
+                await get().fetchSportClub(clubId);
+            }
+
+            // Clear cache
+            apiService.clearCache(['fetchSportClubs']);
+            
+            set({ isLoading: false });
+            showToast('Основной адрес успешно установлен!', 'success');
             return true;
         } catch (error: any) {
             const errorMessage = ErrorHandler.handle(error);

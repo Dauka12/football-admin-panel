@@ -814,6 +814,7 @@ export const ru = {
         membershipBenefitsPlaceholder: "Опишите преимущества и льготы для членов секции",
         operatingHours: "Часы работы",
         operatingHoursPlaceholder: "Например: Пн-Пт 9:00-21:00, Сб-Вс 10:00-18:00",
+        active: "Активен",
         
         // Teams
         teams: "Команды",

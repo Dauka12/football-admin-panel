@@ -1,17 +1,9 @@
 import axios from 'axios';
 import type { TeamMatchResultsResponse, TournamentMatchResult, TournamentTeamStatistics } from '../types/statistics';
-
-// Create separate axios instance for statistics without v1
-const statisticsAxios = axios.create({
-    baseURL: 'https://sport-empire.kz/api/v1',
-    timeout: 10000,
-    headers: {
-        'Content-Type': 'application/json'
-    }
-});
+import axiosInstance from './axios';
 
 // Add request interceptor for auth token
-statisticsAxios.interceptors.request.use(
+axiosInstance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('auth_token');
         if (token) {
@@ -23,7 +15,7 @@ statisticsAxios.interceptors.request.use(
 );
 
 // Add response interceptor
-statisticsAxios.interceptors.response.use(
+axiosInstance.interceptors.response.use(
     (response) => {
         if (response.data === null || response.data === undefined) {
             response.data = [];
@@ -42,14 +34,14 @@ statisticsAxios.interceptors.response.use(
 export const statisticsApi = {
     // Tournament statistics
     getTournamentStatistics: (tournamentId: number): Promise<TournamentTeamStatistics[]> =>
-        statisticsAxios.get(`/statistics/public/tournament/${tournamentId}`).then(res => res.data),
+        axiosInstance.get(`/statistics/public/tournament/${tournamentId}`).then(res => res.data),
 
     getTournamentMatches: (tournamentId: number): Promise<TournamentMatchResult[]> =>
-        statisticsAxios.get(`/statistics/public/tournament/${tournamentId}/matches`).then(res => res.data),
+        axiosInstance.get(`/statistics/public/tournament/${tournamentId}/matches`).then(res => res.data),
 
     // Team statistics
     getTeamMatches: (teamId: number, page: number = 0, size: number = 10): Promise<TeamMatchResultsResponse> =>
-        statisticsAxios.get(`/statistics/public/team/${teamId}/matches`, {
+        axiosInstance.get(`/statistics/public/team/${teamId}/matches`, {
             params: { page, size }
         }).then(res => res.data),
 };

@@ -810,6 +810,7 @@ export const en = {
         membershipBenefitsPlaceholder: "Describe benefits and perks for club members",
         operatingHours: "Operating Hours",
         operatingHoursPlaceholder: "e.g., Mon-Fri 9:00-21:00, Sat-Sun 10:00-18:00",
+        active: "Active",
         
         // Teams
         teams: "Teams",

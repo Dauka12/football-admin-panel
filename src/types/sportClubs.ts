@@ -26,7 +26,9 @@ export interface SportClubTeam {
         preferredFoot?: 'LEFT' | 'RIGHT';
         bio?: string;
         sportTypeId: number;
-        number?: number;
+        heroId?: number; // Добавлено из Swagger
+        imageUrl?: string; // Добавлено из Swagger
+        heroGif?: string; // Добавлено из Swagger
     }>;
     primaryColor?: string;
     secondaryColor?: string;
@@ -74,10 +76,11 @@ export interface CreateSportClubRequest {
     sportTypeId: number;
     establishmentYear?: number;
     teams?: number[];
+    // active не нужно в CreateRequest - устанавливается по умолчанию на бэкенде
 }
 
 export interface UpdateSportClubRequest extends CreateSportClubRequest {
-    active?: boolean;
+    active?: boolean; // Добавлено для обновления статуса активности клуба
 }
 
 export interface SportClubFilterParams {

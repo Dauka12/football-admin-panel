@@ -424,6 +424,7 @@ const SportClubDetailPage: React.FC = () => {
                             operatingHours: currentSportClub.operatingHours,
                             sportTypeId: currentSportClub.sportTypeId,
                             establishmentYear: currentSportClub.establishmentYear,
+                            active: currentSportClub.active, // Добавлено поле active для режима редактирования
                             teams: currentSportClub.teams?.map(t => t.id) || []
                         }}
                         onSubmit={handleUpdateSportClub}

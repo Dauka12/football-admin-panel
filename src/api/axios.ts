@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with base URL
 const axiosInstance = axios.create({
-    baseURL: 'https://sport-empire.kz/api/v1',
+    baseURL: 'http://78.40.109.172:8000/api/v1',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json'
