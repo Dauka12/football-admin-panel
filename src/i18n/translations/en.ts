@@ -583,7 +583,14 @@ export const en = {
         types: {
             'team-avatar': "Team Avatar",
             'user-avatar': "User Avatar", 
-            'playground-avatar': "Playground Avatar"
+            'playground-avatar': "Playground Avatar",
+            'sport-club-avatar': "Sport Club Avatar",
+            'sport-club-hero': "Sport Club Hero Image",
+            'tournament-logo': "Tournament Logo",
+            'player-avatar': "Player Avatar",
+            'match-photo': "Match Photo",
+            'achievement-icon': "Achievement Icon",
+            'general': "General File"
         },
         error: {
             fileTooBig: "File is too big. Maximum size is {{maxSize}}MB",
@@ -873,7 +880,18 @@ export const en = {
         // Common
         years: "years",
         activeFilters: "Active Filters",
-        goBack: "Go Back"
+        goBack: "Go Back",
+
+        // Images
+        heroId: "Hero Image ID",
+        heroGif: "Hero GIF",
+        uploadAvatar: "Upload club avatar",
+        uploadHero: "Upload hero image",
+        avatarUploaded: "Club avatar uploaded successfully",
+        heroUploaded: "Hero image uploaded successfully",
+        clubAvatar: "Club Avatar",
+        heroImage: "Hero Image",
+        clubImages: "Club Images",
     }
 
 };

@@ -686,7 +686,14 @@ export const ru = {
         types: {
             'team-avatar': "Аватар команды",
             'user-avatar': "Аватар пользователя",
-            'playground-avatar': "Аватар площадки"
+            'playground-avatar': "Аватар площадки",
+            'sport-club-avatar': "Аватар спортивного клуба",
+            'sport-club-hero': "Главное изображение клуба",
+            'tournament-logo': "Логотип турнира",
+            'player-avatar': "Аватар игрока",
+            'match-photo': "Фото матча",
+            'achievement-icon': "Иконка достижения",
+            'general': "Общий файл"
         },
         error: {
             fileTooBig: "Файл слишком большой. Максимальный размер {{maxSize}}МБ",

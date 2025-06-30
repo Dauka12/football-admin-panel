@@ -32,11 +32,18 @@ export interface FileInfo {
     updatedAt: string;
 }
 
-// File types as string literal union (according to database)
+// File types as string literal union (according to database and usage)
 export type FileType =
     | 'team-avatar'
     | 'user-avatar'
-    | 'playground-avatar';
+    | 'playground-avatar'
+    | 'sport-club-avatar'
+    | 'sport-club-hero'
+    | 'tournament-logo'
+    | 'player-avatar'
+    | 'match-photo'
+    | 'achievement-icon'
+    | 'general';
 
 // Upload progress tracking
 export interface UploadProgress {

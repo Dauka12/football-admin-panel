@@ -4,9 +4,11 @@ import { useCityStore } from '../../store/cityStore';
 import { useSportTypeStore } from '../../store/sportTypeStore';
 import { useTeamStore } from '../../store/teamStore';
 import type { CreateSportClubRequest, SportClubAddress, UpdateSportClubRequest } from '../../types/sportClubs';
+import type { FileType } from '../../types/files';
 import { ErrorHandler } from '../../utils/errorHandler';
 import { showToast } from '../../utils/toast';
 import TeamSelectionModal from '../tournaments/TeamSelectionModal';
+import FileUpload from '../ui/FileUpload';
 
 interface SportClubFormProps {
     initialData?: Partial<CreateSportClubRequest | UpdateSportClubRequest>;
@@ -296,6 +298,79 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
                         className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold resize-none"
                         placeholder={t('sportClubs.descriptionPlaceholder')}
                     />
+                </div>
+
+                {/* Club Images */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Club Avatar */}
+                    <div>
+                        <label className={`block font-medium mb-2 ${isRussian ? 'text-xs' : 'text-sm'}`}>
+                            {t('sportClubs.clubAvatar')}
+                        </label>
+                        <FileUpload
+                            type={'sport-club-avatar' as FileType}
+                            objectId={(initialData as any)?.id || Date.now()}
+                            accept="image/*"
+                            maxSize={5}
+                            onUploadComplete={(fileIds) => {
+                                if (fileIds.length > 0) {
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        imageUrl: fileIds[0]
+                                    }));
+                                    showToast(t('sportClubs.avatarUploaded'), 'success');
+                                }
+                            }}
+                            onUploadError={(error) => {
+                                showToast(error, 'error');
+                            }}
+                            className="h-32"
+                        >
+                            <div className="text-center">
+                                <svg className="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <p className="text-xs text-gray-500">
+                                    {t('sportClubs.uploadAvatar')}
+                                </p>
+                            </div>
+                        </FileUpload>
+                    </div>
+
+                    {/* Hero Image */}
+                    <div>
+                        <label className={`block font-medium mb-2 ${isRussian ? 'text-xs' : 'text-sm'}`}>
+                            {t('sportClubs.heroImage')}
+                        </label>
+                        <FileUpload
+                            type={'sport-club-hero' as FileType}
+                            objectId={(initialData as any)?.id || Date.now()}
+                            accept="image/*"
+                            maxSize={10}
+                            onUploadComplete={(fileIds) => {
+                                if (fileIds.length > 0) {
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        heroId: fileIds[0]
+                                    }));
+                                    showToast(t('sportClubs.heroUploaded'), 'success');
+                                }
+                            }}
+                            onUploadError={(error) => {
+                                showToast(error, 'error');
+                            }}
+                            className="h-32"
+                        >
+                            <div className="text-center">
+                                <svg className="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <p className="text-xs text-gray-500">
+                                    {t('sportClubs.uploadHero')}
+                                </p>
+                            </div>
+                        </FileUpload>
+                    </div>
                 </div>
 
                 {/* Club Type and Sport Type */}

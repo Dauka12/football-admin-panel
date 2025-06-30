@@ -57,6 +57,10 @@ export interface SportClub {
     establishmentYear?: number;
     active: boolean;
     teams: SportClubTeam[];
+    // Image fields from Swagger
+    imageUrl?: number; // File ID for club avatar
+    heroId?: number; // File ID for hero image
+    heroGif?: string; // URL for hero GIF
 }
 
 export interface CreateSportClubRequest {
@@ -76,6 +80,10 @@ export interface CreateSportClubRequest {
     sportTypeId: number;
     establishmentYear?: number;
     teams?: number[];
+    // Image fields from Swagger
+    imageUrl?: number; // File ID for club avatar
+    heroId?: number; // File ID for hero image
+    heroGif?: string; // URL for hero GIF
     // active не нужно в CreateRequest - устанавливается по умолчанию на бэкенде
 }
 

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import SportClubForm from '../../components/sportClubs/SportClubForm';
 import Breadcrumb from '../../components/ui/Breadcrumb';
+import ImageDisplay from '../../components/ui/ImageDisplay';
 import Modal from '../../components/ui/Modal';
 import { useSportClubStore } from '../../store/sportClubStore';
 import type { UpdateSportClubRequest } from '../../types/sportClubs';
@@ -149,6 +150,67 @@ const SportClubDetailPage: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Club Images */}
+            {(currentSportClub.imageUrl || currentSportClub.heroId || currentSportClub.heroGif) && (
+                <div className="bg-card-bg rounded-xl shadow-lg overflow-hidden mb-6">
+                    <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-4">
+                        <h3 className="text-white font-bold text-lg flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            {t('sportClubs.clubImages')}
+                        </h3>
+                    </div>
+                    <div className="p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {/* Club Avatar */}
+                            {currentSportClub.imageUrl && (
+                                <div>
+                                    <h4 className="text-sm font-medium text-gray-300 mb-3">{t('sportClubs.clubAvatar')}</h4>
+                                    <div className="relative">
+                                        <ImageDisplay
+                                            fileId={currentSportClub.imageUrl}
+                                            alt={`${currentSportClub.name} avatar`}
+                                            className="w-full h-32 object-cover rounded-lg border border-gray-600"
+                                            fallbackSrc="/placeholder-image.jpg"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Hero Image */}
+                            {currentSportClub.heroId && (
+                                <div>
+                                    <h4 className="text-sm font-medium text-gray-300 mb-3">{t('sportClubs.heroImage')}</h4>
+                                    <div className="relative">
+                                        <ImageDisplay
+                                            fileId={currentSportClub.heroId}
+                                            alt={`${currentSportClub.name} hero`}
+                                            className="w-full h-32 object-cover rounded-lg border border-gray-600"
+                                            fallbackSrc="/placeholder-image.jpg"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Hero GIF */}
+                            {currentSportClub.heroGif && (
+                                <div>
+                                    <h4 className="text-sm font-medium text-gray-300 mb-3">{t('sportClubs.heroGif')}</h4>
+                                    <div className="relative">
+                                        <img
+                                            src={currentSportClub.heroGif}
+                                            alt={`${currentSportClub.name} hero gif`}
+                                            className="w-full h-32 object-cover rounded-lg border border-gray-600"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Basic Information */}
             <div className="bg-card-bg rounded-xl shadow-lg overflow-hidden">
