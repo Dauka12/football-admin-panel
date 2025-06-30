@@ -298,12 +298,6 @@ const PlayerDetailPage: React.FC = () => {
                                 <span className="text-gray-400 font-medium">{t('players.age')}:</span>
                                 <span className="text-white font-semibold">{currentPlayer.age}</span>
                             </div>
-                            {currentPlayer.number !== undefined && currentPlayer.number !== 0 && (
-                                <div className="flex justify-between items-center py-2 border-b border-gray-700">
-                                    <span className="text-gray-400 font-medium">{t('players.number')}:</span>
-                                    <span className="text-gold font-bold">#{currentPlayer.number}</span>
-                                </div>
-                            )}
                             <div className="flex justify-between items-center py-2 border-b border-gray-700">
                                 <span className="text-gray-400 font-medium">ID:</span>
                                 <span className="text-gold font-bold">#{currentPlayer.id}</span>
@@ -361,6 +355,26 @@ const PlayerDetailPage: React.FC = () => {
                             <span className="text-gray-400 font-medium">{t('players.birthplace')}:</span>
                             <span className="text-white font-semibold">{currentPlayer.birthplace && currentPlayer.birthplace !== "string" ? currentPlayer.birthplace : t('common.notSpecified')}</span>
                         </div>
+                        <div className="flex justify-between items-center py-2 border-b border-gray-700">
+                            <span className="text-gray-400 font-medium">{t('players.heroId')}:</span>
+                            <span className="text-white font-semibold">{currentPlayer.heroId ? `#${currentPlayer.heroId}` : t('common.notSet')}</span>
+                        </div>
+                        {currentPlayer.imageUrl && (
+                            <div className="flex justify-between items-center py-2 border-b border-gray-700">
+                                <span className="text-gray-400 font-medium">{t('common.image')}:</span>
+                                <a href={currentPlayer.imageUrl} target="_blank" rel="noopener noreferrer" className="text-gold hover:text-gold/80 text-sm">
+                                    {t('common.viewImage')}
+                                </a>
+                            </div>
+                        )}
+                        {currentPlayer.heroGif && (
+                            <div className="flex justify-between items-center py-2">
+                                <span className="text-gray-400 font-medium">{t('players.heroGif')}:</span>
+                                <a href={currentPlayer.heroGif} target="_blank" rel="noopener noreferrer" className="text-gold hover:text-gold/80 text-sm">
+                                    {t('common.viewGif')}
+                                </a>
+                            </div>
+                        )}
                     </div>
                 </div>
 

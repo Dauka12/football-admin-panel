@@ -1,12 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import type { PlayerFilterParams } from '../../api/players';
 import PlayerForm from '../../components/players/PlayerForm';
 import Modal from '../../components/ui/Modal';
 import { usePlayerStore } from '../../store/playerStore';
 import { useTeamStore } from '../../store/teamStore';
-import type { PlayerCreateRequest, PlayerPosition } from '../../types/players';
+import type { PlayerCreateRequest, PlayerFilterParams, PlayerPosition } from '../../types/players';
                                     
 
 const PlayersPage: React.FC = () => {
@@ -497,12 +496,6 @@ const PlayersPage: React.FC = () => {
                                         <span className="text-gray-400">{t('players.age')}: </span>
                                         <span>{player.age}</span>
                                     </div>
-                                    {player.number !== undefined && player.number !== 0 && (
-                                        <div>
-                                            <span className="text-gray-400">{t('players.number')}: </span>
-                                            <span className="text-gold font-bold">#{player.number}</span>
-                                        </div>
-                                    )}
                                     <div>
                                         <span className="text-gray-400">{t('players.nationality')}: </span>
                                         <span>{player.nationality}</span>

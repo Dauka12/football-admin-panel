@@ -18,9 +18,9 @@ interface PlayerFormProps {
 
 const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmit, onCancel }) => {
     const { t } = useTranslation();    const [formData, setFormData] = useState<PlayerCreateRequest>({
-        position: initialData?.position || 'GOALKEEPER' as PlayerPosition,
-        teamId: undefined, // Replace club with teamId
-        sportTypeId: 0, // Add sportTypeId field - use 0 as default instead of undefined
+        position: (initialData?.position as PlayerPosition) || 'GOALKEEPER',
+        teamId: initialData?.teamId || 0,
+        sportTypeId: initialData?.sportTypeId || 0,
         age: initialData?.age || 0,
         height: initialData?.height || 0,
         weight: initialData?.weight || 0,
@@ -28,8 +28,9 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
         birthplace: initialData?.birthplace || '',
         preferredFoot: initialData?.preferredFoot || PreferredFoot.RIGHT,
         bio: initialData?.bio || '',
-        identificationNumber: '',  // Required for create/update
-        userId: 0,                 // Required for create/update
+        identificationNumber: '', // Required for create/update
+        userId: 0, // Required for create/update  
+        heroId: initialData?.heroId || 0, // Add heroId field
     });
 
     const [isLoading, setIsLoading] = useState(false);
@@ -49,13 +50,13 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
             try {
                 // Load teams
                 setIsLoadingTeams(true);
-                const teamsResponse = await teamApi.getAll(0, 100); // Get all teams
+                const teamsResponse = await teamApi.getAll(); // Get all teams
                 setTeams(teamsResponse.content);
                 setIsLoadingTeams(false);
 
                 // Load sport types
                 setIsLoadingSportTypes(true);
-                const sportTypesResponse = await sportTypeApi.getAll(0, 100, { active: true }); // Get active sport types
+                const sportTypesResponse = await sportTypeApi.getAll(); // Get active sport types
                 setSportTypes(sportTypesResponse.content);
                 setIsLoadingSportTypes(false);
             } catch (error) {
@@ -72,8 +73,8 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
         const { name, value } = e.target;
         
         // Handle numeric values
-        if (name === 'age' || name === 'height' || name === 'weight' || name === 'userId' || name === 'teamId' || name === 'sportTypeId') {
-            setFormData(prev => ({ ...prev, [name]: Number(value) || undefined }));
+        if (name === 'age' || name === 'height' || name === 'weight' || name === 'userId' || name === 'teamId' || name === 'sportTypeId' || name === 'heroId') {
+            setFormData(prev => ({ ...prev, [name]: Number(value) || 0 }));
         } else if (name === 'position') {
             // Handle position as PlayerPosition enum
             setFormData(prev => ({ ...prev, [name]: value as PlayerPosition }));
@@ -93,7 +94,7 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
         const validatedFields = playerValidators.create.fieldNames;
         if (validatedFields.includes(name as any)) {
             // Validate field on blur
-            if (name === 'age' || name === 'height' || name === 'weight' || name === 'teamId' || name === 'sportTypeId') {
+            if (name === 'age' || name === 'height' || name === 'weight' || name === 'teamId' || name === 'sportTypeId' || name === 'heroId') {
                 validateField(name as any, Number(value));
             } else {
                 validateField(name as any, value);
@@ -385,6 +386,22 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
                             className={`form-input ${errors.userId ? 'border-red-500' : ''}`}
                         />
                         {errors.userId && <p className="text-red-500 text-xs mt-1">{errors.userId}</p>}
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium mb-1" htmlFor="heroId">
+                            {t('players.heroId')}
+                        </label>
+                        <input
+                            type="number"
+                            id="heroId"
+                            name="heroId"
+                            value={formData.heroId}
+                            onChange={handleChange}
+                            min="0"
+                            className="form-input"
+                            placeholder={t('players.heroIdPlaceholder')}
+                        />
                     </div>
                 </div>
             </div>

@@ -1,8 +1,8 @@
 import { create } from 'zustand';
-import type { PlayerFilterParams } from '../api/players';
 import { playerApi } from '../api/players';
 import type {
     PlayerCreateRequest,
+    PlayerFilterParams,
     PlayerPublicResponse,
     PlayerUpdateRequest
 } from '../types/players';
@@ -80,7 +80,7 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
 
         try {
             const response = await apiService.execute(
-                () => playerApi.getAll(page, size, filtersToApply),
+                () => playerApi.getAll({ page, size, ...filtersToApply }),
                 'fetchPlayers',
                 { enableCache: false } // Disable cache to ensure fresh data
             );
@@ -203,7 +203,7 @@ export const usePlayerStore = create<PlayerState>()((set, get) => ({
             apiService.clearCache(['fetchPlayers']);
             const { filters, currentPage, pageSize } = get();
             const paginatedResponse = await apiService.execute(
-                () => playerApi.getAll(currentPage, pageSize, filters),
+                () => playerApi.getAll({ page: currentPage, size: pageSize, ...filters }),
                 'fetchPlayers',
                 { forceRefresh: true }
             );

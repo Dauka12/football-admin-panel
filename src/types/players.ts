@@ -38,22 +38,36 @@ export const PlayerPositions = {
 
 export interface PlayerBase {
     position: PlayerPosition;
+    teamId: number;
     age: number;
-    height?: number; // Made optional as it might not be required
-    weight?: number; // Made optional as it might not be required
-    nationality?: string; // Made optional as it might not be required
-    birthplace?: string; // Made optional as it might not be required
+    height: number;
+    weight: number;
+    nationality: string;
+    birthplace: string;
     preferredFoot: PreferredFoot;
-    bio?: string; // Made optional as it might not be required
-    identificationNumber?: string; // Added from API
+    bio: string;
+    identificationNumber: string;
+    userId: number;
+    sportTypeId: number;
+    heroId: number;
 }
 
-export interface PlayerPublicResponse extends PlayerBase {
+export interface PlayerPublicResponse {
     id: number;
-    fullName: string; // API may return "Unknown" if not set
-    teamId?: number; // Optional since not always present in API response
-    sportTypeId?: number; // Optional since not always present in API response  
-    number?: number; // Added player number from API response
+    fullName: string;
+    position: string;
+    teamId: number;
+    age: number;
+    height: number;
+    weight: number;
+    nationality: string;
+    birthplace: string;
+    preferredFoot: PreferredFoot;
+    bio: string;
+    sportTypeId: number;
+    heroId: number;
+    imageUrl: string;
+    heroGif: string;
 }
 
 // Paginated response structure from API
@@ -90,15 +104,52 @@ export interface PageResponse<T> {
 
 export interface PlayersPageResponse extends PageResponse<PlayerPublicResponse> {}
 
-export interface PlayerCreateRequest extends PlayerBase {
-    teamId?: number; // Optional for team assignment
-    userId?: number; // Added from API spec
-    sportTypeId: number; // Required from API spec
-    number?: number; // Added player number
+export interface PlayerCreateRequest {
+    position: PlayerPosition;
+    teamId: number;
+    age: number;
+    height: number;
+    weight: number;
+    nationality: string;
+    birthplace: string;
+    preferredFoot: PreferredFoot;
+    bio: string;
+    identificationNumber: string;
+    userId: number;
+    sportTypeId: number;
+    heroId: number;
 }
 
-export interface PlayerUpdateRequest extends PlayerCreateRequest {}
+export interface PlayerUpdateRequest {
+    position: PlayerPosition;
+    teamId: number;
+    age: number;
+    height: number;
+    weight: number;
+    nationality: string;
+    birthplace: string;
+    preferredFoot: PreferredFoot;
+    bio: string;
+    identificationNumber: string;
+    userId: number;
+    sportTypeId: number;
+    heroId: number;
+}
 
 export interface PlayerCreateResponse {
     id: number;
+}
+
+// Filter parameters for API
+export interface PlayerFilterParams {
+    teamId?: number;
+    age?: number;
+    nationality?: string;
+    birthplace?: string;
+    preferredFoot?: PreferredFoot;
+    fullName?: string;
+    sportTypeId?: number;
+    position?: PlayerPosition;
+    page?: number;
+    size?: number;
 }
