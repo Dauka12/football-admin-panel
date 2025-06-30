@@ -27,6 +27,7 @@ export const en = {
         tournamentCategories: "Tournament Categories",
         players: "Players",
         matches: "Matches",
+        "match-participants": "Match Participants",
         "match-events": "Match Events",
         files: "Files",
         statistics: "Statistics",
@@ -38,7 +39,8 @@ export const en = {
         playgrounds: "Playgrounds",
         cities: "Cities",
         users: "Users",
-        sportClubs: "Sport Clubs"
+        sportClubs: "Sport Clubs",
+        favorites: "Favorites"
     },
     navigation: {
         dashboard: "Dashboard",
@@ -114,6 +116,97 @@ export const en = {
                 teamsRequired: "At least one team is required",
                 minimumTwoTeams: "At least two teams must be selected"
             }
+        }
+    },
+    matchParticipants: {
+        title: "Match Participants",
+        participant: "Participant",
+        createParticipant: "Add Participant",
+        editParticipant: "Edit Participant",
+        noParticipants: "No participants found",
+        createFirst: "Add the first participant",
+        playerId: "Player ID",
+        playerName: "Player Name",
+        selectPlayer: "Select Player",
+        teamId: "Team ID",
+        teamName: "Team Name",
+        selectTeam: "Select Team",
+        position: "Position",
+        selectPosition: "Select Position",
+        status: "Status",
+        selectStatus: "Select Status",
+        paymentStatus: "Payment Status",
+        selectPaymentStatus: "Select Payment Status",
+        amount: "Amount",
+        paymentDate: "Payment Date",
+        notes: "Notes",
+        notesPlaceholder: "Additional notes...",
+        joinedAt: "Joined At",
+        team: "Team",
+        user: "User",
+        score: "Score", 
+        paid: "Paid",
+        unpaid: "Unpaid",
+        processPayment: "Process Payment",
+        matchInformation: "Match Information",
+        matchId: "Match ID",
+        participantDetails: "Participant Details",
+        player: "Player",
+        selectUser: "Select User",
+        paymentInformation: "Payment Information",
+        hasPaid: "Has Paid",
+        amountPaid: "Amount Paid",
+        paymentMethod: "Payment Method",
+        paymentMethodPlaceholder: "Enter payment method",
+        isOrganizer: "Is Organizer",
+        confirmDelete: "Delete Participant",
+        deleteWarning: "Are you sure you want to delete this participant? This action cannot be undone.",
+        deleteSuccess: "Participant deleted successfully",
+        createSuccess: "Participant added successfully",
+        updateSuccess: "Participant updated successfully",
+        notFound: "Participant not found",
+        alreadyParticipating: "This player is already participating in the match",
+        positions: {
+            goalkeeper: "Goalkeeper",
+            defender: "Defender",
+            midfielder: "Midfielder",
+            forward: "Forward",
+            substitute: "Substitute"
+        },
+        statuses: {
+            pending: "Pending",
+            confirmed: "Confirmed",
+            cancelled: "Cancelled", 
+            no_show: "No Show",
+            waiting_payment: "Waiting Payment",
+            waitingPayment: "Waiting Payment"
+        },
+        paymentStatuses: {
+            pending: "Pending Payment",
+            paid: "Paid",
+            refunded: "Refunded",
+            cancelled: "Cancelled"
+        },
+        form: {
+            basicInfo: "Basic Information",
+            paymentInfo: "Payment Information",
+            additionalInfo: "Additional Information",
+            success: "Participant saved successfully",
+            errors: {
+                playerRequired: "Player is required",
+                positionRequired: "Position is required",
+                statusRequired: "Status is required",
+                paymentStatusRequired: "Payment status is required",
+                amountRequired: "Amount is required",
+                amountPositive: "Amount must be positive"
+            }
+        },
+        search: {
+            searchByPlayer: "Search by player name...",
+            allTeams: "All Teams",
+            allPositions: "All Positions",
+            allStatuses: "All Statuses",
+            allPaymentStatuses: "All Payment Statuses"
         }
     },
     matchEvents: {
@@ -405,6 +498,8 @@ export const en = {
         years: "years",
         none: "None",
         close: "Close",
+        back: "Back",
+        goToMatchesToManageParticipants: "Go to matches to manage participants",
         creation: {
             success: "Created successfully",
             error: "Creation failed"
@@ -988,6 +1083,40 @@ export const en = {
             startDate: "Start Date",
             endDate: "End Date"
         }
-    }
+    },
 
+    favorites: {
+        title: "Favorites",
+        subtitle: "Manage your favorite items",
+        noFavorites: "No favorites yet",
+        noFavoritesSubtext: "Items you favorite will appear here",
+        addedOn: "Added on",
+        
+        entityTypes: {
+            team: "Teams",
+            tournament: "Tournaments", 
+            playground: "Playgrounds",
+            match: "Matches",
+            player: "Players",
+            sportClub: "Sport Clubs"
+        },
+
+        search: {
+            placeholder: "Search favorites",
+            byId: "Search by ID..."
+        },
+
+        actions: {
+            addToFavorites: "Add to favorites",
+            removeFromFavorites: "Remove from favorites",
+            favorited: "Favorited"
+        },
+
+        messages: {
+            addedToFavorites: "Added to favorites",
+            removedFromFavorites: "Removed from favorites",
+            errorAdding: "Error adding to favorites",
+            errorRemoving: "Error removing from favorites"
+        }
+    }
 };

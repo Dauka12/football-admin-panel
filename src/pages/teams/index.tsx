@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import type { TeamFilterParams } from '../../api/teams';
+import FavoriteButton from '../../components/favorites/FavoriteButton';
 import TeamForm from '../../components/teams/TeamForm';
 import Modal from '../../components/ui/Modal';
 import { usePerformanceMonitor } from '../../hooks/usePerformanceMonitor';
@@ -290,6 +291,11 @@ const TeamsPage: React.FC = () => {
                                 <div className="flex items-center justify-between mb-3">
                                     <h3 className="text-lg sm:text-xl font-semibold line-clamp-1 pr-2">{team.name}</h3>
                                     <div className="flex space-x-1 sm:space-x-2 shrink-0">
+                                        <FavoriteButton
+                                            entityType="TEAM"
+                                            entityId={team.id}
+                                            className="p-1"
+                                        />
                                         <Link
                                             to={`/dashboard/teams/${team.id}`}
                                             className="text-gold hover:text-gold/80 transition-colors p-1"
@@ -300,15 +306,6 @@ const TeamsPage: React.FC = () => {
                                                 <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
                                             </svg>
                                         </Link>
-                                        <button
-                                            onClick={() => setTeamToDelete(team.id)}
-                                            className="text-accent-pink hover:text-accent-pink/80 transition-colors p-1"
-                                            title={t('common.delete')}
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                                            </svg>
-                                        </button>
                                     </div>
                                 </div>
                                 

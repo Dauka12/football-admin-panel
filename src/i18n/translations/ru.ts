@@ -7,6 +7,7 @@ export const ru = {
         tournamentCategories: "Категории турниров",
         players: "Игроки",
         matches: "Матчи",
+        "match-participants": "Участники матчей",
         "match-events": "События матчей",
         files: "Файлы",
         statistics: "Статистика",
@@ -18,7 +19,8 @@ export const ru = {
         playgrounds: "Площадки",
         cities: "Города",
         users: "Пользователи",
-        sportClubs: "Спортивные секции"
+        sportClubs: "Спортивные секции",
+        favorites: "Избранное"
     },
     navigation: {
         dashboard: "Панель управления",
@@ -127,6 +129,97 @@ export const ru = {
                 teamsRequired: "Требуется выбрать хотя бы одну команду",
                 minimumTwoTeams: "Необходимо выбрать минимум две команды"
             }
+        }
+    },
+    matchParticipants: {
+        title: "Участники матча",
+        participant: "Участник",
+        createParticipant: "Добавить участника",
+        editParticipant: "Редактировать участника",
+        noParticipants: "Участники не найдены",
+        createFirst: "Добавьте первого участника",
+        playerId: "ID игрока",
+        playerName: "Имя игрока",
+        selectPlayer: "Выберите игрока",
+        teamId: "ID команды",
+        teamName: "Название команды",
+        selectTeam: "Выберите команду",
+        position: "Позиция",
+        selectPosition: "Выберите позицию",
+        status: "Статус",
+        selectStatus: "Выберите статус",
+        paymentStatus: "Статус оплаты",
+        selectPaymentStatus: "Выберите статус оплаты",
+        amount: "Сумма",
+        paymentDate: "Дата оплаты",
+        notes: "Примечания",
+        notesPlaceholder: "Дополнительные заметки...",
+        joinedAt: "Дата присоединения",
+        team: "Команда",
+        user: "Пользователь", 
+        score: "Счёт",
+        paid: "Оплачено",
+        unpaid: "Не оплачено",
+        processPayment: "Обработать платеж",
+        matchInformation: "Информация о матче",
+        matchId: "ID матча",
+        participantDetails: "Детали участника",
+        player: "Игрок",
+        selectUser: "Выберите пользователя",
+        paymentInformation: "Информация об оплате",
+        hasPaid: "Оплачено",
+        amountPaid: "Сумма оплаты",
+        paymentMethod: "Способ оплаты",
+        paymentMethodPlaceholder: "Введите способ оплаты",
+        isOrganizer: "Организатор",
+        confirmDelete: "Удалить участника",
+        deleteWarning: "Вы уверены, что хотите удалить этого участника? Это действие нельзя отменить.",
+        deleteSuccess: "Участник успешно удалён",
+        createSuccess: "Участник успешно добавлен",
+        updateSuccess: "Участник успешно обновлён",
+        notFound: "Участник не найден",
+        alreadyParticipating: "Этот игрок уже участвует в матче",
+        positions: {
+            goalkeeper: "Вратарь",
+            defender: "Защитник",
+            midfielder: "Полузащитник",
+            forward: "Нападающий",
+            substitute: "Запасной"
+        },
+        statuses: {
+            pending: "Ожидание",
+            confirmed: "Подтверждён", 
+            cancelled: "Отменён",
+            no_show: "Не явился",
+            waiting_payment: "Ожидает оплаты",
+            waitingPayment: "Ожидает оплаты"
+        },
+        paymentStatuses: {
+            pending: "Ожидает оплаты",
+            paid: "Оплачено",
+            refunded: "Возвращено",
+            cancelled: "Отменено"
+        },
+        form: {
+            basicInfo: "Основная информация",
+            paymentInfo: "Информация об оплате",
+            additionalInfo: "Дополнительная информация",
+            success: "Участник успешно сохранён",
+            errors: {
+                playerRequired: "Игрок обязателен",
+                positionRequired: "Позиция обязательна",
+                statusRequired: "Статус обязателен",
+                paymentStatusRequired: "Статус оплаты обязателен",
+                amountRequired: "Сумма обязательна",
+                amountPositive: "Сумма должна быть положительной"
+            }
+        },
+        search: {
+            searchByPlayer: "Поиск по имени игрока...",
+            allTeams: "Все команды",
+            allPositions: "Все позиции",
+            allStatuses: "Все статусы",
+            allPaymentStatuses: "Все статусы оплаты"
         }
     },
     matchEvents: {
@@ -275,6 +368,8 @@ export const ru = {
         all: "Все",
         active: "Активно",
         inactive: "Неактивно",
+        back: "Назад",
+        goToMatchesToManageParticipants: "Перейдите к матчам для управления участниками",
         status: "Статус",
         description: "Описание",
         confirmDelete: "Подтвердить удаление",
@@ -992,6 +1087,40 @@ export const ru = {
             startDate: "Дата начала",
             endDate: "Дата окончания"
         }
-    }
+    },
 
+    favorites: {
+        title: "Избранное",
+        subtitle: "Управление избранными элементами",
+        noFavorites: "Избранное пусто",
+        noFavoritesSubtext: "Элементы, добавленные в избранное, появятся здесь",
+        addedOn: "Добавлено",
+        
+        entityTypes: {
+            team: "Команды",
+            tournament: "Турниры", 
+            playground: "Площадки",
+            match: "Матчи",
+            player: "Игроки",
+            sportClub: "Спортивные секции"
+        },
+
+        search: {
+            placeholder: "Поиск в избранном",
+            byId: "Поиск по ID..."
+        },
+
+        actions: {
+            addToFavorites: "Добавить в избранное",
+            removeFromFavorites: "Удалить из избранного",
+            favorited: "В избранном"
+        },
+
+        messages: {
+            addedToFavorites: "Добавлено в избранное",
+            removedFromFavorites: "Удалено из избранного",
+            errorAdding: "Ошибка добавления в избранное",
+            errorRemoving: "Ошибка удаления из избранного"
+        }
+    }
 };

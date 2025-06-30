@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import FavoriteButton from '../../components/favorites/FavoriteButton';
 import MatchForm from '../../components/matches/MatchForm';
 import Modal from '../../components/ui/Modal';
 import { useMatchStore } from '../../store/matchStore';
@@ -82,9 +83,9 @@ const MatchesPage: React.FC = () => {
     result.sort((a, b) => {
       switch (sortBy) {
         case 'date-asc':
-          return getDateTimeValue(a.matchDate) - getDateTimeValue(b.matchDate);
+          return getDateTimeValue(a.startTime) - getDateTimeValue(b.startTime);
         case 'date-desc':
-          return getDateTimeValue(b.matchDate) - getDateTimeValue(a.matchDate);
+          return getDateTimeValue(b.startTime) - getDateTimeValue(a.startTime);
         case 'status':
           const statusA = a.status || '';
           const statusB = b.status || '';
@@ -287,7 +288,7 @@ const MatchesPage: React.FC = () => {
                     {match.tournament ? match.tournament.name : 'No Tournament'}
                   </h3>
                   <div className="text-sm text-gray-300">
-                    {formatDateTime(match.matchDate)}
+                    {formatDateTime(match.startTime)}
                   </div>
                 </div>
                 <span className={`px-2 py-1 text-xs rounded-md ${getStatusBadgeClass(match.status)} mt-2 sm:mt-0`}>
@@ -317,13 +318,20 @@ const MatchesPage: React.FC = () => {
               </div>
               
               {/* Actions */}
-              <div className="border-t border-darkest-bg p-4 flex justify-between">
-                <Link
-                  to={`/dashboard/matches/${match.id}`}
-                  className="text-gold hover:underline text-sm transition-colors duration-200"
-                >
-                  {t('common.viewDetails')}
-                </Link>
+              <div className="border-t border-darkest-bg p-4 flex justify-between items-center">
+                <div className="flex items-center space-x-2">
+                  <FavoriteButton
+                    entityType="MATCH"
+                    entityId={match.id}
+                    className="text-sm"
+                  />
+                  <Link
+                    to={`/dashboard/matches/${match.id}`}
+                    className="text-gold hover:underline text-sm transition-colors duration-200"
+                  >
+                    {t('common.viewDetails')}
+                  </Link>
+                </div>
                 <button
                   onClick={() => setMatchToDelete(match.id)}
                   className="text-accent-pink hover:underline text-sm transition-colors duration-200"

@@ -24,16 +24,18 @@ const TournamentCategoriesPage = React.lazy(() => import('./pages/tournamentCate
 const TournamentCategoryDetailPage = React.lazy(() => import('./pages/tournamentCategories/detail'));
 const MatchesPage = React.lazy(() => import('./pages/matches'));
 const MatchDetailPage = React.lazy(() => import('./pages/matches/detail'));
+const MatchParticipantsPage = React.lazy(() => import('./pages/matchParticipants'));
+const MatchParticipantsOverviewPage = React.lazy(() => import('./pages/matchParticipants/overview'));
 const PermissionsPage = React.lazy(() => import('./pages/permissions'));
 const AchievementsPage = React.lazy(() => import('./pages/achievements'));
 const AchievementDetailPage = React.lazy(() => import('./pages/achievements/detail'));
 const RegionsPage = React.lazy(() => import('./pages/regions'));
-const CategoriesPage = React.lazy(() => import('./pages/categories'));
 const PlaygroundsPage = React.lazy(() => import('./pages/playgrounds'));
 const PlaygroundDetailPage = React.lazy(() => import('./pages/playgrounds/detail'));
 const UsersPage = React.lazy(() => import('./pages/users'));
 const UserDetailPage = React.lazy(() => import('./pages/users/detail'));
 const FilesPage = React.lazy(() => import('./pages/files'));
+const FavoritesPage = React.lazy(() => import('./pages/favorites'));
 
 // Loading component for lazy-loaded routes
 const RouteLoadingSpinner: React.FC = () => (
@@ -238,6 +240,26 @@ const App: React.FC = () => {
               }
             />
             <Route
+              path="match-participants"
+              element={
+                <Suspense fallback={<RouteLoadingSpinner />}>
+                  <ErrorBoundary>
+                    <MatchParticipantsOverviewPage />
+                  </ErrorBoundary>
+                </Suspense>
+              }
+            />
+            <Route
+              path="match-participants/:matchId"
+              element={
+                <Suspense fallback={<RouteLoadingSpinner />}>
+                  <ErrorBoundary>
+                    <MatchParticipantsPage />
+                  </ErrorBoundary>
+                </Suspense>
+              }
+            />
+            <Route
               path="permissions"
               element={
                 <Suspense fallback={<RouteLoadingSpinner />}>
@@ -299,21 +321,11 @@ const App: React.FC = () => {
               }
             />
             <Route
-              path="users"
+              path="favorites"
               element={
                 <Suspense fallback={<RouteLoadingSpinner />}>
                   <ErrorBoundary>
-                    <UsersPage />
-                  </ErrorBoundary>
-                </Suspense>
-              }
-            />
-            <Route
-              path="users/:id"
-              element={
-                <Suspense fallback={<RouteLoadingSpinner />}>
-                  <ErrorBoundary>
-                    <UserDetailPage />
+                    <FavoritesPage />
                   </ErrorBoundary>
                 </Suspense>
               }
