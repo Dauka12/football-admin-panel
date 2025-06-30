@@ -8,7 +8,10 @@ export const MatchStatus = {
     CANCELLED: 'CANCELLED' as MatchStatus
 } as const;
 
-// Tournament info for match responses - updated to match backend
+// Participant status enum
+export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED';
+
+// Tournament info for match responses - updated to match Swagger
 export interface MatchTournament {
     id: number;
     name: string;
@@ -20,39 +23,89 @@ export interface MatchTournament {
     cityId: number;
 }
 
-// Match participant interface - aligned with API response
+// Playground info for match reservation
+export interface MatchPlayground {
+    id: number;
+    name: string;
+    cityId: number;
+    description: string;
+    maxCapacity: number;
+    currentCapacity: number;
+    pricePerHour: number;
+    availableFrom: string;
+    availableTo: string;
+    active: boolean;
+    images: string[];
+}
+
+// Reservation info for match
+export interface MatchReservation {
+    id: number;
+    playground: MatchPlayground;
+    startTime: string;
+    endTime: string;
+    userId: number;
+    status: string;
+}
+
+// Match participant interface - aligned with Swagger response
 export interface MatchParticipant {
+    id: number;
     teamId: number;
     teamName: string;
     playerId: number;
     playerFullName: string;
     score: number;
+    userId: number;
+    firstName: string;
+    lastName: string;
+    avatarUrl: string;
+    status: ParticipantStatus;
+    hasPaid: boolean;
+    amountPaid: number;
+    joinedAt: string;
 }
 
-// Match response interface - aligned with API specification
+// Match response interface - aligned with Swagger specification
 export interface MatchFullResponse {
     id: number;
-    matchDate: string;
+    startTime: string;
+    endTime: string;
     tournament: MatchTournament;
     participants: MatchParticipant[];
-    status: string; // Backend returns string, not enum
+    status: string;
+    reservation: MatchReservation;
+    organizerUserId: number;
+    description: string;
+    cityId: number;
+    sportTypeId: number;
 }
 
-// Request interfaces - aligned with API specification
+// Request interfaces - aligned with Swagger specification
 export interface CreateMatchRequest {
-    tournamentId?: number; // Optional when creating matches outside tournaments
-    matchDate: string;
+    tournamentId?: number;
     teams: number[];
-    cityId?: number; // Optional field
-    status?: string; // Optional, defaults to PENDING
+    cityId: number;
+    status: string;
+    playgroundId: number;
+    startTime: string;
+    endTime: string;
+    maxCapacity: number;
+    description: string;
+    sportTypeId: number;
 }
 
 export interface UpdateMatchRequest {
     tournamentId?: number;
-    matchDate: string;
     teams: number[];
-    cityId?: number;
-    status?: string;
+    cityId: number;
+    status: string;
+    playgroundId: number;
+    startTime: string;
+    endTime: string;
+    maxCapacity: number;
+    description: string;
+    sportTypeId: number;
 }
 
 // Response for create operations
@@ -67,6 +120,18 @@ export interface MatchFilterParams {
     cityId?: number;
     tournamentId?: number;
     teamId?: number;
+    organizerUserId?: number;
+    page?: number;
+    size?: number;
+}
+
+// Filter for matches with reservations
+export interface MatchWithReservationFilter {
+    cityId?: number;
+    organizerUserId?: number;
+    status?: MatchStatus;
+    dateFrom?: string;
+    dateTo?: string;
     page?: number;
     size?: number;
 }
