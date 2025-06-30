@@ -194,6 +194,8 @@ export const ru = {
         basicInfo: "Информация о турнире",
         dateRange: "Период проведения",
         searchByTournament: "Поиск по названию турнира или описанию...",
+        searchByName: "Поиск по названию...",
+        filterByDate: "Фильтр по дате",
         registrationDeadline: "Крайний срок регистрации",
         status: "Статус",
         format: "Формат",
@@ -367,6 +369,8 @@ export const ru = {
         notFound: "Вид спорта не найден",
         searchByName: "Поиск по названию...",
         selectSportType: "Выберите вид спорта",
+        allSportTypes: "Все виды спорта",
+        unknownSportType: "Неизвестный вид спорта",
     },
     cities: {
         title: "Города",
@@ -455,7 +459,16 @@ export const ru = {
         winRate: "Процент побед",
         goalsScored: "Забито голов",
         goalsConceded: "Пропущено голов",
-        loadMore: "Загрузить еще"
+        loadMore: "Загрузить еще",
+        // Player statistics
+        playerStatistics: "Статистика игрока",
+        noPlayerStats: "Статистика игрока недоступна",
+        matchesPlayed: "Сыгранные матчи",
+        goals: "Голы",
+        assists: "Передачи",
+        playerSummary: "Сводка игрока",
+        goalsPerMatch: "Голов за матч",
+        assistsPerMatch: "Передач за матч"
     },
     playgrounds: {
         title: "Площадки",
@@ -704,6 +717,8 @@ export const ru = {
         notFoundDescription: "Категория, которую вы ищете, не существует или была удалена.",
         deleteConfirmation: "Вы уверены, что хотите удалить категорию '{name}'? Это действие нельзя отменить.",
         selectCategory: "Выберите категорию",
+        allCategories: "Все категории",
+        unknownCategory: "Неизвестная категория",
         
         // Validation messages
         validation: {

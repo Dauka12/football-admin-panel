@@ -1,26 +1,15 @@
 import type {
     CreateTournamentRequest,
     TournamentCreateResponse,
+    TournamentFilters,
     TournamentFullResponse,
     TournamentPaginatedResponse,
     UpdateTournamentRequest
 } from '../types/tournaments';
 import axiosInstance from './axios';
 
-// Tournament filter parameters based on API spec
-export interface TournamentFilterParams {
-    name?: string;
-    location?: string;
-    date?: string;
-    cityId?: number;
-    sportTypeId?: number;
-    categoryId?: number;
-    page?: number;
-    size?: number;
-}
-
 export const tournamentApi = {
-    getAll: async (filters?: TournamentFilterParams): Promise<TournamentPaginatedResponse> => {
+    getAll: async (filters?: TournamentFilters): Promise<TournamentPaginatedResponse> => {
         const params = new URLSearchParams();
         if (filters) {
             Object.entries(filters).forEach(([key, value]) => {

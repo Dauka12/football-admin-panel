@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { statisticsApi } from '../api/statistics';
-import type { TeamMatchResultsResponse, TournamentMatchResult, TournamentTeamStatistics } from '../types/statistics';
+import type { PlayerStatisticsResponse, TeamMatchResultsResponse, TournamentMatchResult, TournamentTeamStatistics } from '../types/statistics';
 
 interface StatisticsState {
     // Tournament statistics
@@ -16,10 +16,16 @@ interface StatisticsState {
     isTeamMatchesLoading: boolean;
     teamMatchesError: string | null;
 
+    // Player statistics
+    playerStats: PlayerStatisticsResponse | null;
+    isPlayerStatsLoading: boolean;
+    playerStatsError: string | null;
+
     // Actions
     fetchTournamentStatistics: (tournamentId: number) => Promise<void>;
     fetchTournamentMatches: (tournamentId: number) => Promise<void>;
     fetchTeamMatches: (teamId: number, page?: number, size?: number) => Promise<void>;
+    fetchPlayerStatistics: (playerId: number) => Promise<void>;
     clearStatistics: () => void;
 }
 
@@ -34,6 +40,9 @@ export const useStatisticsStore = create<StatisticsState>((set) => ({
     teamMatches: null,
     isTeamMatchesLoading: false,
     teamMatchesError: null,
+    playerStats: null,
+    isPlayerStatsLoading: false,
+    playerStatsError: null,
 
     // Actions
     fetchTournamentStatistics: async (tournamentId: number) => {
@@ -93,17 +102,39 @@ export const useStatisticsStore = create<StatisticsState>((set) => ({
         }
     },
 
+    fetchPlayerStatistics: async (playerId: number) => {
+        set({ isPlayerStatsLoading: true, playerStatsError: null });
+        
+        try {
+            const stats = await statisticsApi.getPlayerStatistics(playerId);
+            set({ 
+                playerStats: stats,
+                isPlayerStatsLoading: false,
+                playerStatsError: null
+            });
+        } catch (error) {
+            console.error('Failed to fetch player statistics:', error);
+            set({ 
+                isPlayerStatsLoading: false,
+                playerStatsError: 'Failed to load player statistics'
+            });
+        }
+    },
+
     clearStatistics: () => {
         set({
             tournamentStats: [],
             tournamentMatches: [],
             teamMatches: null,
+            playerStats: null,
             isTournamentStatsLoading: false,
             isTournamentMatchesLoading: false,
             isTeamMatchesLoading: false,
+            isPlayerStatsLoading: false,
             tournamentStatsError: null,
             tournamentMatchesError: null,
-            teamMatchesError: null
+            teamMatchesError: null,
+            playerStatsError: null
         });
     }
 }));

@@ -56,3 +56,15 @@ export interface TeamMatchResultsResponse {
     last: boolean;
     empty: boolean;
 }
+
+// Player statistics interfaces according to Swagger API
+export interface PlayerStatistics {
+    matchesPlayed: number;
+    goals: number;
+    assists: number;
+}
+
+export interface PlayerStatisticsResponse {
+    playerId: number;
+    statistics: PlayerStatistics;
+}

@@ -86,6 +86,17 @@ export interface TournamentErrorResponse {
     id: number;
 }
 
+// Tournament filter parameters for search/filtering
+export interface TournamentFilters {
+    name?: string;
+    date?: string; // Single date filter as per Swagger API
+    cityId?: number;
+    sportTypeId?: number;
+    categoryId?: number;
+    page?: number;
+    size?: number;
+}
+
 // Compatibility namespaces to avoid breaking existing code
 export namespace TournamentRequest {
     export type Create = CreateTournamentRequest;

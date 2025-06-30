@@ -1,5 +1,4 @@
-import axios from 'axios';
-import type { TeamMatchResultsResponse, TournamentMatchResult, TournamentTeamStatistics } from '../types/statistics';
+import type { PlayerStatisticsResponse, TeamMatchResultsResponse, TournamentMatchResult, TournamentTeamStatistics } from '../types/statistics';
 import axiosInstance from './axios';
 
 // Add request interceptor for auth token
@@ -44,4 +43,8 @@ export const statisticsApi = {
         axiosInstance.get(`/statistics/public/team/${teamId}/matches`, {
             params: { page, size }
         }).then(res => res.data),
+
+    // Player statistics
+    getPlayerStatistics: (playerId: number): Promise<PlayerStatisticsResponse> =>
+        axiosInstance.get(`/statistics/public/player/${playerId}`).then(res => res.data),
 };

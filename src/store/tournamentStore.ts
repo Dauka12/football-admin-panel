@@ -2,7 +2,9 @@ import { create } from 'zustand';
 import { tournamentApi } from '../api/tournaments';
 import type {
     CreateTournamentRequest,
+    TournamentFilters,
     TournamentFullResponse,
+    TournamentPaginatedResponse,
     UpdateTournamentRequest
 } from '../types/tournaments';
 import { apiService } from '../utils/apiService';
@@ -11,19 +13,23 @@ import { showToast } from '../utils/toast';
 
 interface TournamentState {
     tournaments: TournamentFullResponse[];
+    paginatedTournaments: TournamentPaginatedResponse | null;
     currentTournament: TournamentFullResponse | null;
     isLoading: boolean;
     error: string | null;
 
     fetchTournaments: (forceRefresh?: boolean) => Promise<void>;
+    fetchTournamentsWithFilters: (filters?: TournamentFilters) => Promise<void>;
     fetchTournament: (id: number) => Promise<void>;
     createTournament: (data: CreateTournamentRequest) => Promise<boolean>;
     updateTournament: (id: number, data: UpdateTournamentRequest) => Promise<boolean>;
     deleteTournament: (id: number) => Promise<boolean>;
+    clearError: () => void;
 }
 
 export const useTournamentStore = create<TournamentState>()((set, get) => ({
     tournaments: [],
+    paginatedTournaments: null,
     currentTournament: null,
     isLoading: false,
     error: null,
@@ -52,6 +58,7 @@ export const useTournamentStore = create<TournamentState>()((set, get) => ({
             
             set({ 
                 tournaments: tournamentsArray, 
+                paginatedTournaments: tournamentsResponse,
                 isLoading: false 
             });
         } catch (error: any) {
@@ -59,10 +66,48 @@ export const useTournamentStore = create<TournamentState>()((set, get) => ({
             const errorMessage = ErrorHandler.handle(error);
             set({
                 tournaments: [], // Set empty array on error
+                paginatedTournaments: null,
                 error: errorMessage.message,
                 isLoading: false
             });
         }
+    },
+
+    fetchTournamentsWithFilters: async (filters?: TournamentFilters) => {
+        set({ isLoading: true, error: null });
+
+        try {
+            const tournamentsResponse = await apiService.execute(
+                () => tournamentApi.getAll(filters),
+                `fetchTournamentsWithFilters_${JSON.stringify(filters)}`,
+                { 
+                    enableCache: true,
+                    cacheTTL: 2 * 60 * 1000, // 2 minutes for filtered results
+                    maxRetries: 3
+                }
+            );
+            
+            const tournamentsArray = tournamentsResponse?.content || [];
+            
+            set({ 
+                tournaments: tournamentsArray, 
+                paginatedTournaments: tournamentsResponse,
+                isLoading: false 
+            });
+        } catch (error: any) {
+            console.error('Error fetching tournaments with filters:', error);
+            const errorMessage = ErrorHandler.handle(error);
+            set({
+                tournaments: [],
+                paginatedTournaments: null,
+                error: errorMessage.message,
+                isLoading: false
+            });
+        }
+    },
+
+    clearError: () => {
+        set({ error: null });
     },
 
     fetchTournament: async (id: number) => {

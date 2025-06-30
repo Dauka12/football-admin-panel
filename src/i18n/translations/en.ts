@@ -181,6 +181,8 @@ export const en = {
         basicInfo: "Tournament Info",
         dateRange: "Date Range",
         searchByTournament: "Search by tournament name or description...",
+        searchByName: "Search by name...",
+        filterByDate: "Filter by date",
         registrationDeadline: "Registration Deadline",
         status: "Status",
         format: "Format",
@@ -295,6 +297,8 @@ export const en = {
         notFound: "Sport type not found",
         searchByName: "Search by name...",
         selectSportType: "Select sport type",
+        allSportTypes: "All Sport Types",
+        unknownSportType: "Unknown Sport Type",
     },
     cities: {
         title: "Cities",
@@ -451,7 +455,16 @@ export const en = {
         winRate: "Win Rate",
         goalsScored: "Goals Scored",
         goalsConceded: "Goals Conceded",
-        loadMore: "Load More"
+        loadMore: "Load More",
+        // Player statistics
+        playerStatistics: "Player Statistics",
+        noPlayerStats: "No player statistics available",
+        matchesPlayed: "Matches Played",
+        goals: "Goals",
+        assists: "Assists",
+        playerSummary: "Player Summary",
+        goalsPerMatch: "Goals per Match",
+        assistsPerMatch: "Assists per Match"
     },
     playgrounds: {
         title: "Playgrounds",
@@ -700,6 +713,8 @@ export const en = {
         notFoundDescription: "The category you're looking for doesn't exist or has been removed.",
         deleteConfirmation: "Are you sure you want to delete the category '{name}'? This action cannot be undone.",
         selectCategory: "Select category",
+        allCategories: "All Categories",
+        unknownCategory: "Unknown Category",
         
         // Validation messages
         validation: {
