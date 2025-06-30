@@ -1,17 +1,19 @@
 export interface MatchEvent {
   id: number;
   matchId: number;
-  playerId?: number;
+  playerId: number;
+  playerName: string;
+  type: MatchEventType;
+  minute: number;
+  // Additional fields for internal use
   teamId?: number;
-  eventType: MatchEventType;
-  eventTime: number; // in minutes
   description?: string;
-  createdAt: string;
-  updatedAt: string;
-  playerFullName?: string;
+  createdAt?: string;
+  updatedAt?: string;
   teamName?: string;
 }
 
+// According to Swagger API, these are the supported event types  
 export type MatchEventType = 
   | 'GOAL'
   | 'YELLOW_CARD'
@@ -31,19 +33,10 @@ export const MATCH_EVENT_TYPES = {
   OWN_GOAL: 'OWN_GOAL' as const
 } as const;
 
+// Create match event request - matches Swagger API exactly
 export interface CreateMatchEventRequest {
   matchId: number;
-  playerId?: number;
-  teamId?: number;
-  eventType: MatchEventType;
-  eventTime: number;
-  description?: string;
-}
-
-export interface UpdateMatchEventRequest {
-  playerId?: number;
-  teamId?: number;
-  eventType?: MatchEventType;
-  eventTime?: number;
-  description?: string;
+  playerId: number;
+  type: MatchEventType;
+  minute: number;
 }

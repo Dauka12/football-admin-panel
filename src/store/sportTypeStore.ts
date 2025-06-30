@@ -23,7 +23,7 @@ interface SportTypeStore {
     filters: SportTypeFilterParams;
     
     // Actions
-    fetchSportTypes: (page?: number, size?: number) => Promise<void>;
+    fetchSportTypes: (page?: number, size?: number, sort?: string) => Promise<void>;
     fetchSportType: (id: number) => Promise<void>;
     createSportType: (data: SportTypeCreateRequest) => Promise<boolean>;
     updateSportType: (id: number, data: SportTypeUpdateRequest) => Promise<boolean>;
@@ -44,10 +44,10 @@ export const useSportTypeStore = create<SportTypeStore>((set, get) => ({
     pageSize: 10,
     filters: {},
 
-    fetchSportTypes: async (page = 0, size = 10) => {
+    fetchSportTypes: async (page = 0, size = 10, sort?: string) => {
         const { isLoading, sportTypes } = get();
         
-        console.log('fetchSportTypes called with:', { page, size, isLoading, hasData: sportTypes.length > 0 });
+        console.log('fetchSportTypes called with:', { page, size, sort, isLoading, hasData: sportTypes.length > 0 });
         
         // Prevent multiple concurrent requests and avoid refetching if we already have data
         if (isLoading || (page === 0 && sportTypes.length > 0)) {
@@ -59,7 +59,7 @@ export const useSportTypeStore = create<SportTypeStore>((set, get) => ({
         set({ isLoading: true, error: null });
         try {
             const { filters } = get();
-            const response = await sportTypeApi.getAll(page, size, filters);
+            const response = await sportTypeApi.getAll(page, size, filters, sort);
             console.log('fetchSportTypes completed:', response);
             set({
                 sportTypes: response.content,

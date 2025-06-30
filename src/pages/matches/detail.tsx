@@ -39,7 +39,6 @@ const MatchDetailPage: React.FC = () => {
         error: eventsError,
         fetchEventsByMatchId,
         createEvent,
-        deleteEvent,
         clearEvents
     } = useMatchEventStore();
 
@@ -149,25 +148,10 @@ const MatchDetailPage: React.FC = () => {
         }
     };
 
-    // Handle delete event
-    const handleDeleteEvent = async (eventId: number) => {
-        if (window.confirm(t('matchEvents.deleteEventConfirm'))) {
-            const success = await deleteEvent(eventId);
-            if (success) {
-                showToast(t('matchEvents.deleteEventSuccess'), 'success');
-            }
-        }
-    };
-
     // Check if match allows event management
     const canManageEvents = currentMatch?.status === 'IN_PROGRESS';
 
-    // Get available teams and players for event form
-    const availableTeams = teamsData.map(team => ({
-        id: team.id,
-        name: team.name
-    }));
-
+    // Get available players for event form
     const availablePlayers = teamsData.flatMap(team => 
         team.players?.map(player => ({
             id: player.id,
@@ -365,8 +349,6 @@ const MatchDetailPage: React.FC = () => {
                     <div className="bg-card-bg border border-gray-700 rounded-lg p-6">
                         <MatchEventsList 
                             events={events} 
-                            onDeleteEvent={canManageEvents ? handleDeleteEvent : undefined}
-                            canManageEvents={canManageEvents}
                         />
                     </div>
                 )}
@@ -437,7 +419,6 @@ const MatchDetailPage: React.FC = () => {
                     matchId={matchId}
                     onSubmit={handleCreateEvent}
                     onCancel={() => setShowEventForm(false)}
-                    availableTeams={availableTeams}
                     availablePlayers={availablePlayers}
                 />
             </Modal>

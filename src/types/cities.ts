@@ -49,6 +49,24 @@ export interface CitiesPageResponse {
     size: number;
     content: City[];
     number: number;
+    sort: {
+        empty: boolean;
+        sorted: boolean;
+        unsorted: boolean;
+    };
+    pageable: {
+        offset: number;
+        sort: {
+            empty: boolean;
+            sorted: boolean;
+            unsorted: boolean;
+        };
+        paged: boolean;
+        pageNumber: number;
+        pageSize: number;
+        unpaged: boolean;
+    };
+    numberOfElements: number;
     first: boolean;
     last: boolean;
     empty: boolean;

@@ -38,10 +38,10 @@ axiosInstance.interceptors.response.use(
 );
 
 export const playgroundReservationApi = {
-    // PUT /api/v1/playground-reservation/{reservationId}/status
+    // PUT /playground-reservation/{reservationId}/status
     updateReservationStatus: async (reservationId: number, statusRequest: UpdateReservationStatusRequest['statusRequest']): Promise<void> => {
         const response = await axiosInstance.put(
-            `/api/v1/playground-reservation/${reservationId}/status`,
+            `/playground-reservation/${reservationId}/status`,
             null,
             {
                 params: { statusRequest }
@@ -50,31 +50,31 @@ export const playgroundReservationApi = {
         return response.data;
     },
 
-    // POST /api/v1/playground-reservation
+    // POST /playground-reservation
     createReservation: async (data: CreateReservationRequest): Promise<{ id: number }> => {
-        const response = await axiosInstance.post('/api/v1/playground-reservation', data);
+        const response = await axiosInstance.post('/playground-reservation', data);
         return response.data;
     },
 
-    // DELETE /api/v1/playground-reservation
+    // DELETE /playground-reservation
     deleteReservation: async (reservationId: number): Promise<void> => {
-        const response = await axiosInstance.delete(`/api/v1/playground-reservation?reservationId=${reservationId}`);
+        const response = await axiosInstance.delete(`/playground-reservation?reservationId=${reservationId}`);
         return response.data;
     },
 
-    // POST /api/v1/playground-reservation/pay
+    // POST /playground-reservation/pay
     payForReservation: async (data: PayReservationRequest): Promise<void> => {
-        const response = await axiosInstance.post('/api/v1/playground-reservation/pay', data);
+        const response = await axiosInstance.post('/playground-reservation/pay', data);
         return response.data;
     },
 
-    // GET /api/v1/playground-reservation/{reservationId}
+    // GET /playground-reservation/{reservationId}
     getReservationById: async (reservationId: number): Promise<PlaygroundReservation> => {
-        const response = await axiosInstance.get(`/api/v1/playground-reservation/${reservationId}`);
+        const response = await axiosInstance.get(`/playground-reservation/${reservationId}`);
         return response.data;
     },
 
-    // GET /api/v1/playground-reservation/public
+    // GET /playground-reservation/public
     getReservations: async (filters?: ReservationFilters): Promise<ReservationsResponse> => {
         const params = new URLSearchParams();
         if (filters) {
@@ -84,7 +84,7 @@ export const playgroundReservationApi = {
                 }
             });
         }
-        const response = await axiosInstance.get(`/api/v1/playground-reservation/public?${params}`);
+        const response = await axiosInstance.get(`/playground-reservation/public?${params}`);
         return response.data;
     }
 };

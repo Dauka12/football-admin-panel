@@ -1,146 +1,86 @@
 import axiosInstance from './axios';
 import type { 
   MatchEvent, 
-  CreateMatchEventRequest, 
-  UpdateMatchEventRequest 
+  CreateMatchEventRequest
 } from '../types/matchEvents';
 
-// Backend response types based on the API documentation
-interface MatchEventApiResponse {
-  id: number;
-  matchId: number;
-  playerId: number;
-  playerName: string;
-  type: string; // GOAL, YELLOW_CARD, etc.
-  minute: number;
-}
+// Add request interceptor for auth token
+axiosInstance.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
 
-interface MatchEventsListApiResponse {
-  events: MatchEventApiResponse[];
-}
+// Add response interceptor
+axiosInstance.interceptors.response.use(
+    (response) => {
+        if (response.data === null || response.data === undefined) {
+            response.data = [];
+        }
+        return response;
+    },
+    (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('auth_token');
+        }
+        console.error('Match Events API Error:', error);
+        return Promise.reject(error);
+    }
+);
+
+// Custom error handling for match events operations
+const handleMatchEventsApiError = (error: any): never => {
+    if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data?.message || error.message;
+
+        switch (status) {
+            case 400:
+                throw new Error(`Invalid request data: ${message}`);
+            case 403:
+                throw new Error('Not authorized to create events');
+            case 404:
+                throw new Error('Event not found');
+            default:
+                throw new Error(`Match event operation failed: ${message}`);
+        }
+    }
+    throw new Error(error.message || 'Match event operation failed');
+};
 
 export const matchEventsApi = {
-  // Create a new match event
+  // POST /match-events - Create a new match event
   createMatchEvent: async (data: CreateMatchEventRequest): Promise<MatchEvent | null> => {
     try {
-      const requestBody = {
-        matchId: data.matchId,
-        playerId: data.playerId || 0, // Backend requires playerId, use 0 if not provided
-        type: data.eventType,
-        minute: data.eventTime
-      };
-      
-      const response = await axiosInstance.post<MatchEventApiResponse>('/match-events', requestBody);
-      
-      // Transform backend response to our MatchEvent type
-      return {
-        id: response.data.id,
-        matchId: response.data.matchId,
-        playerId: response.data.playerId,
-        teamId: data.teamId,
-        eventType: response.data.type as any,
-        eventTime: response.data.minute,
-        description: data.description,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        playerFullName: response.data.playerName,
-        teamName: undefined // Backend doesn't return team name in this endpoint
-      };
+      const response = await axiosInstance.post<MatchEvent>('/match-events', data);
+      return response.data;
     } catch (error) {
-      console.error('Error creating match event:', error);
-      throw error;
+      return handleMatchEventsApiError(error);
     }
   },
 
-  // Get match event by ID (public endpoint)
+  // GET /match-events/public/{id} - Get a specific match event by ID
   getMatchEventById: async (id: number): Promise<MatchEvent | null> => {
     try {
-      const response = await axiosInstance.get<MatchEventApiResponse>(`/match-events/public/${id}`);
-      
-      // Transform backend response to our MatchEvent type
-      return {
-        id: response.data.id,
-        matchId: response.data.matchId,
-        playerId: response.data.playerId,
-        teamId: undefined,
-        eventType: response.data.type as any,
-        eventTime: response.data.minute,
-        description: undefined,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        playerFullName: response.data.playerName,
-        teamName: undefined
-      };
+      const response = await axiosInstance.get<MatchEvent>(`/match-events/public/${id}`);
+      return response.data;
     } catch (error) {
-      console.error('Error fetching match event:', error);
-      throw error;
+      return handleMatchEventsApiError(error);
     }
   },
 
-  // Get all events for a specific match (public endpoint)
+  // GET /match-events/public/match/{matchId} - Get all events for a specific match
   getMatchEventsByMatchId: async (matchId: number): Promise<MatchEvent[]> => {
     try {
-      const response = await axiosInstance.get<MatchEventsListApiResponse>(`/match-events/public/match/${matchId}`);
-      
-      // Transform backend response to our MatchEvent array
-      return response.data.events.map(event => ({
-        id: event.id,
-        matchId: event.matchId,
-        playerId: event.playerId,
-        teamId: undefined,
-        eventType: event.type as any,
-        eventTime: event.minute,
-        description: undefined,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        playerFullName: event.playerName,
-        teamName: undefined
-      }));
+      const response = await axiosInstance.get<{ events: MatchEvent[] }>(`/match-events/public/match/${matchId}`);
+      return response.data.events;
     } catch (error) {
-      console.error('Error fetching match events:', error);
-      throw error;
-    }
-  },
-
-  // Update match event (if available)
-  updateMatchEvent: async (id: number, data: UpdateMatchEventRequest): Promise<MatchEvent | null> => {
-    try {
-      const requestBody = {
-        playerId: data.playerId || 0,
-        type: data.eventType,
-        minute: data.eventTime
-      };
-      
-      const response = await axiosInstance.put<MatchEventApiResponse>(`/match-events/${id}`, requestBody);
-      
-      // Transform backend response to our MatchEvent type
-      return {
-        id: response.data.id,
-        matchId: response.data.matchId,
-        playerId: response.data.playerId,
-        teamId: data.teamId,
-        eventType: response.data.type as any,
-        eventTime: response.data.minute,
-        description: data.description,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        playerFullName: response.data.playerName,
-        teamName: undefined
-      };
-    } catch (error) {
-      console.error('Error updating match event:', error);
-      throw error;
-    }
-  },
-
-  // Delete match event (if available)
-  deleteMatchEvent: async (id: number): Promise<boolean> => {
-    try {
-      await axiosInstance.delete(`/match-events/${id}`);
-      return true;
-    } catch (error) {
-      console.error('Error deleting match event:', error);
-      throw error;
+      return handleMatchEventsApiError(error);
     }
   }
 };

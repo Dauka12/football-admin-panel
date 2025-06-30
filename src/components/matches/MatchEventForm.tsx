@@ -7,60 +7,45 @@ interface MatchEventFormProps {
   matchId: number;
   onSubmit: (data: CreateMatchEventRequest) => Promise<void>;
   onCancel: () => void;
-  availableTeams?: Array<{ id: number; name: string }>;
-  availablePlayers?: Array<{ id: number; fullName: string; teamId: number }>;
+  availablePlayers?: Array<{ id: number; fullName: string; teamId?: number }>;
 }
 
 const MatchEventForm: React.FC<MatchEventFormProps> = ({ 
   matchId, 
   onSubmit, 
   onCancel,
-  availableTeams = [],
   availablePlayers = []
 }) => {
   const { t } = useTranslation();
   
   const [formData, setFormData] = useState({
-    eventType: '' as MatchEventType,
-    eventTime: '',
-    teamId: '',
-    playerId: '',
-    description: ''
+    type: '' as MatchEventType,
+    minute: '',
+    playerId: ''
   });
   
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const filteredPlayers = formData.teamId 
-    ? availablePlayers.filter(player => player.teamId === parseInt(formData.teamId))
-    : availablePlayers;
-
-  const requiresPlayer = true; // All events require a player according to backend API
-  const requiresTeam = formData.eventType && ['GOAL', 'YELLOW_CARD', 'RED_CARD', 'SECOND_YELLOW', 'PENALTY_GOAL', 'MISSED_PENALTY', 'OWN_GOAL'].includes(formData.eventType);
-
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.eventType) {
-      newErrors.eventType = t('validation.required');
+    if (!formData.type) {
+      newErrors.type = t('validation.required');
     }
 
-    if (!formData.eventTime) {
-      newErrors.eventTime = t('validation.required');
+    if (!formData.minute) {
+      newErrors.minute = t('validation.required');
     } else {
-      const time = parseInt(formData.eventTime);
+      const time = parseInt(formData.minute);
       if (time < 0) {
-        newErrors.eventTime = t('validation.minValue', { min: 0 });
+        newErrors.minute = t('validation.minValue', { min: 0 });
       } else if (time > 200) {
-        newErrors.eventTime = t('validation.maxValue', { max: 200 });
+        newErrors.minute = t('validation.maxValue', { max: 200 });
       }
     }
 
-    if (requiresTeam && !formData.teamId) {
-      newErrors.teamId = t('validation.required');
-    }
-
-    if (requiresPlayer && !formData.playerId) {
+    if (!formData.playerId) {
       newErrors.playerId = t('validation.required');
     }
 
@@ -77,11 +62,9 @@ const MatchEventForm: React.FC<MatchEventFormProps> = ({
     try {
       const eventData: CreateMatchEventRequest = {
         matchId,
-        eventType: formData.eventType,
-        eventTime: parseInt(formData.eventTime),
-        description: formData.description || undefined,
-        teamId: formData.teamId ? parseInt(formData.teamId) : undefined,
-        playerId: formData.playerId ? parseInt(formData.playerId) : undefined
+        type: formData.type,
+        minute: parseInt(formData.minute),
+        playerId: parseInt(formData.playerId)
       };
 
       await onSubmit(eventData);
@@ -93,10 +76,7 @@ const MatchEventForm: React.FC<MatchEventFormProps> = ({
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value,
-      // Reset dependent fields
-      ...(field === 'teamId' ? { playerId: '' } : {}),
-      ...(field === 'eventType' ? { teamId: '', playerId: '' } : {})
+      [field]: value
     }));
     
     // Clear error when user starts typing
@@ -118,8 +98,8 @@ const MatchEventForm: React.FC<MatchEventFormProps> = ({
           {t('matchEvents.eventType')} <span className="text-red-500">*</span>
         </label>
         <select
-          value={formData.eventType}
-          onChange={(e) => handleInputChange('eventType', e.target.value)}
+          value={formData.type}
+          onChange={(e) => handleInputChange('type', e.target.value)}
           className="w-full px-3 py-2 bg-darkest-bg border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-gold"
         >
           <option value="">{t('common.select')}</option>
@@ -129,90 +109,50 @@ const MatchEventForm: React.FC<MatchEventFormProps> = ({
             </option>
           ))}
         </select>
-        {errors.eventType && (
-          <p className="text-red-500 text-sm mt-1">{errors.eventType}</p>
+        {errors.type && (
+          <p className="text-red-500 text-sm mt-1">{errors.type}</p>
         )}
       </div>
 
       {/* Event Time */}
       <div>
         <label className="block text-sm font-medium mb-2">
-          {t('matchEvents.eventTime')} ({t('matchEvents.minutes')}) <span className="text-red-500">*</span>
+          {t('matchEvents.minute')} <span className="text-red-500">*</span>
         </label>
         <input
           type="number"
           min="0"
           max="200"
-          value={formData.eventTime}
-          onChange={(e) => handleInputChange('eventTime', e.target.value)}
+          value={formData.minute}
+          onChange={(e) => handleInputChange('minute', e.target.value)}
           className="w-full px-3 py-2 bg-darkest-bg border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-gold"
-          placeholder={t('matchEvents.eventTimePlaceholder')}
+          placeholder={t('matchEvents.minutePlaceholder')}
         />
-        {errors.eventTime && (
-          <p className="text-red-500 text-sm mt-1">{errors.eventTime}</p>
+        {errors.minute && (
+          <p className="text-red-500 text-sm mt-1">{errors.minute}</p>
         )}
       </div>
 
-      {/* Team Selection */}
-      {requiresTeam && availableTeams.length > 0 && (
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            {t('teams.team')} {requiresTeam && <span className="text-red-500">*</span>}
-          </label>
-          <select
-            value={formData.teamId}
-            onChange={(e) => handleInputChange('teamId', e.target.value)}
-            className="w-full px-3 py-2 bg-darkest-bg border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-gold"
-          >
-            <option value="">{t('common.select')}</option>
-            {availableTeams.map(team => (
-              <option key={team.id} value={team.id}>
-                {team.name}
-              </option>
-            ))}
-          </select>
-          {errors.teamId && (
-            <p className="text-red-500 text-sm mt-1">{errors.teamId}</p>
-          )}
-        </div>
-      )}
-
       {/* Player Selection */}
-      {requiresPlayer && filteredPlayers.length > 0 && (
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            {t('players.player')} {requiresPlayer && <span className="text-red-500">*</span>}
-          </label>
-          <select
-            value={formData.playerId}
-            onChange={(e) => handleInputChange('playerId', e.target.value)}
-            className="w-full px-3 py-2 bg-darkest-bg border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-gold"
-          >
-            <option value="">{t('common.select')}</option>
-            {filteredPlayers.map(player => (
-              <option key={player.id} value={player.id}>
-                {player.fullName}
-              </option>
-            ))}
-          </select>
-          {errors.playerId && (
-            <p className="text-red-500 text-sm mt-1">{errors.playerId}</p>
-          )}
-        </div>
-      )}
-
-      {/* Description */}
       <div>
         <label className="block text-sm font-medium mb-2">
-          {t('common.description')}
+          {t('players.player')} <span className="text-red-500">*</span>
         </label>
-        <textarea
-          value={formData.description}
-          onChange={(e) => handleInputChange('description', e.target.value)}
-          rows={3}
-          className="w-full px-3 py-2 bg-darkest-bg border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-gold resize-none"
-          placeholder={t('matchEvents.descriptionPlaceholder')}
-        />
+        <select
+          value={formData.playerId}
+          onChange={(e) => handleInputChange('playerId', e.target.value)}
+          className="w-full px-3 py-2 bg-darkest-bg border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-gold"
+        >
+          <option value="">{t('common.select')}</option>
+          {availablePlayers.map(player => (
+            <option key={player.id} value={player.id}>
+              {player.fullName}
+            </option>
+          ))}
+        </select>
+        {errors.playerId && (
+          <p className="text-red-500 text-sm mt-1">{errors.playerId}</p>
+        )}
       </div>
 
       {/* Form Actions */}
