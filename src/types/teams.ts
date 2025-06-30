@@ -13,14 +13,16 @@ export interface Player {
     position: string;
     teamId: number;
     age: number;
-    height?: number; // Made optional to match API
-    weight?: number; // Made optional to match API
-    nationality?: string; // Made optional to match API
-    birthplace?: string; // Made optional to match API
+    height: number;
+    weight: number;
+    nationality: string;
+    birthplace: string;
     preferredFoot: PreferredFoot;
-    bio?: string; // Made optional to match API
+    bio: string;
     sportTypeId: number;
-    number?: number; // Added player number from API
+    heroId: number;
+    imageUrl: string;
+    heroGif: string;
 }
 
 // Basic team interface with common properties
@@ -46,6 +48,7 @@ export interface UpdateTeamRequest extends TeamBase {
 export interface TeamBaseResponse extends TeamBase {
     id: number;
     avatar: string;
+    teamId: number;
 }
 
 export interface TeamFullResponse extends TeamBaseResponse {

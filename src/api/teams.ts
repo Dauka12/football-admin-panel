@@ -23,31 +23,56 @@ export const teamApi = {
         size = 10, 
         filters?: TeamFilterParams
     ): Promise<TeamsPageResponse> => {
-        const response = await axiosInstance.get(`/teams/public`, {
-            params: { 
-                page, 
-                size,
-                ...filters // Spread the filter parameters
-            }
-        });
-        return response.data;
+        try {
+            const response = await axiosInstance.get(`/teams/public`, {
+                params: { 
+                    page, 
+                    size,
+                    ...filters
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch teams:', error);
+            throw error;
+        }
     },
 
     getById: async (id: number): Promise<TeamFullResponse> => {
-        const response = await axiosInstance.get(`/teams/public/${id}`);
-        return response.data;
+        try {
+            const response = await axiosInstance.get(`/teams/public/${id}`);
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch team:', error);
+            throw error;
+        }
     },
 
     create: async (data: CreateTeamRequest): Promise<TeamCreateResponse> => {
-        const response = await axiosInstance.post(`/teams`, data);
-        return response.data;
+        try {
+            const response = await axiosInstance.post(`/teams`, data);
+            return response.data;
+        } catch (error) {
+            console.error('Failed to create team:', error);
+            throw error;
+        }
     },
 
     update: async (id: number, data: UpdateTeamRequest): Promise<void> => {
-        await axiosInstance.put(`/teams/${id}`, data);
+        try {
+            await axiosInstance.put(`/teams/${id}`, data);
+        } catch (error) {
+            console.error('Failed to update team:', error);
+            throw error;
+        }
     },
 
     delete: async (id: number): Promise<void> => {
-        await axiosInstance.delete(`/teams/${id}`);
+        try {
+            await axiosInstance.delete(`/teams/${id}`);
+        } catch (error) {
+            console.error('Failed to delete team:', error);
+            throw error;
+        }
     }
 };

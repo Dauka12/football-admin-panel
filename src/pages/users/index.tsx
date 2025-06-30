@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import Modal from '../../components/ui/Modal';
+import RoleManagementModal from '../../components/users/RoleManagementModal';
 import UserForm from '../../components/users/UserForm';
 import { useUserStore } from '../../store/userStore';
 import type { CreateUserRequest, User, UserFilterParams } from '../../types/users';
@@ -381,51 +382,14 @@ const UsersPage: React.FC = () => {
             </Modal>
 
             {/* Manage Roles Modal */}
-            <Modal
-                isOpen={!!showRoleModal}
-                onClose={() => setShowRoleModal(null)}
-                title={t('users.manageRoles')}
-            >
-                {showRoleModal && (
-                    <div className="p-4 space-y-4">
-                        <div className="text-center mb-4">
-                            <h3 className="text-lg font-medium text-white">
-                                {showRoleModal.firstname} {showRoleModal.lastname}
-                            </h3>
-                            <p className="text-gray-400">{showRoleModal.phone}</p>
-                        </div>
-
-                        <div className="space-y-2">
-                            {roles.map((role) => (
-                                <label key={role.id} className="flex items-center space-x-2 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={showRoleModal.roles.some(r => r.id === role.id)}
-                                        onChange={(e) => {
-                                            const currentRoleIds = showRoleModal.roles.map(r => r.id);
-                                            const newRoleIds = e.target.checked
-                                                ? [...currentRoleIds, role.id]
-                                                : currentRoleIds.filter(id => id !== role.id);
-                                            handleUpdateRoles(newRoleIds);
-                                        }}
-                                        className="rounded border-gray-600 text-gold focus:ring-gold focus:ring-offset-0"
-                                    />
-                                    <span className="text-white">{role.name}</span>
-                                </label>
-                            ))}
-                        </div>
-
-                        <div className="flex justify-end pt-4 border-t border-gray-700">
-                            <button
-                                onClick={() => setShowRoleModal(null)}
-                                className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors duration-200 font-medium"
-                            >
-                                {t('common.close')}
-                            </button>
-                        </div>
-                    </div>
-                )}
-            </Modal>
+            {showRoleModal && (
+                <RoleManagementModal
+                    user={showRoleModal}
+                    availableRoles={roles}
+                    onUpdateRoles={handleUpdateRoles}
+                    onClose={() => setShowRoleModal(null)}
+                />
+            )}
 
             {/* Delete Confirmation Modal */}
             <Modal
