@@ -5,11 +5,13 @@ import PlaygroundForm from '../../components/playgrounds/PlaygroundForm';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import ImageCarousel from '../../components/ui/ImageCarousel';
 import Modal from '../../components/ui/Modal';
+import { useCityStore } from '../../store/cityStore';
 import { usePlaygroundStore } from '../../store/playgroundStore';
 import type { CreatePlaygroundRequest, PlaygroundFilters } from '../../types/playgrounds';
 
 const PlaygroundsPage: React.FC = () => {
     const { t, i18n } = useTranslation();
+    const { cities, fetchCities } = useCityStore();
     const {
         playgrounds,
         isLoading,
@@ -22,7 +24,7 @@ const PlaygroundsPage: React.FC = () => {
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [locationFilter, setLocationFilter] = useState('');
+    const [cityFilter, setCityFilter] = useState<number | undefined>(undefined); // Изменено с locationFilter на cityFilter
     const [priceFilter, setPriceFilter] = useState({ min: '', max: '' });
     const [deleteConfirm, setDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
     const [currentPage, setCurrentPage] = useState(0);
@@ -40,8 +42,8 @@ const PlaygroundsPage: React.FC = () => {
             filters.name = searchTerm.trim();
         }
 
-        if (locationFilter.trim()) {
-            filters.location = locationFilter.trim();
+        if (cityFilter) {
+            filters.playgroundCityId = cityFilter; // Изменено согласно Swagger API
         }
 
         if (priceFilter.min) {
@@ -53,18 +55,19 @@ const PlaygroundsPage: React.FC = () => {
         }
 
         fetchPlaygrounds(filters);
-    }, [fetchPlaygrounds, currentPage, searchTerm, locationFilter, priceFilter]);
+    }, [fetchPlaygrounds, currentPage, searchTerm, cityFilter, priceFilter]);
 
     useEffect(() => {
         loadPlaygrounds();
-    }, [loadPlaygrounds]);
+        fetchCities(); // Загружаем города для фильтра
+    }, [loadPlaygrounds, fetchCities]);
 
     useEffect(() => {
         // Reset to first page when filters change
         if (currentPage !== 0) {
             setCurrentPage(0);
         }
-    }, [searchTerm, locationFilter, priceFilter]);
+    }, [searchTerm, cityFilter, priceFilter]);
 
     const handleCreatePlayground = async (data: CreatePlaygroundRequest) => {
         const success = await createPlayground(data);
@@ -159,13 +162,18 @@ const PlaygroundsPage: React.FC = () => {
                         />
                     </div>
                     <div>
-                        <input
-                            type="text"
-                            placeholder={t('playgrounds.searchByLocation')}
-                            value={locationFilter}
-                            onChange={(e) => setLocationFilter(e.target.value)}
+                        <select
+                            value={cityFilter || ''}
+                            onChange={(e) => setCityFilter(e.target.value ? parseInt(e.target.value) : undefined)}
                             className="w-full p-2 border border-gray-600 rounded-md bg-darkest-bg text-white focus:border-gold focus:outline-none"
-                        />
+                        >
+                            <option value="">{t('cities.allCities')}</option>
+                            {cities.map((city) => (
+                                <option key={city.id} value={city.id}>
+                                    {city.name}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                     <div>
                         <input
@@ -264,7 +272,9 @@ const PlaygroundsPage: React.FC = () => {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                             </svg>
-                                            <span className="truncate">{playground.location}</span>
+                                            <span className="truncate">
+                                                {cities.find(city => city.id === playground.cityId)?.name || t('cities.unknownCity')}
+                                            </span>
                                         </div>
                                         <div className="flex items-center text-gold text-sm font-medium">
                                             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

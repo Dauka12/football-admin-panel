@@ -385,6 +385,8 @@ export const ru = {
         location: "Местоположение",
         coordinates: "Координаты",
         selectCity: "Выберите город",
+        allCities: "Все города",
+        unknownCity: "Неизвестный город",
         cityDetails: "Детали города",
         confirmDelete: "Удалить город",
         deleteWarning: "Вы уверены, что хотите удалить этот город? Это действие нельзя отменить.",
@@ -495,15 +497,36 @@ export const ru = {
         namePlaceholder: "Введите название площадки",
         locationPlaceholder: "Введите адрес местоположения",
         descriptionPlaceholder: "Введите описание площадки",
+        fieldSize: "Размер поля",
+        fieldSizePlaceholder: "например, 40x20 метров",
+        fieldCoverType: "Тип покрытия поля",
+        selectFieldCoverType: "Выберите тип покрытия",
+        fieldCoverTypes: {
+            outdoor: "Открытое",
+            indoor: "Крытое",
+            semiCovered: "Полукрытое"
+        },
+        fieldSurfaceType: "Тип поверхности поля",
+        selectFieldSurfaceType: "Выберите тип поверхности", 
+        fieldSurfaceTypes: {
+            artificialGrass: "Искусственная трава",
+            naturalGrass: "Натуральная трава",
+            concrete: "Бетон",
+            rubber: "Резина",
+            sand: "Песок"
+        },
         validation: {
-            locationRequired: "Местоположение обязательно",
+            cityRequired: "Город обязателен",
             pricePositive: "Цена должна быть положительной",
             capacityPositive: "Максимальная вместимость должна быть положительной",
             currentCapacityValid: "Текущая загрузка должна быть корректной",
             currentCapacityNotExceedMax: "Текущая загрузка не может превышать максимальную",
             availableFromRequired: "Время начала работы обязательно",
             availableToRequired: "Время окончания работы обязательно",
-            availableToAfterFrom: "Время окончания должно быть после времени начала"
+            availableToAfterFrom: "Время окончания должно быть после времени начала",
+            fieldSizeRequired: "Размер поля обязателен",
+            fieldCoverTypeRequired: "Тип покрытия поля обязателен",
+            fieldSurfaceTypeRequired: "Тип поверхности поля обязателен"
         },
         changeImage: "Сменить изображение",
         uploadImageHint: "Загрузите новое изображение площадки (макс 5МБ)"

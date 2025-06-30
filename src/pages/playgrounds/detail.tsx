@@ -6,6 +6,7 @@ import Breadcrumb from '../../components/ui/Breadcrumb';
 import FileUpload from '../../components/ui/FileUpload';
 import ImageDisplay from '../../components/ui/ImageDisplay';
 import Modal from '../../components/ui/Modal';
+import { useCityStore } from '../../store/cityStore';
 import { usePlaygroundStore } from '../../store/playgroundStore';
 import { type FileType } from '../../types/files';
 import type { UpdatePlaygroundRequest } from '../../types/playgrounds';
@@ -15,6 +16,7 @@ const PlaygroundDetailPage: React.FC = () => {
     const playgroundId = id ? parseInt(id) : -1;
     const navigate = useNavigate();
     const { t, i18n } = useTranslation();
+    const { cities, fetchCities } = useCityStore();
     
     const {
         currentPlayground,
@@ -45,10 +47,11 @@ const PlaygroundDetailPage: React.FC = () => {
 
     useEffect(() => {
         loadPlayground();
+        fetchCities(); // Загружаем города для отображения названия
         return () => {
             clearCurrentPlayground();
         };
-    }, [loadPlayground, clearCurrentPlayground]);
+    }, [loadPlayground, clearCurrentPlayground, fetchCities]);
 
     // Load reservations when tab is selected
     useEffect(() => {
@@ -202,7 +205,7 @@ const PlaygroundDetailPage: React.FC = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
-                                {currentPlayground.location}
+                                {cities.find(city => city.id === currentPlayground.cityId)?.name || t('cities.unknownCity')}
                             </div>
                             {currentPlayground.active ? (
                                 <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-sm">
@@ -371,7 +374,19 @@ const PlaygroundDetailPage: React.FC = () => {
                 title={t('playgrounds.editPlayground')}
             >
                 <PlaygroundForm 
-                    initialData={currentPlayground}
+                    initialData={{
+                        name: currentPlayground.name,
+                        cityId: currentPlayground.cityId,
+                        pricePerHour: currentPlayground.pricePerHour,
+                        description: currentPlayground.description,
+                        maxCapacity: currentPlayground.maxCapacity,
+                        currentCapacity: currentPlayground.currentCapacity,
+                        availableFrom: currentPlayground.availableFrom,
+                        availableTo: currentPlayground.availableTo,
+                        fieldSize: currentPlayground.fieldSize || '',
+                        fieldCoverType: currentPlayground.fieldCoverType || '',
+                        fieldSurfaceType: currentPlayground.fieldSurfaceType || ''
+                    }}
                     onSubmit={handleUpdate} 
                     onCancel={() => setIsEditing(false)}
                     isEditing={true}

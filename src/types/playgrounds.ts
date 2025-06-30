@@ -2,7 +2,7 @@
 export interface Playground {
     id: number;
     name: string;
-    location: string;
+    cityId: number;
     description: string;
     maxCapacity: number;
     currentCapacity: number;
@@ -11,35 +11,46 @@ export interface Playground {
     availableTo: string;
     active: boolean;
     images: string[];
+    // Эти поля не возвращаются в public API, только в admin
+    fieldSize?: string;
+    fieldCoverType?: string;
+    fieldSurfaceType?: string;
 }
 
 export interface CreatePlaygroundRequest {
     name: string;
-    location: string;
+    cityId: number;
     pricePerHour: number;
     description: string;
     maxCapacity: number;
     currentCapacity: number;
     availableFrom: string;
     availableTo: string;
-    active: boolean;
+    fieldSize: string;
+    fieldCoverType: string;
+    fieldSurfaceType: string;
+    // active не нужно в CreateRequest - устанавливается автоматически на бэкенде
 }
 
 export interface UpdatePlaygroundRequest {
     name?: string;
-    location?: string;
+    cityId?: number;
     pricePerHour?: number;
     description?: string;
     maxCapacity?: number;
     currentCapacity?: number;
     availableFrom?: string;
     availableTo?: string;
-    active?: boolean;
+    fieldSize?: string;
+    fieldCoverType?: string;
+    fieldSurfaceType?: string;
 }
 
 export interface PlaygroundFilters {
     name?: string;
-    location?: string;
+    playgroundCityId?: number; // Изменено с location на playgroundCityId согласно Swagger
+    startTime?: string; // Добавлено из Swagger
+    endTime?: string; // Добавлено из Swagger
     minPrice?: number;
     maxPrice?: number;
     page?: number;

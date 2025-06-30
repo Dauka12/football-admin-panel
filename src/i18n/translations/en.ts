@@ -313,6 +313,8 @@ export const en = {
         location: "Location",
         coordinates: "Coordinates",
         selectCity: "Select city",
+        allCities: "All cities",
+        unknownCity: "Unknown city",
         cityDetails: "City Details",
         confirmDelete: "Delete City",
         deleteWarning: "Are you sure you want to delete this city? This action cannot be undone.",
@@ -489,17 +491,38 @@ export const en = {
         minPrice: "Min price",
         maxPrice: "Max price",
         namePlaceholder: "Enter playground name",
-        locationPlaceholder: "Enter location address",
+        locationPlaceholder: "Enter location address", 
         descriptionPlaceholder: "Enter playground description",
+        fieldSize: "Field Size",
+        fieldSizePlaceholder: "e.g., 40x20 meters",
+        fieldCoverType: "Field Cover Type",
+        selectFieldCoverType: "Select cover type",
+        fieldCoverTypes: {
+            outdoor: "Outdoor",
+            indoor: "Indoor",
+            semiCovered: "Semi-covered"
+        },
+        fieldSurfaceType: "Field Surface Type", 
+        selectFieldSurfaceType: "Select surface type",
+        fieldSurfaceTypes: {
+            artificialGrass: "Artificial Grass",
+            naturalGrass: "Natural Grass",
+            concrete: "Concrete",
+            rubber: "Rubber",
+            sand: "Sand"
+        },
         validation: {
-            locationRequired: "Location is required",
+            cityRequired: "City is required",
             pricePositive: "Price must be positive",
             capacityPositive: "Max capacity must be positive",
             currentCapacityValid: "Current capacity must be valid",
             currentCapacityNotExceedMax: "Current capacity cannot exceed max capacity",
             availableFromRequired: "Available from time is required",
             availableToRequired: "Available to time is required",
-            availableToAfterFrom: "Available to time must be after available from time"
+            availableToAfterFrom: "Available to time must be after available from time",
+            fieldSizeRequired: "Field size is required",
+            fieldCoverTypeRequired: "Field cover type is required",
+            fieldSurfaceTypeRequired: "Field surface type is required"
         },
         changeImage: "Change Image",
         uploadImageHint: "Upload a new playground image (max 5MB)"

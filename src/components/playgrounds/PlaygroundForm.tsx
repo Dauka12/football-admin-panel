@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useCityStore } from '../../store/cityStore';
 import type { CreatePlaygroundRequest } from '../../types/playgrounds';
 
 interface PlaygroundFormProps {
@@ -16,20 +17,41 @@ const PlaygroundForm: React.FC<PlaygroundFormProps> = ({
     isEditing = false
 }) => {
     const { t } = useTranslation();
+    const { cities, fetchCities } = useCityStore();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoadingCities, setIsLoadingCities] = useState(false);
+    
     const [formData, setFormData] = useState<CreatePlaygroundRequest>({
         name: initialData?.name || '',
-        location: initialData?.location || '',
+        cityId: initialData?.cityId || 0,
         pricePerHour: initialData?.pricePerHour || 0,
         description: initialData?.description || '',
         maxCapacity: initialData?.maxCapacity || 0,
         currentCapacity: initialData?.currentCapacity || 0,
         availableFrom: initialData?.availableFrom || '09:00',
         availableTo: initialData?.availableTo || '22:00',
-        active: initialData?.active ?? true
+        fieldSize: initialData?.fieldSize || '',
+        fieldCoverType: initialData?.fieldCoverType || '',
+        fieldSurfaceType: initialData?.fieldSurfaceType || ''
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    // Load cities on component mount
+    useEffect(() => {
+        const loadCities = async () => {
+            setIsLoadingCities(true);
+            try {
+                await fetchCities();
+            } catch (error) {
+                console.error('Failed to load cities:', error);
+            } finally {
+                setIsLoadingCities(false);
+            }
+        };
+
+        loadCities();
+    }, [fetchCities]);
 
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
@@ -40,8 +62,8 @@ const PlaygroundForm: React.FC<PlaygroundFormProps> = ({
             newErrors.name = t('validations.nameShort');
         }
 
-        if (!formData.location.trim()) {
-            newErrors.location = t('playgrounds.validation.locationRequired');
+        if (!formData.cityId) {
+            newErrors.cityId = t('playgrounds.validation.cityRequired');
         }
 
         if (!formData.description.trim()) {
@@ -74,6 +96,18 @@ const PlaygroundForm: React.FC<PlaygroundFormProps> = ({
 
         if (formData.availableFrom && formData.availableTo && formData.availableFrom >= formData.availableTo) {
             newErrors.availableTo = t('playgrounds.validation.availableToAfterFrom');
+        }
+
+        if (!formData.fieldSize.trim()) {
+            newErrors.fieldSize = t('playgrounds.validation.fieldSizeRequired');
+        }
+
+        if (!formData.fieldCoverType.trim()) {
+            newErrors.fieldCoverType = t('playgrounds.validation.fieldCoverTypeRequired');
+        }
+
+        if (!formData.fieldSurfaceType.trim()) {
+            newErrors.fieldSurfaceType = t('playgrounds.validation.fieldSurfaceTypeRequired');
         }
 
         setErrors(newErrors);
@@ -125,22 +159,30 @@ const PlaygroundForm: React.FC<PlaygroundFormProps> = ({
                 {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
 
-            {/* Location */}
+            {/* City */}
             <div>
-                <label htmlFor="location" className="block text-sm font-medium mb-2">
-                    {t('playgrounds.location')} *
+                <label htmlFor="cityId" className="block text-sm font-medium mb-2">
+                    {t('cities.city')} *
                 </label>
-                <input
-                    type="text"
-                    id="location"
-                    value={formData.location}
-                    onChange={(e) => handleInputChange('location', e.target.value)}
+                <select
+                    id="cityId"
+                    value={formData.cityId || ''}
+                    onChange={(e) => handleInputChange('cityId', parseInt(e.target.value) || 0)}
                     className={`w-full p-2 border rounded-md bg-darkest-bg text-white ${
-                        errors.location ? 'border-red-500' : 'border-gray-600'
+                        errors.cityId ? 'border-red-500' : 'border-gray-600'
                     } focus:border-gold focus:outline-none`}
-                    placeholder={t('playgrounds.locationPlaceholder')}
-                />
-                {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
+                    disabled={isLoadingCities}
+                >
+                    <option value="">
+                        {isLoadingCities ? t('common.loading') : t('cities.selectCity')}
+                    </option>
+                    {cities.map((city) => (
+                        <option key={city.id} value={city.id}>
+                            {city.name}
+                        </option>
+                    ))}
+                </select>
+                {errors.cityId && <p className="text-red-500 text-sm mt-1">{errors.cityId}</p>}
             </div>
 
             {/* Price and Capacity Row */}
@@ -201,22 +243,67 @@ const PlaygroundForm: React.FC<PlaygroundFormProps> = ({
                     {errors.currentCapacity && <p className="text-red-500 text-sm mt-1">{errors.currentCapacity}</p>}
                 </div>
 
+                {/* Field Size */}
                 <div>
-                    <label htmlFor="active" className="block text-sm font-medium mb-2">
-                        {t('playgrounds.status')}
+                    <label htmlFor="fieldSize" className="block text-sm font-medium mb-2">
+                        {t('playgrounds.fieldSize')} *
                     </label>
-                    <div className="flex items-center mt-3">
-                        <input
-                            type="checkbox"
-                            id="active"
-                            checked={formData.active}
-                            onChange={(e) => handleInputChange('active', e.target.checked)}
-                            className="mr-2 w-4 h-4 text-gold bg-darkest-bg border-gray-600 rounded focus:ring-gold"
-                        />
-                        <label htmlFor="active" className="text-sm">
-                            {t('playgrounds.active')}
-                        </label>
-                    </div>
+                    <input
+                        type="text"
+                        id="fieldSize"
+                        value={formData.fieldSize}
+                        onChange={(e) => handleInputChange('fieldSize', e.target.value)}
+                        className={`w-full p-2 border rounded-md bg-darkest-bg text-white ${
+                            errors.fieldSize ? 'border-red-500' : 'border-gray-600'
+                        } focus:border-gold focus:outline-none`}
+                        placeholder={t('playgrounds.fieldSizePlaceholder')}
+                    />
+                    {errors.fieldSize && <p className="text-red-500 text-sm mt-1">{errors.fieldSize}</p>}
+                </div>
+            </div>
+
+            {/* Field Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label htmlFor="fieldCoverType" className="block text-sm font-medium mb-2">
+                        {t('playgrounds.fieldCoverType')} *
+                    </label>
+                    <select
+                        id="fieldCoverType"
+                        value={formData.fieldCoverType}
+                        onChange={(e) => handleInputChange('fieldCoverType', e.target.value)}
+                        className={`w-full p-2 border rounded-md bg-darkest-bg text-white ${
+                            errors.fieldCoverType ? 'border-red-500' : 'border-gray-600'
+                        } focus:border-gold focus:outline-none`}
+                    >
+                        <option value="">{t('playgrounds.selectFieldCoverType')}</option>
+                        <option value="OUTDOOR">{t('playgrounds.fieldCoverTypes.outdoor')}</option>
+                        <option value="INDOOR">{t('playgrounds.fieldCoverTypes.indoor')}</option>
+                        <option value="SEMI_COVERED">{t('playgrounds.fieldCoverTypes.semiCovered')}</option>
+                    </select>
+                    {errors.fieldCoverType && <p className="text-red-500 text-sm mt-1">{errors.fieldCoverType}</p>}
+                </div>
+
+                <div>
+                    <label htmlFor="fieldSurfaceType" className="block text-sm font-medium mb-2">
+                        {t('playgrounds.fieldSurfaceType')} *
+                    </label>
+                    <select
+                        id="fieldSurfaceType"
+                        value={formData.fieldSurfaceType}
+                        onChange={(e) => handleInputChange('fieldSurfaceType', e.target.value)}
+                        className={`w-full p-2 border rounded-md bg-darkest-bg text-white ${
+                            errors.fieldSurfaceType ? 'border-red-500' : 'border-gray-600'
+                        } focus:border-gold focus:outline-none`}
+                    >
+                        <option value="">{t('playgrounds.selectFieldSurfaceType')}</option>
+                        <option value="ARTIFICIAL_GRASS">{t('playgrounds.fieldSurfaceTypes.artificialGrass')}</option>
+                        <option value="NATURAL_GRASS">{t('playgrounds.fieldSurfaceTypes.naturalGrass')}</option>
+                        <option value="CONCRETE">{t('playgrounds.fieldSurfaceTypes.concrete')}</option>
+                        <option value="RUBBER">{t('playgrounds.fieldSurfaceTypes.rubber')}</option>
+                        <option value="SAND">{t('playgrounds.fieldSurfaceTypes.sand')}</option>
+                    </select>
+                    {errors.fieldSurfaceType && <p className="text-red-500 text-sm mt-1">{errors.fieldSurfaceType}</p>}
                 </div>
             </div>
 
