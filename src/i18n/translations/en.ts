@@ -892,6 +892,83 @@ export const en = {
         clubAvatar: "Club Avatar",
         heroImage: "Hero Image",
         clubImages: "Club Images",
+    },
+
+    reservations: {
+        // General
+        title: "Reservations",
+        subtitle: "Manage playground reservations",
+        noReservations: "No reservations found",
+        confirmDelete: "Are you sure you want to delete this reservation?",
+        
+        // Form
+        form: {
+            startTime: "Start Time",
+            endTime: "End Time",
+            submit: "Create Reservation"
+        },
+        
+        // Validation
+        validation: {
+            startTimeRequired: "Start time is required",
+            endTimeRequired: "End time is required",
+            endTimeAfterStart: "End time must be after start time",
+            startTimeInFuture: "Start time must be in the future"
+        },
+        
+        // Status
+        status: {
+            current: "Current Status",
+            change: "Change Status",
+            updating: "Updating status...",
+            pending: "Pending",
+            confirmed: "Confirmed", 
+            cancelled: "Cancelled",
+            completed: "Completed",
+            paid: "Paid"
+        },
+        
+        // Payment
+        payment: {
+            title: "Payment",
+            form: {
+                method: "Payment Method",
+                amount: "Amount",
+                submit: "Process Payment"
+            },
+            validation: {
+                methodRequired: "Payment method is required",
+                amountRequired: "Amount must be greater than 0"
+            },
+            methods: {
+                cash: "Cash",
+                card: "Card",
+                bank_transfer: "Bank Transfer",
+                online: "Online"
+            }
+        },
+        
+        // Details
+        details: {
+            id: "Reservation ID",
+            startTime: "Start Time",
+            endTime: "End Time",
+            userId: "User ID",
+            price: "Price"
+        },
+        
+        // Actions
+        actions: {
+            pay: "Pay",
+            delete: "Delete"
+        },
+
+        // Filters
+        filters: {
+            userIdPlaceholder: "Enter user ID",
+            startDate: "Start Date",
+            endDate: "End Date"
+        }
     }
 
 };

@@ -89,10 +89,22 @@ export interface PlaygroundsResponse {
 // Reservation types
 export interface PlaygroundReservation {
     id: number;
-    playgroundId: Playground;
+    playground: Playground;  // Изменено с playgroundId на playground согласно Swagger
     startTime: string;
     endTime: string;
     userId: number;
+    status: string;  // Добавлено согласно Swagger
+}
+
+// Additional reservation types from Swagger
+export interface UpdateReservationStatusRequest {
+    statusRequest: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'PAID';
+}
+
+export interface PayReservationRequest {
+    reservationId: number;
+    paymentMethod: string;
+    amountPaid: number;
 }
 
 export interface CreateReservationRequest {

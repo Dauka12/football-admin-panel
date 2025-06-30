@@ -1,14 +1,18 @@
 import { create } from 'zustand';
 import { playgroundApi } from '../api/playgrounds';
+import { playgroundReservationApi } from '../api/playgroundReservations';
 import type {
     CreatePlaygroundRequest,
     CreateReservationRequest,
+    PayReservationRequest,
     Playground,
     PlaygroundFilters,
+    PlaygroundReservation,
     PlaygroundsResponse,
     ReservationFilters,
     ReservationsResponse,
-    UpdatePlaygroundRequest
+    UpdatePlaygroundRequest,
+    UpdateReservationStatusRequest
 } from '../types/playgrounds';
 
 interface PlaygroundState {
@@ -20,6 +24,7 @@ interface PlaygroundState {
 
     // Reservations
     reservations: ReservationsResponse | null;
+    currentReservation: PlaygroundReservation | null;
     isReservationsLoading: boolean;
     reservationsError: string | null;
 
@@ -32,11 +37,15 @@ interface PlaygroundState {
 
     // Reservation actions
     fetchReservations: (filters?: ReservationFilters) => Promise<void>;
+    fetchReservation: (reservationId: number) => Promise<void>;
     createReservation: (data: CreateReservationRequest) => Promise<boolean>;
+    updateReservationStatus: (reservationId: number, status: UpdateReservationStatusRequest['statusRequest']) => Promise<boolean>;
+    payForReservation: (data: PayReservationRequest) => Promise<boolean>;
     deleteReservation: (reservationId: number) => Promise<boolean>;
 
     // Utility actions
     clearCurrentPlayground: () => void;
+    clearCurrentReservation: () => void;
     clearError: () => void;
 }
 
@@ -47,6 +56,7 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
     isLoading: false,
     error: null,
     reservations: null,
+    currentReservation: null,
     isReservationsLoading: false,
     reservationsError: null,
 
@@ -162,7 +172,7 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
         set({ isReservationsLoading: true, reservationsError: null });
         
         try {
-            const response = await playgroundApi.getReservations(filters);
+            const response = await playgroundReservationApi.getReservations(filters);
             set({ 
                 reservations: response,
                 isReservationsLoading: false,
@@ -177,11 +187,30 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
         }
     },
 
+    fetchReservation: async (reservationId) => {
+        set({ isReservationsLoading: true, reservationsError: null });
+        
+        try {
+            const response = await playgroundReservationApi.getReservationById(reservationId);
+            set({ 
+                currentReservation: response,
+                isReservationsLoading: false,
+                reservationsError: null
+            });
+        } catch (error) {
+            console.error('Failed to fetch reservation:', error);
+            set({ 
+                isReservationsLoading: false,
+                reservationsError: 'Failed to load reservation'
+            });
+        }
+    },
+
     createReservation: async (data) => {
         set({ isReservationsLoading: true, reservationsError: null });
         
         try {
-            await playgroundApi.createReservation(data);
+            await playgroundReservationApi.createReservation(data);
             set({ isReservationsLoading: false, reservationsError: null });
             
             // Refresh reservations list
@@ -199,16 +228,69 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
         }
     },
 
+    updateReservationStatus: async (reservationId, status) => {
+        set({ isReservationsLoading: true, reservationsError: null });
+        
+        try {
+            await playgroundReservationApi.updateReservationStatus(reservationId, status);
+            set({ isReservationsLoading: false, reservationsError: null });
+            
+            // Refresh reservations list and current reservation if loaded
+            const { fetchReservations, currentReservation } = get();
+            await fetchReservations();
+            if (currentReservation && currentReservation.id === reservationId) {
+                await get().fetchReservation(reservationId);
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Failed to update reservation status:', error);
+            set({ 
+                isReservationsLoading: false,
+                reservationsError: 'Failed to update reservation status'
+            });
+            return false;
+        }
+    },
+
+    payForReservation: async (data) => {
+        set({ isReservationsLoading: true, reservationsError: null });
+        
+        try {
+            await playgroundReservationApi.payForReservation(data);
+            set({ isReservationsLoading: false, reservationsError: null });
+            
+            // Refresh reservations list and current reservation if loaded
+            const { fetchReservations, currentReservation } = get();
+            await fetchReservations();
+            if (currentReservation && currentReservation.id === data.reservationId) {
+                await get().fetchReservation(data.reservationId);
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Failed to pay for reservation:', error);
+            set({ 
+                isReservationsLoading: false,
+                reservationsError: 'Failed to process payment'
+            });
+            return false;
+        }
+    },
+
     deleteReservation: async (reservationId) => {
         set({ isReservationsLoading: true, reservationsError: null });
         
         try {
-            await playgroundApi.deleteReservation(reservationId);
+            await playgroundReservationApi.deleteReservation(reservationId);
             set({ isReservationsLoading: false, reservationsError: null });
             
-            // Refresh reservations list
-            const { fetchReservations } = get();
+            // Refresh reservations list and clear current reservation if it was deleted
+            const { fetchReservations, currentReservation } = get();
             await fetchReservations();
+            if (currentReservation && currentReservation.id === reservationId) {
+                set({ currentReservation: null });
+            }
             
             return true;
         } catch (error) {
@@ -224,6 +306,10 @@ export const usePlaygroundStore = create<PlaygroundState>((set, get) => ({
     // Utility actions
     clearCurrentPlayground: () => {
         set({ currentPlayground: null });
+    },
+
+    clearCurrentReservation: () => {
+        set({ currentReservation: null });
     },
 
     clearError: () => {

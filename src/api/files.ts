@@ -65,7 +65,7 @@ export const fileApi = {
             formData.append('file', request.file);
 
             const response = await axiosInstance.post<FileUploadResponse>(
-                `/images/upload?type=${encodeURIComponent(request.type)}&objectId=${request.objectId}`,
+                `/api/v1/images/upload?type=${encodeURIComponent(request.type)}&objectId=${request.objectId}`,
                 formData,
                 {
                     headers: {
@@ -88,7 +88,7 @@ export const fileApi = {
             });
 
             const response = await axiosInstance.post<MultipleFileUploadResponse>(
-                `/images/upload-multiple?type=${encodeURIComponent(request.type)}&objectId=${request.objectId}`,
+                `/api/v1/images/upload-multiple?type=${encodeURIComponent(request.type)}&objectId=${request.objectId}`,
                 formData,
                 {
                     headers: {
@@ -105,7 +105,7 @@ export const fileApi = {
     // Get file by ID
     getFile: async (fileId: number): Promise<string> => {
         try {
-            const response = await axiosInstance.get(`/images/${fileId}`, {
+            const response = await axiosInstance.get(`/api/v1/images/${fileId}`, {
                 responseType: 'blob',
             });
 
@@ -123,7 +123,7 @@ export const fileApi = {
     getFilesByObject: async (objectId: number, type: string): Promise<string> => {
         try {
             const response = await axiosInstance.get(
-                `/images/object/${objectId}?type=${encodeURIComponent(type)}`,
+                `/api/v1/images/object/${objectId}?type=${encodeURIComponent(type)}`,
                 {
                     responseType: 'blob',
                 }
@@ -141,11 +141,11 @@ export const fileApi = {
 
     // Helper method to get image URL for display
     getImageUrl: (fileId: number): string => {
-        return `${axiosInstance.defaults.baseURL}/images/${fileId}`;
+        return `${axiosInstance.defaults.baseURL}/api/v1/images/${fileId}`;
     },
 
     // Helper method to get object images URL
     getObjectImageUrl: (objectId: number, type: string): string => {
-        return `${axiosInstance.defaults.baseURL}/images/object/${objectId}?type=${encodeURIComponent(type)}`;
+        return `${axiosInstance.defaults.baseURL}/api/v1/images/object/${objectId}?type=${encodeURIComponent(type)}`;
     }
 };

@@ -884,7 +884,95 @@ export const ru = {
         // Common
         years: "лет",
         activeFilters: "Активные фильтры",
-        goBack: "Вернуться"
+        goBack: "Вернуться",
+
+        // Images
+        heroId: "ID главного изображения",
+        heroGif: "Главная GIF",
+        uploadAvatar: "Загрузить аватар клуба",
+        uploadHero: "Загрузить главное изображение",
+        avatarUploaded: "Аватар клуба успешно загружен",
+        heroUploaded: "Главное изображение успешно загружено",
+        clubAvatar: "Аватар клуба",
+        heroImage: "Главное изображение",
+        clubImages: "Изображения клуба",
+    },
+
+    reservations: {
+        // General
+        title: "Резервации",
+        subtitle: "Управление резервациями площадок",
+        noReservations: "Резервации не найдены",
+        confirmDelete: "Вы уверены, что хотите удалить эту резервацию?",
+        
+        // Form
+        form: {
+            startTime: "Время начала",
+            endTime: "Время окончания",
+            submit: "Создать резервацию"
+        },
+        
+        // Validation
+        validation: {
+            startTimeRequired: "Время начала обязательно",
+            endTimeRequired: "Время окончания обязательно",
+            endTimeAfterStart: "Время окончания должно быть после времени начала",
+            startTimeInFuture: "Время начала должно быть в будущем"
+        },
+        
+        // Status
+        status: {
+            current: "Текущий статус",
+            change: "Изменить статус",
+            updating: "Обновление статуса...",
+            pending: "Ожидание",
+            confirmed: "Подтверждено", 
+            cancelled: "Отменено",
+            completed: "Завершено",
+            paid: "Оплачено"
+        },
+        
+        // Payment
+        payment: {
+            title: "Оплата",
+            form: {
+                method: "Способ оплаты",
+                amount: "Сумма",
+                submit: "Обработать платёж"
+            },
+            validation: {
+                methodRequired: "Способ оплаты обязателен",
+                amountRequired: "Сумма должна быть больше 0"
+            },
+            methods: {
+                cash: "Наличные",
+                card: "Карта",
+                bank_transfer: "Банковский перевод",
+                online: "Онлайн"
+            }
+        },
+        
+        // Details
+        details: {
+            id: "ID резервации",
+            startTime: "Время начала",
+            endTime: "Время окончания",
+            userId: "ID пользователя",
+            price: "Цена"
+        },
+        
+        // Actions
+        actions: {
+            pay: "Оплатить",
+            delete: "Удалить"
+        },
+
+        // Filters
+        filters: {
+            userIdPlaceholder: "Введите ID пользователя",
+            startDate: "Дата начала",
+            endDate: "Дата окончания"
+        }
     }
 
 };
