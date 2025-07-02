@@ -88,8 +88,9 @@ export interface CreateMatchRequest {
     cityId: number;
     status: string;
     playgroundId: number;
-    startTime: string; // ISO 8601 format (e.g., "2025-07-02T10:18:49.251Z")
-    endTime: string;   // ISO 8601 format (e.g., "2025-07-02T10:18:49.251Z")
+    startTime: string;
+    
+    endTime: string;
     maxCapacity: number;
     description: string;
     sportTypeId: number;

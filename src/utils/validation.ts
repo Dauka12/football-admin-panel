@@ -191,6 +191,14 @@ export const playerValidators = {
         birthplace: [
             validationRules.required('Birthplace is required')
         ],
+        identificationNumber: [
+            validationRules.required('Identification number is required'),
+            validationRules.minLength(5, 'Identification number must be at least 5 characters')
+        ],
+        userId: [
+            validationRules.required('User ID is required'),
+            validationRules.min(1, 'User ID must be a positive number')
+        ],
         age: [
             validationRules.required('Age is required'),
             validationRules.min(16, 'Age must be at least 16'),

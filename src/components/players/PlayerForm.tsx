@@ -28,9 +28,9 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
         birthplace: initialData?.birthplace || '',
         preferredFoot: initialData?.preferredFoot || PreferredFoot.RIGHT,
         bio: initialData?.bio || '',
-        identificationNumber: '', // Required for create/update
-        userId: 0, // Required for create/update  
-        heroId: initialData?.heroId || 0, // Add heroId field
+        identificationNumber: '', // Required for create/update requests
+        userId: 0, // Required for create/update requests  
+        heroId: initialData?.heroId || 0,
     });
 
     const [isLoading, setIsLoading] = useState(false);
@@ -87,14 +87,14 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
         if (validatedFields.includes(name as any) && errors[name as keyof typeof errors]) {
             clearFieldError(name as any);
         }
-    };const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    };    const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         
         // Only validate fields that are in the validator rules
         const validatedFields = playerValidators.create.fieldNames;
         if (validatedFields.includes(name as any)) {
             // Validate field on blur
-            if (name === 'age' || name === 'height' || name === 'weight' || name === 'teamId' || name === 'sportTypeId' || name === 'heroId') {
+            if (name === 'age' || name === 'height' || name === 'weight' || name === 'teamId' || name === 'sportTypeId' || name === 'heroId' || name === 'userId') {
                 validateField(name as any, Number(value));
             } else {
                 validateField(name as any, value);
@@ -382,6 +382,7 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
                             name="userId"
                             value={formData.userId}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             min="0"
                             className={`form-input ${errors.userId ? 'border-red-500' : ''}`}
                         />

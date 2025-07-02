@@ -411,8 +411,23 @@ const PlayersPage: React.FC = () => {
                                         <tr key={player.id} className="border-t border-gray-700 hover:bg-darkest-bg/30 transition-colors">
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center">
-                                                    <div className="w-8 h-8 bg-gold text-darkest-bg rounded-full flex items-center justify-center font-bold mr-3">
-                                                        {player.id}
+                                                    <div className="w-8 h-8 bg-gold text-darkest-bg rounded-full flex items-center justify-center font-bold mr-3 overflow-hidden">
+                                                        {player.imageUrl ? (
+                                                            <img 
+                                                                src={player.imageUrl} 
+                                                                alt={getPlayerDisplayName(player)}
+                                                                className="w-full h-full object-cover"
+                                                                onError={(e) => {
+                                                                    const target = e.target as HTMLImageElement;
+                                                                    target.style.display = 'none';
+                                                                    const fallback = target.nextElementSibling as HTMLSpanElement;
+                                                                    if (fallback) {
+                                                                        fallback.style.display = 'flex';
+                                                                    }
+                                                                }}
+                                                            />
+                                                        ) : null}
+                                                        <span className={player.imageUrl ? 'hidden' : 'flex'}>{player.id}</span>
                                                     </div>
                                                     <span>{getPlayerDisplayName(player)}</span>
                                                 </div>
@@ -460,8 +475,23 @@ const PlayersPage: React.FC = () => {
                             >
                                 <div className="flex justify-between items-center mb-3">
                                     <div className="flex items-center">
-                                        <div className="w-8 h-8 bg-gold text-darkest-bg rounded-full flex items-center justify-center font-bold mr-2">
-                                            {player.id}
+                                        <div className="w-8 h-8 bg-gold text-darkest-bg rounded-full flex items-center justify-center font-bold mr-2 overflow-hidden">
+                                            {player.imageUrl ? (
+                                                <img 
+                                                    src={player.imageUrl} 
+                                                    alt={getPlayerDisplayName(player)}
+                                                    className="w-full h-full object-cover"
+                                                    onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        target.style.display = 'none';
+                                                        const fallback = target.nextElementSibling as HTMLSpanElement;
+                                                        if (fallback) {
+                                                            fallback.style.display = 'flex';
+                                                        }
+                                                    }}
+                                                />
+                                            ) : null}
+                                            <span className={player.imageUrl ? 'hidden' : 'flex'}>{player.id}</span>
                                         </div>
                                         <h3 className="font-medium">{getPlayerDisplayName(player)}</h3>
                                     </div>

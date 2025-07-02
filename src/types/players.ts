@@ -1,6 +1,6 @@
 import { PreferredFoot } from './teams';
 
-// Player positions enum based on API
+// Player positions enum based on API specification
 export type PlayerPosition = 
     | 'GOALKEEPER'
     | 'CENTER_BACK'
@@ -36,6 +36,7 @@ export const PlayerPositions = {
     CENTER_FORWARD: 'CENTER_FORWARD'
 } as const;
 
+// Base interface for player data - used for create/update requests
 export interface PlayerBase {
     position: PlayerPosition;
     teamId: number;
@@ -46,16 +47,17 @@ export interface PlayerBase {
     birthplace: string;
     preferredFoot: PreferredFoot;
     bio: string;
-    identificationNumber: string;
+    identificationNumber: string; // Only used in create/update requests
     userId: number;
     sportTypeId: number;
     heroId: number;
 }
 
+// Public response interface - aligned with API specification
 export interface PlayerPublicResponse {
     id: number;
     fullName: string;
-    position: string;
+    position: string; // API returns position as string, not enum
     teamId: number;
     age: number;
     height: number;
@@ -104,6 +106,7 @@ export interface PageResponse<T> {
 
 export interface PlayersPageResponse extends PageResponse<PlayerPublicResponse> {}
 
+// Create request interface - aligned with API specification
 export interface PlayerCreateRequest {
     position: PlayerPosition;
     teamId: number;
@@ -120,6 +123,7 @@ export interface PlayerCreateRequest {
     heroId: number;
 }
 
+// Update request interface - aligned with API specification  
 export interface PlayerUpdateRequest {
     position: PlayerPosition;
     teamId: number;
@@ -136,11 +140,12 @@ export interface PlayerUpdateRequest {
     heroId: number;
 }
 
+// Response for create/update operations
 export interface PlayerCreateResponse {
     id: number;
 }
 
-// Filter parameters for API
+// Filter parameters for API queries - aligned with API specification
 export interface PlayerFilterParams {
     teamId?: number;
     age?: number;
