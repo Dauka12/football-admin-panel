@@ -118,16 +118,33 @@ export const ru = {
         form: {
             tournament: "Турнир (необязательно)",
             matchDate: "Дата и время матча",
+            startTime: "Время начала",
+            endTime: "Время окончания",
             city: "Город",
             selectCity: "Выберите город",
+            sportType: "Вид спорта",
+            selectSportType: "Выберите вид спорта",
+            playground: "Площадка",
+            selectPlayground: "Выберите площадку",
+            maxCapacity: "Максимальная вместимость",
+            description: "Описание",
+            descriptionPlaceholder: "Введите описание матча...",
             teams: "Выбрать команды",
             selectTournament: "Выберите турнир",
             noTeams: "Нет доступных команд",
             success: "Матч успешно сохранён",
             errors: {
                 dateRequired: "Дата матча обязательна",
+                startTimeRequired: "Время начала обязательно",
+                endTimeRequired: "Время окончания обязательно",
+                endTimeAfterStart: "Время окончания должно быть после времени начала",
                 teamsRequired: "Требуется выбрать хотя бы одну команду",
-                minimumTwoTeams: "Необходимо выбрать минимум две команды"
+                minimumTwoTeams: "Необходимо выбрать минимум две команды",
+                cityRequired: "Город обязателен",
+                sportTypeRequired: "Вид спорта обязателен",
+                playgroundRequired: "Площадка обязательна",
+                maxCapacityRequired: "Максимальная вместимость обязательна",
+                descriptionRequired: "Описание обязательно"
             }
         }
     },

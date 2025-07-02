@@ -119,6 +119,24 @@ const App: React.FC = () => {
                   </ErrorBoundary>
                 </Suspense>
               }
+            /><Route
+              path="users"
+              element={
+                <Suspense fallback={<RouteLoadingSpinner />}>
+                  <ErrorBoundary>
+                    <UsersPage />
+                  </ErrorBoundary>
+                </Suspense>
+              }
+            />          <Route
+              path="users/:id"
+              element={
+                <Suspense fallback={<RouteLoadingSpinner />}>
+                  <ErrorBoundary>
+                    <UserDetailPage />
+                  </ErrorBoundary>
+                </Suspense>
+              }
             />
 
             <Route

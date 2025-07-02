@@ -105,16 +105,33 @@ export const en = {
         form: {
             tournament: "Tournament (Optional)",
             matchDate: "Match Date & Time",
+            startTime: "Start Time",
+            endTime: "End Time",
             city: "City",
             selectCity: "Select a city",
+            sportType: "Sport Type",
+            selectSportType: "Select a sport type",
+            playground: "Playground",
+            selectPlayground: "Select a playground",
+            maxCapacity: "Maximum Capacity",
+            description: "Description",
+            descriptionPlaceholder: "Enter match description...",
             teams: "Select Teams",
             selectTournament: "Select a tournament",
             noTeams: "No teams available",
             success: "Match saved successfully",
             errors: {
                 dateRequired: "Match date is required",
+                startTimeRequired: "Start time is required",
+                endTimeRequired: "End time is required",
+                endTimeAfterStart: "End time must be after start time",
                 teamsRequired: "At least one team is required",
-                minimumTwoTeams: "At least two teams must be selected"
+                minimumTwoTeams: "At least two teams must be selected",
+                cityRequired: "City is required",
+                sportTypeRequired: "Sport type is required",
+                playgroundRequired: "Playground is required",
+                maxCapacityRequired: "Maximum capacity is required",
+                descriptionRequired: "Description is required"
             }
         }
     },

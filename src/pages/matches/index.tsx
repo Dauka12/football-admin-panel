@@ -7,7 +7,7 @@ import Modal from '../../components/ui/Modal';
 import { useMatchStore } from '../../store/matchStore';
 import { useTournamentStore } from '../../store/tournamentStore';
 import type { CreateMatchRequest, MatchStatus, MatchFullResponse } from '../../types/matches';
-import { formatDateTime } from '../../utils/dateUtils.ts';
+import { formatDateTime } from '../../utils/dateUtils';
 import { showToast } from '../../utils/toast';
 
 // Sort options for the match list

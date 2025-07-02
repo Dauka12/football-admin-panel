@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useCityStore } from '../../store/cityStore';
 import { useTeamStore } from '../../store/teamStore';
 import { useTournamentStore } from '../../store/tournamentStore';
+import { usePlaygroundStore } from '../../store/playgroundStore';
+import { useSportTypeStore } from '../../store/sportTypeStore';
 import type { CreateMatchRequest, UpdateMatchRequest } from '../../types/matches';
 import { ErrorHandler } from '../../utils/errorHandler';
 import { showToast } from '../../utils/toast';
@@ -20,36 +22,63 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
     const { teams, fetchTeams } = useTeamStore();
     const { tournaments, fetchTournaments } = useTournamentStore();
     const { cities, fetchCities } = useCityStore();
+    const { playgrounds, fetchPlaygrounds } = usePlaygroundStore();
+    const { sportTypes, fetchSportTypes } = useSportTypeStore();
 
     // Form data
     const [formData, setFormData] = useState<CreateMatchRequest>({
         tournamentId: initialData?.tournamentId,
-        matchDate: initialData?.matchDate || new Date().toISOString(),
+        startTime: initialData?.startTime || new Date().toISOString(),
+        endTime: initialData?.endTime || new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // Default to 2 hours later
         teams: initialData?.teams || [],
-        cityId: initialData?.cityId,
-        status: initialData?.status || 'PENDING'
+        cityId: initialData?.cityId || 1, // Default to first city
+        status: initialData?.status || 'PENDING',
+        playgroundId: initialData?.playgroundId || 1, // Default to first playground
+        maxCapacity: initialData?.maxCapacity || 20,
+        description: initialData?.description || '',
+        sportTypeId: initialData?.sportTypeId || 1 // Default to first sport type
     });
     
-    // Normalize initial matchDate 
+    // Normalize initial startTime and endTime
     useEffect(() => {
-        if (initialData?.matchDate) {
-            const matchDate = initialData.matchDate as string | number;
-            let normalizedDate: Date;
+        if (initialData?.startTime) {
+            const startTime = initialData.startTime as string | number;
+            let normalizedStartDate: Date;
             
-            if (typeof matchDate === 'number') {
+            if (typeof startTime === 'number') {
                 // Handle Unix timestamp (check if it's in seconds or milliseconds)
-                const timestampStr = String(matchDate);
-                const timestamp = timestampStr.length === 10 ? matchDate * 1000 : matchDate;
-                normalizedDate = new Date(timestamp);
+                const timestampStr = String(startTime);
+                const timestamp = timestampStr.length === 10 ? startTime * 1000 : startTime;
+                normalizedStartDate = new Date(timestamp);
             } else {
                 // Handle string date
-                normalizedDate = new Date(matchDate);
+                normalizedStartDate = new Date(startTime);
             }
             
-            if (!isNaN(normalizedDate.getTime())) {
+            if (!isNaN(normalizedStartDate.getTime())) {
                 setFormData(prev => ({
                     ...prev,
-                    matchDate: normalizedDate.toISOString()
+                    startTime: normalizedStartDate.toISOString()
+                }));
+            }
+        }
+        
+        if (initialData?.endTime) {
+            const endTime = initialData.endTime as string | number;
+            let normalizedEndDate: Date;
+            
+            if (typeof endTime === 'number') {
+                const timestampStr = String(endTime);
+                const timestamp = timestampStr.length === 10 ? endTime * 1000 : endTime;
+                normalizedEndDate = new Date(timestamp);
+            } else {
+                normalizedEndDate = new Date(endTime);
+            }
+            
+            if (!isNaN(normalizedEndDate.getTime())) {
+                setFormData(prev => ({
+                    ...prev,
+                    endTime: normalizedEndDate.toISOString()
                 }));
             }
         }
@@ -58,22 +87,28 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
     // Form validation
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    // Fetch teams, tournaments, and cities on mount
+    // Fetch required data on mount
     useEffect(() => {
         const loadData = async () => {
-            await Promise.all([fetchTeams(), fetchTournaments(), fetchCities()]);
+            await Promise.all([
+                fetchTeams(), 
+                fetchTournaments(), 
+                fetchCities(),
+                fetchPlaygrounds(),
+                fetchSportTypes()
+            ]);
         };
         loadData();
-    }, [fetchTeams, fetchTournaments, fetchCities]);
+    }, [fetchTeams, fetchTournaments, fetchCities, fetchPlaygrounds, fetchSportTypes]);
 
     // Handle form field changes
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
 
-        if (name === 'tournamentId' || name === 'cityId') {
+        if (name === 'tournamentId' || name === 'cityId' || name === 'playgroundId' || name === 'sportTypeId' || name === 'maxCapacity') {
             setFormData(prev => ({ 
                 ...prev, 
-                [name]: value ? parseInt(value, 10) : undefined 
+                [name]: value ? parseInt(value, 10) : (name === 'tournamentId' ? undefined : 1)
             }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
@@ -109,26 +144,50 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
         }
     };
 
-    // Handle date change
-    const handleDateChange = (dateValue: string | Date | null) => {
+    // Handle start time change
+    const handleStartTimeChange = (dateValue: string | Date | null) => {
         if (dateValue) {
             // If we get a string, we need to parse it
             const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue;
             
             if (isNaN(date.getTime())) {
-                console.error('Invalid date provided:', dateValue);
+                console.error('Invalid start date provided:', dateValue);
                 return;
             }
             
             setFormData(prev => ({
                 ...prev,
                 // Store as ISO string for consistency
-                matchDate: date.toISOString()
+                startTime: date.toISOString()
             }));
 
             // Clear date error if any
-            if (errors.matchDate) {
-                setErrors(prev => ({ ...prev, matchDate: '' }));
+            if (errors.startTime) {
+                setErrors(prev => ({ ...prev, startTime: '' }));
+            }
+        }
+    };
+
+    // Handle end time change
+    const handleEndTimeChange = (dateValue: string | Date | null) => {
+        if (dateValue) {
+            // If we get a string, we need to parse it
+            const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue;
+            
+            if (isNaN(date.getTime())) {
+                console.error('Invalid end date provided:', dateValue);
+                return;
+            }
+            
+            setFormData(prev => ({
+                ...prev,
+                // Store as ISO string for consistency
+                endTime: date.toISOString()
+            }));
+
+            // Clear date error if any
+            if (errors.endTime) {
+                setErrors(prev => ({ ...prev, endTime: '' }));
             }
         }
     };
@@ -140,9 +199,23 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
         // Tournament is optional - matches can be created without tournaments
         // No validation needed for tournamentId
 
-        // Check match date
-        if (!formData.matchDate) {
-            newErrors.matchDate = t('matches.form.errors.dateRequired');
+        // Check start time
+        if (!formData.startTime) {
+            newErrors.startTime = t('matches.form.errors.startTimeRequired');
+        }
+
+        // Check end time
+        if (!formData.endTime) {
+            newErrors.endTime = t('matches.form.errors.endTimeRequired');
+        }
+
+        // Check if end time is after start time
+        if (formData.startTime && formData.endTime) {
+            const startDate = new Date(formData.startTime);
+            const endDate = new Date(formData.endTime);
+            if (endDate <= startDate) {
+                newErrors.endTime = t('matches.form.errors.endTimeAfterStart');
+            }
         }
 
         // Check teams selection
@@ -150,6 +223,27 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
             newErrors.teams = t('matches.form.errors.teamsRequired');
         } else if (formData.teams.length < 2) {
             newErrors.teams = t('matches.form.errors.minimumTwoTeams');
+        }
+
+        // Check required fields
+        if (!formData.cityId || formData.cityId <= 0) {
+            newErrors.cityId = t('matches.form.errors.cityRequired');
+        }
+
+        if (!formData.playgroundId || formData.playgroundId <= 0) {
+            newErrors.playgroundId = t('matches.form.errors.playgroundRequired');
+        }
+
+        if (!formData.sportTypeId || formData.sportTypeId <= 0) {
+            newErrors.sportTypeId = t('matches.form.errors.sportTypeRequired');
+        }
+
+        if (!formData.maxCapacity || formData.maxCapacity <= 0) {
+            newErrors.maxCapacity = t('matches.form.errors.maxCapacityRequired');
+        }
+
+        if (!formData.description.trim()) {
+            newErrors.description = t('matches.form.errors.descriptionRequired');
         }
 
         setErrors(newErrors);
@@ -167,6 +261,7 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
 
         setIsLoading(true);
         try {
+            // Prepare data for API
             await onSubmit(formData);
             showToast(t('matches.form.success'), 'success');
         } catch (error) {
@@ -231,20 +326,131 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
                 )}
             </div>
 
-            {/* Match date/time */}
+            {/* Start time */}
             <div className="w-full">
                 <div className="block font-medium mb-1 text-sm sr-only">
-                    {t('matches.form.matchDate')} *
+                    {t('matches.form.startTime')} *
                 </div>
                 <DateTimePicker
-                    value={formData.matchDate}
-                    onChange={(dateValue) => handleDateChange(dateValue)}
-                    className={errors.matchDate ? 'border-red-500' : ''}
-                    label={t('matches.form.matchDate')}
+                    value={formData.startTime}
+                    onChange={(dateValue) => handleStartTimeChange(dateValue)}
+                    className={errors.startTime ? 'border-red-500' : ''}
+                    label={t('matches.form.startTime')}
                     required
                 />
-                {errors.matchDate && (
-                    <p className="text-red-500 text-xs mt-1">{errors.matchDate}</p>
+                {errors.startTime && (
+                    <p className="text-red-500 text-xs mt-1">{errors.startTime}</p>
+                )}
+            </div>
+
+            {/* End time */}
+            <div className="w-full">
+                <div className="block font-medium mb-1 text-sm sr-only">
+                    {t('matches.form.endTime')} *
+                </div>
+                <DateTimePicker
+                    value={formData.endTime}
+                    onChange={(dateValue) => handleEndTimeChange(dateValue)}
+                    className={errors.endTime ? 'border-red-500' : ''}
+                    label={t('matches.form.endTime')}
+                    required
+                />
+                {errors.endTime && (
+                    <p className="text-red-500 text-xs mt-1">{errors.endTime}</p>
+                )}
+            </div>
+
+            {/* Sport Type selection */}
+            <div>
+                <label className="block font-medium mb-1 text-sm" htmlFor="sportTypeId">
+                    {t('matches.form.sportType')} *
+                </label>
+                <select
+                    id="sportTypeId"
+                    name="sportTypeId"
+                    value={formData.sportTypeId || ''}
+                    onChange={handleChange}
+                    className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 focus:ring-gold
+          ${errors.sportTypeId ? 'border-red-500' : 'border-gray-700'}`}
+                    disabled={isLoading}
+                >
+                    <option value="">{t('matches.form.selectSportType')}</option>
+                    {sportTypes.map(sportType => (
+                        <option key={sportType.id} value={sportType.id}>
+                            {sportType.name}
+                        </option>
+                    ))}
+                </select>
+                {errors.sportTypeId && (
+                    <p className="text-red-500 text-xs mt-1">{errors.sportTypeId}</p>
+                )}
+            </div>
+
+            {/* Playground selection */}
+            <div>
+                <label className="block font-medium mb-1 text-sm" htmlFor="playgroundId">
+                    {t('matches.form.playground')} *
+                </label>
+                <select
+                    id="playgroundId"
+                    name="playgroundId"
+                    value={formData.playgroundId || ''}
+                    onChange={handleChange}
+                    className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 focus:ring-gold
+          ${errors.playgroundId ? 'border-red-500' : 'border-gray-700'}`}
+                    disabled={isLoading}
+                >
+                    <option value="">{t('matches.form.selectPlayground')}</option>
+                    {playgrounds?.content?.map(playground => (
+                        <option key={playground.id} value={playground.id}>
+                            {playground.name}
+                        </option>
+                    ))}
+                </select>
+                {errors.playgroundId && (
+                    <p className="text-red-500 text-xs mt-1">{errors.playgroundId}</p>
+                )}
+            </div>
+
+            {/* Max Capacity */}
+            <div>
+                <label className="block font-medium mb-1 text-sm" htmlFor="maxCapacity">
+                    {t('matches.form.maxCapacity')} *
+                </label>
+                <input
+                    type="number"
+                    id="maxCapacity"
+                    name="maxCapacity"
+                    value={formData.maxCapacity}
+                    onChange={handleChange}
+                    min="1"
+                    className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 focus:ring-gold
+          ${errors.maxCapacity ? 'border-red-500' : 'border-gray-700'}`}
+                    disabled={isLoading}
+                />
+                {errors.maxCapacity && (
+                    <p className="text-red-500 text-xs mt-1">{errors.maxCapacity}</p>
+                )}
+            </div>
+
+            {/* Description */}
+            <div>
+                <label className="block font-medium mb-1 text-sm" htmlFor="description">
+                    {t('matches.form.description')} *
+                </label>
+                <textarea
+                    id="description"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    rows={3}
+                    className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 focus:ring-gold
+          ${errors.description ? 'border-red-500' : 'border-gray-700'}`}
+                    disabled={isLoading}
+                    placeholder={t('matches.form.descriptionPlaceholder')}
+                />
+                {errors.description && (
+                    <p className="text-red-500 text-xs mt-1">{errors.description}</p>
                 )}
             </div>
 

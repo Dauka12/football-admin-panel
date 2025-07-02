@@ -88,8 +88,8 @@ export interface CreateMatchRequest {
     cityId: number;
     status: string;
     playgroundId: number;
-    startTime: string;
-    endTime: string;
+    startTime: string; // ISO 8601 format (e.g., "2025-07-02T10:18:49.251Z")
+    endTime: string;   // ISO 8601 format (e.g., "2025-07-02T10:18:49.251Z")
     maxCapacity: number;
     description: string;
     sportTypeId: number;
@@ -101,8 +101,8 @@ export interface UpdateMatchRequest {
     cityId: number;
     status: string;
     playgroundId: number;
-    startTime: string;
-    endTime: string;
+    startTime: string; // ISO 8601 format (e.g., "2025-07-02T10:18:49.251Z")
+    endTime: string;   // ISO 8601 format (e.g., "2025-07-02T10:18:49.251Z")
     maxCapacity: number;
     description: string;
     sportTypeId: number;
