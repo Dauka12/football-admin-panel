@@ -37,8 +37,8 @@ axiosInstance.interceptors.response.use(
             // that falls out of the range of 2xx
             if (error.response.status === 401) {
                 // Handle unauthorized access
-                localStorage.removeItem('auth_token');
-                // You could redirect to login page here
+                localStorage.clear(); // Clear all localStorage data
+                window.location.href = '/auth'; // Redirect to login page
             }
             
             console.error('API Error Response:', {

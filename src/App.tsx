@@ -8,6 +8,7 @@ import './styles/globals.css';
 
 // Lazy load components for code splitting
 const AuthPage = React.lazy(() => import('./pages/auth'));
+const PrivacyPolicyPage = React.lazy(() => import('./pages/privacy-policy'));
 const TeamsPage = React.lazy(() => import('./pages/teams'));
 const TeamDetailPage = React.lazy(() => import('./pages/teams/detail'));
 const PlayersPage = React.lazy(() => import('./pages/players'));
@@ -68,6 +69,18 @@ const App: React.FC = () => {
               <Suspense fallback={<RouteLoadingSpinner />}>
                 <ErrorBoundary>
                   <AuthPage />
+                </ErrorBoundary>
+              </Suspense>
+            }
+          />
+
+          {/* Public routes */}
+          <Route
+            path="/privacy-policy"
+            element={
+              <Suspense fallback={<RouteLoadingSpinner />}>
+                <ErrorBoundary>
+                  <PrivacyPolicyPage />
                 </ErrorBoundary>
               </Suspense>
             }
