@@ -659,6 +659,10 @@ export const ru = {
             rubber: "Резина",
             sand: "Песок"
         },
+        address: "Адрес",
+        addressPlaceholder: "Введите адрес площадки",
+        coordinatesPlaceholder: "Координаты будут установлены автоматически",
+        selectOnMap: "Выбрать на карте",
         validation: {
             cityRequired: "Город обязателен",
             pricePositive: "Цена должна быть положительной",
@@ -670,10 +674,11 @@ export const ru = {
             availableToAfterFrom: "Время окончания должно быть после времени начала",
             fieldSizeRequired: "Размер поля обязателен",
             fieldCoverTypeRequired: "Тип покрытия поля обязателен",
-            fieldSurfaceTypeRequired: "Тип поверхности поля обязателен"
+            fieldSurfaceTypeRequired: "Тип поверхности поля обязателен",
+            addressRequired: "Адрес обязателен",
+            coordinatesRequired: "Координаты обязательны"
         },
-        changeImage: "Сменить изображение",
-        uploadImageHint: "Загрузите новое изображение площадки (макс 5МБ)"
+        // ...existing code...
     },
     achievements: {
         title: "Достижения",

@@ -1,4 +1,20 @@
 // Base playground types
+export interface Facility {
+    id: number;
+    name: string;
+    description: string;
+    icon: string;
+    category: string;
+    active: boolean;
+}
+
+export interface PlaygroundFacility {
+    id: number;
+    facility: Facility;
+    quantity: number;
+    notes: string;
+}
+
 export interface Playground {
     id: number;
     name: string;
@@ -11,6 +27,10 @@ export interface Playground {
     availableTo: string;
     active: boolean;
     images: string[];
+    address: string;
+    latitude: number;
+    longitude: number;
+    facilities?: PlaygroundFacility[];
     // Эти поля не возвращаются в public API, только в admin
     fieldSize?: string;
     fieldCoverType?: string;
@@ -29,6 +49,9 @@ export interface CreatePlaygroundRequest {
     fieldSize: string;
     fieldCoverType: string;
     fieldSurfaceType: string;
+    address: string;
+    latitude: number;
+    longitude: number;
     // active не нужно в CreateRequest - устанавливается автоматически на бэкенде
 }
 
@@ -44,6 +67,9 @@ export interface UpdatePlaygroundRequest {
     fieldSize?: string;
     fieldCoverType?: string;
     fieldSurfaceType?: string;
+    address?: string;
+    latitude?: number;
+    longitude?: number;
 }
 
 export interface PlaygroundFilters {

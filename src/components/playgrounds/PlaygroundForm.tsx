@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCityStore } from '../../store/cityStore';
 import type { CreatePlaygroundRequest } from '../../types/playgrounds';
+import { YandexMapPicker } from '../maps/YandexMapPicker';
 
 interface PlaygroundFormProps {
     initialData?: Partial<CreatePlaygroundRequest>;
@@ -20,6 +21,7 @@ const PlaygroundForm: React.FC<PlaygroundFormProps> = ({
     const { cities, fetchCities } = useCityStore();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoadingCities, setIsLoadingCities] = useState(false);
+    const [isMapPickerOpen, setIsMapPickerOpen] = useState(false);
     
     const [formData, setFormData] = useState<CreatePlaygroundRequest>({
         name: initialData?.name || '',
@@ -32,7 +34,10 @@ const PlaygroundForm: React.FC<PlaygroundFormProps> = ({
         availableTo: initialData?.availableTo || '22:00',
         fieldSize: initialData?.fieldSize || '',
         fieldCoverType: initialData?.fieldCoverType || '',
-        fieldSurfaceType: initialData?.fieldSurfaceType || ''
+        fieldSurfaceType: initialData?.fieldSurfaceType || '',
+        address: initialData?.address || '',
+        latitude: initialData?.latitude || 0,
+        longitude: initialData?.longitude || 0
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -108,6 +113,14 @@ const PlaygroundForm: React.FC<PlaygroundFormProps> = ({
 
         if (!formData.fieldSurfaceType.trim()) {
             newErrors.fieldSurfaceType = t('playgrounds.validation.fieldSurfaceTypeRequired');
+        }
+
+        if (!formData.address.trim()) {
+            newErrors.address = t('playgrounds.validation.addressRequired');
+        }
+
+        if (formData.latitude === 0 || formData.longitude === 0) {
+            newErrors.coordinates = t('playgrounds.validation.coordinatesRequired');
         }
 
         setErrors(newErrors);
@@ -359,6 +372,62 @@ const PlaygroundForm: React.FC<PlaygroundFormProps> = ({
                 />
                 {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
             </div>
+
+            {/* Address */}
+            <div>
+                <label htmlFor="address" className="block text-sm font-medium mb-2">
+                    {t('playgrounds.address')} *
+                </label>
+                <input
+                    id="address"
+                    type="text"
+                    value={formData.address}
+                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    className={`w-full px-3 py-2 rounded-md border ${
+                        errors.address ? 'border-red-500' : 'border-gray-600'
+                    } bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                    placeholder={t('playgrounds.addressPlaceholder')}
+                />
+                {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+            </div>
+
+            {/* Location Picker */}
+            <div>
+                <label className="block text-sm font-medium mb-2">
+                    {t('playgrounds.location')} *
+                </label>
+                <div className="flex items-center space-x-2">
+                    <div className="flex-1">
+                        <input
+                            type="text"
+                            value={formData.latitude && formData.longitude ? `${formData.latitude.toFixed(6)}, ${formData.longitude.toFixed(6)}` : ''}
+                            placeholder={t('playgrounds.coordinatesPlaceholder')}
+                            readOnly
+                            className="w-full px-3 py-2 rounded-md border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setIsMapPickerOpen(true)}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                    >
+                        📍 {t('playgrounds.selectOnMap')}
+                    </button>
+                </div>
+                {errors.coordinates && <p className="text-red-500 text-sm mt-1">{errors.coordinates}</p>}
+            </div>
+
+            {/* Map Picker Modal */}
+            <YandexMapPicker
+                isOpen={isMapPickerOpen}
+                onClose={() => setIsMapPickerOpen(false)}
+                onLocationSelect={(lat: number, lng: number) => {
+                    handleInputChange('latitude', lat);
+                    handleInputChange('longitude', lng);
+                }}
+                initialLat={formData.latitude || 51.1694}
+                initialLng={formData.longitude || 71.4491}
+            />
 
             {/* Form Actions */}
             <div className="flex flex-col sm:flex-row sm:justify-end gap-3 sm:space-x-3">

@@ -646,7 +646,7 @@ export const en = {
             indoor: "Indoor",
             semiCovered: "Semi-covered"
         },
-        fieldSurfaceType: "Field Surface Type", 
+        fieldSurfaceType: "Field Surface Type",
         selectFieldSurfaceType: "Select surface type",
         fieldSurfaceTypes: {
             artificialGrass: "Artificial Grass",
@@ -655,6 +655,10 @@ export const en = {
             rubber: "Rubber",
             sand: "Sand"
         },
+        address: "Address",
+        addressPlaceholder: "Enter playground address",
+        coordinatesPlaceholder: "Coordinates will be set automatically",
+        selectOnMap: "Select on Map",
         validation: {
             cityRequired: "City is required",
             pricePositive: "Price must be positive",
@@ -666,7 +670,9 @@ export const en = {
             availableToAfterFrom: "Available to time must be after available from time",
             fieldSizeRequired: "Field size is required",
             fieldCoverTypeRequired: "Field cover type is required",
-            fieldSurfaceTypeRequired: "Field surface type is required"
+            fieldSurfaceTypeRequired: "Field surface type is required",
+            addressRequired: "Address is required",
+            coordinatesRequired: "Coordinates are required"
         },
         changeImage: "Change Image",
         uploadImageHint: "Upload a new playground image (max 5MB)"

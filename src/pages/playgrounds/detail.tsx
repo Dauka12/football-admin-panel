@@ -8,6 +8,7 @@ import Breadcrumb from '../../components/ui/Breadcrumb';
 import FileUpload from '../../components/ui/FileUpload';
 import ImageDisplay from '../../components/ui/ImageDisplay';
 import Modal from '../../components/ui/Modal';
+import { YandexMapDisplay } from '../../components/maps/YandexMapDisplay';
 import { useCityStore } from '../../store/cityStore';
 import { usePlaygroundStore } from '../../store/playgroundStore';
 import { type FileType } from '../../types/files';
@@ -268,23 +269,27 @@ const PlaygroundDetailPage: React.FC = () => {
                                 <p className="text-gray-300 leading-relaxed">{currentPlayground.description}</p>
                             </div>
 
-                            {/* Images */}
-                            {currentPlayground.images && currentPlayground.images.length > 0 && (
+                            {/* Address */}
+                            {currentPlayground.address && (
                                 <div className="bg-darkest-bg rounded-lg p-4">
-                                    <h3 className="font-semibold mb-3 text-gold">{t('playgrounds.images')}</h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {currentPlayground.images.map((image, index) => (
-                                            <div key={index} className="aspect-video bg-gray-700 rounded-lg overflow-hidden">
-                                                <img 
-                                                    src={image} 
-                                                    alt={`${currentPlayground.name} ${index + 1}`}
-                                                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <h3 className="font-semibold mb-3 text-gold">{t('playgrounds.address')}</h3>
+                                    <p className="text-gray-300 leading-relaxed">{currentPlayground.address}</p>
                                 </div>
                             )}
+
+                            {/* Map Display */}
+                            <div className="bg-darkest-bg rounded-lg p-4">
+                                <h3 className="font-semibold mb-3 text-gold">{t('playgrounds.location')}</h3>
+                                <div className="h-64 rounded-lg overflow-hidden">
+                                    <YandexMapDisplay
+                                        latitude={currentPlayground.latitude}
+                                        longitude={currentPlayground.longitude}
+                                        address={currentPlayground.address}
+                                        name={currentPlayground.name}
+                                        className="w-full h-full"
+                                    />
+                                </div>
+                            </div>
                         </div>
                     ) : (
                         <div className="space-y-6">
@@ -325,7 +330,10 @@ const PlaygroundDetailPage: React.FC = () => {
                         availableTo: currentPlayground.availableTo,
                         fieldSize: currentPlayground.fieldSize || '',
                         fieldCoverType: currentPlayground.fieldCoverType || '',
-                        fieldSurfaceType: currentPlayground.fieldSurfaceType || ''
+                        fieldSurfaceType: currentPlayground.fieldSurfaceType || '',
+                        address: currentPlayground.address || '',
+                        latitude: currentPlayground.latitude || 0,
+                        longitude: currentPlayground.longitude || 0
                     }}
                     onSubmit={handleUpdate} 
                     onCancel={() => setIsEditing(false)}
