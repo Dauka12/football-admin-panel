@@ -117,7 +117,7 @@ export default function MatchParticipantsPage() {
                 <div className="text-center">
                     <p className="text-red-400">{error}</p>
                     <button
-                        onClick={() => navigate('/matches')}
+                        onClick={() => navigate('/dashboard/matches')}
                         className="mt-4 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
                     >
                         ← {t('common.back')}
@@ -133,7 +133,7 @@ export default function MatchParticipantsPage() {
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
                     <button
-                        onClick={() => navigate('/matches')}
+                        onClick={() => navigate('/dashboard/matches')}
                         className="px-4 py-2 border border-gray-600 rounded hover:bg-gray-700 text-white"
                     >
                         ← {t('common.back')}

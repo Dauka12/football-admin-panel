@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import PlaygroundForm from '../../components/playgrounds/PlaygroundForm';
 import { ReservationForm } from '../../components/playgrounds/ReservationForm';
 import { ReservationsList } from '../../components/playgrounds/ReservationsList';
+import PlaygroundFacilitiesManager from '../../components/playgroundFacilities/PlaygroundFacilitiesManager';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import FileUpload from '../../components/ui/FileUpload';
 import ImageDisplay from '../../components/ui/ImageDisplay';
@@ -35,7 +36,7 @@ const PlaygroundDetailPage: React.FC = () => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [showAvatarUpload, setShowAvatarUpload] = useState(false);
     const [showReservationForm, setShowReservationForm] = useState(false);
-    const [selectedTab, setSelectedTab] = useState<'details' | 'reservations'>('details');    const isRussian = i18n.language === 'ru';
+    const [selectedTab, setSelectedTab] = useState<'details' | 'reservations' | 'facilities'>('details');    const isRussian = i18n.language === 'ru';
 
     // Load playground data
     const loadPlayground = useCallback(() => {
@@ -234,6 +235,16 @@ const PlaygroundDetailPage: React.FC = () => {
                         >
                             {t('playgrounds.reservations')}
                         </button>
+                        <button
+                            onClick={() => setSelectedTab('facilities')}
+                            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                                selectedTab === 'facilities'
+                                    ? 'border-gold text-gold'
+                                    : 'border-transparent text-gray-400 hover:text-gray-300'
+                            }`}
+                        >
+                            {t('playgrounds.facilities')}
+                        </button>
                     </nav>
                 </div>
 
@@ -291,7 +302,7 @@ const PlaygroundDetailPage: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-                    ) : (
+                    ) : selectedTab === 'reservations' ? (
                         <div className="space-y-6">
                             <div className="flex justify-between items-center">
                                 <h3 className="font-semibold text-gold">{t('reservations.title')}</h3>
@@ -308,7 +319,9 @@ const PlaygroundDetailPage: React.FC = () => {
                             
                             <ReservationsList playgroundId={playgroundId} />
                         </div>
-                    )}
+                    ) : selectedTab === 'facilities' ? (
+                        <PlaygroundFacilitiesManager playgroundId={playgroundId} />
+                    ) : null}
                 </div>
             </div>
 

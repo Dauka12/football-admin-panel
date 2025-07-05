@@ -4,10 +4,12 @@ import type {
     MatchesPageResponse,
     MatchFilterParams,
     MatchFullResponse,
-    MatchStatus,
     MatchWithReservationFilter,
-    UpdateMatchRequest
+    UpdateMatchRequest,
+    MatchStatistics,
+    MatchSummary
 } from '../types/matches';
+import { MatchStatus } from '../types/matches';
 import axiosInstance from './axios';
 
 export const matchApi = {
@@ -134,5 +136,130 @@ export const matchApi = {
             console.error('Failed to update match status:', error);
             throw error;
         }
+    },
+
+    // Utility methods for better match management
+    
+    // Get matches by status
+    getMatchesByStatus: async (status: MatchStatus, page = 0, size = 10): Promise<MatchesPageResponse> => {
+        return matchApi.getAll({ status, page, size });
+    },
+
+    // Get matches by city
+    getMatchesByCity: async (cityId: number, page = 0, size = 10): Promise<MatchesPageResponse> => {
+        return matchApi.getAll({ cityId, page, size });
+    },
+
+    // Get matches by tournament
+    getMatchesByTournament: async (tournamentId: number, page = 0, size = 10): Promise<MatchesPageResponse> => {
+        return matchApi.getAll({ tournamentId, page, size });
+    },
+
+    // Get matches by organizer
+    getMatchesByOrganizer: async (organizerUserId: number, page = 0, size = 10): Promise<MatchesPageResponse> => {
+        return matchApi.getAll({ organizerUserId, page, size });
+    },
+
+    // Get matches by date range
+    getMatchesByDateRange: async (dateFrom: string, dateTo: string, page = 0, size = 10): Promise<MatchesPageResponse> => {
+        return matchApi.getMatchesWithReservations({ dateFrom, dateTo, page, size });
+    },
+
+    // Get upcoming matches
+    getUpcomingMatches: async (page = 0, size = 10): Promise<MatchesPageResponse> => {
+        const today = new Date().toISOString().split('T')[0];
+        return matchApi.getAll({ 
+            date: today, 
+            status: MatchStatus.PENDING,
+            page, 
+            size 
+        });
+    },
+
+    // Get completed matches
+    getCompletedMatches: async (page = 0, size = 10): Promise<MatchesPageResponse> => {
+        return matchApi.getMatchesByStatus(MatchStatus.COMPLETED, page, size);
+    },
+
+    // Get matches in progress
+    getMatchesInProgress: async (page = 0, size = 10): Promise<MatchesPageResponse> => {
+        return matchApi.getMatchesByStatus(MatchStatus.IN_PROGRESS, page, size);
+    },
+
+    // Utility functions for match data processing
+    
+    // Generate match summary from full match data
+    createMatchSummary: (match: MatchFullResponse): MatchSummary => {
+        return {
+            id: match.id,
+            title: match.tournament ? match.tournament.name : `Match ${match.id}`,
+            startTime: match.startTime,
+            endTime: match.endTime,
+            status: match.status as MatchStatus,
+            participantsCount: match.participants?.length || 0,
+            playgroundName: match.reservation?.playground?.name,
+            cityName: match.reservation?.playground?.cityId ? `City ${match.reservation.playground.cityId}` : undefined,
+            tournamentName: match.tournament?.name
+        };
+    },
+
+    // Generate match statistics from matches array
+    generateMatchStatistics: (matches: MatchFullResponse[]): MatchStatistics => {
+        const stats: MatchStatistics = {
+            totalMatches: matches.length,
+            pendingMatches: 0,
+            inProgressMatches: 0,
+            completedMatches: 0,
+            cancelledMatches: 0
+        };
+
+        matches.forEach(match => {
+            switch (match.status) {
+                case MatchStatus.PENDING:
+                    stats.pendingMatches++;
+                    break;
+                case MatchStatus.IN_PROGRESS:
+                    stats.inProgressMatches++;
+                    break;
+                case MatchStatus.COMPLETED:
+                    stats.completedMatches++;
+                    break;
+                case MatchStatus.CANCELLED:
+                    stats.cancelledMatches++;
+                    break;
+            }
+        });
+
+        return stats;
+    },
+
+    // Check if user can join match
+    canUserJoinMatch: (match: MatchFullResponse, userId: number): boolean => {
+        if (match.status !== MatchStatus.PENDING) return false;
+        
+        const reservation = match.reservation;
+        if (reservation?.playground?.maxCapacity && 
+            match.participants.length >= reservation.playground.maxCapacity) {
+            return false;
+        }
+        
+        // Check if user is already a participant
+        const isAlreadyParticipant = match.participants.some(p => p.userId === userId);
+        return !isAlreadyParticipant;
+    },
+
+    // Get match capacity info
+    getMatchCapacityInfo: (match: MatchFullResponse) => {
+        const maxCapacity = match.reservation?.playground?.maxCapacity || 0;
+        const currentParticipants = match.participants.length;
+        const availableSlots = maxCapacity - currentParticipants;
+        
+        return {
+            maxCapacity,
+            currentParticipants,
+            availableSlots,
+            isFull: availableSlots <= 0,
+            capacityPercentage: maxCapacity > 0 ? (currentParticipants / maxCapacity) * 100 : 0
+        };
     }
 };

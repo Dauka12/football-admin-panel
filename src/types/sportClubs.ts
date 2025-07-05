@@ -84,11 +84,10 @@ export interface CreateSportClubRequest {
     imageUrl?: number; // File ID for club avatar
     heroId?: number; // File ID for hero image
     heroGif?: string; // URL for hero GIF
-    // active не нужно в CreateRequest - устанавливается по умолчанию на бэкенде
 }
 
 export interface UpdateSportClubRequest extends CreateSportClubRequest {
-    active?: boolean; // Добавлено для обновления статуса активности клуба
+    // All fields from CreateSportClubRequest are available for update
 }
 
 export interface SportClubFilterParams {

@@ -5,6 +5,7 @@ import ErrorBoundary from './components/ui/ErrorBoundary';
 import GlobalLoadingIndicator from './components/ui/GlobalLoadingIndicator';
 import { useAuthStore } from './store/auth';
 import './styles/globals.css';
+import CountriesPage from './pages/countries';
 
 // Lazy load components for code splitting
 const AuthPage = React.lazy(() => import('./pages/auth'));
@@ -36,6 +37,7 @@ const PlaygroundDetailPage = React.lazy(() => import('./pages/playgrounds/detail
 const UsersPage = React.lazy(() => import('./pages/users'));
 const UserDetailPage = React.lazy(() => import('./pages/users/detail'));
 const FilesPage = React.lazy(() => import('./pages/files'));
+const NewsPage = React.lazy(() => import('./pages/news'));
 const FavoritesPage = React.lazy(() => import('./pages/favorites'));
 
 // Loading component for lazy-loaded routes
@@ -297,7 +299,16 @@ const App: React.FC = () => {
                   <PermissionsPage />
                 </Suspense>
               }
-            />          <Route
+            />
+            <Route
+              path="countries"
+              element={
+                <Suspense fallback={<RouteLoadingSpinner />}>
+                  <CountriesPage />
+                </Suspense>
+              }
+            />
+            <Route
               path="achievements"
               element={
                 <Suspense fallback={<RouteLoadingSpinner />}>
@@ -347,6 +358,16 @@ const App: React.FC = () => {
                 <Suspense fallback={<RouteLoadingSpinner />}>
                   <ErrorBoundary>
                     <FilesPage />
+                  </ErrorBoundary>
+                </Suspense>
+              }
+            />
+            <Route
+              path="news"
+              element={
+                <Suspense fallback={<RouteLoadingSpinner />}>
+                  <ErrorBoundary>
+                    <NewsPage />
                   </ErrorBoundary>
                 </Suspense>
               }

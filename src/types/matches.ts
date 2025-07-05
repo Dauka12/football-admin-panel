@@ -23,7 +23,24 @@ export interface MatchTournament {
     cityId: number;
 }
 
-// Playground info for match reservation
+// Facility info for playground
+export interface PlaygroundFacility {
+    id: number;
+    name: string;
+    description: string;
+    icon: string;
+    category: string;
+    active: boolean;
+}
+
+export interface PlaygroundFacilityItem {
+    id: number;
+    facility: PlaygroundFacility;
+    quantity: number;
+    notes: string;
+}
+
+// Playground info for match reservation - updated to match Swagger
 export interface MatchPlayground {
     id: number;
     name: string;
@@ -36,6 +53,10 @@ export interface MatchPlayground {
     availableTo: string;
     active: boolean;
     images: string[];
+    address: string;
+    latitude: number;
+    longitude: number;
+    facilities: PlaygroundFacilityItem[];
 }
 
 // Reservation info for match
@@ -180,4 +201,44 @@ export namespace MatchRequest {
 export namespace MatchResponse {
     export type Full = MatchFullResponse;
     export type Create = MatchCreateResponse;
+}
+
+// Additional utility types for better development experience
+export interface MatchStatistics {
+    totalMatches: number;
+    pendingMatches: number;
+    inProgressMatches: number;
+    completedMatches: number;
+    cancelledMatches: number;
+}
+
+export interface MatchSummary {
+    id: number;
+    title: string;
+    startTime: string;
+    endTime: string;
+    status: MatchStatus;
+    participantsCount: number;
+    playgroundName?: string;
+    cityName?: string;
+    tournamentName?: string;
+}
+
+// Enhanced filter types
+export interface MatchAdvancedFilter extends MatchFilterParams {
+    startDate?: string;
+    endDate?: string;
+    minParticipants?: number;
+    maxParticipants?: number;
+    hasReservation?: boolean;
+    priceRange?: {
+        min: number;
+        max: number;
+    };
+}
+
+export interface MatchBulkOperation {
+    matchIds: number[];
+    action: 'cancel' | 'start' | 'complete' | 'delete';
+    reason?: string;
 }
