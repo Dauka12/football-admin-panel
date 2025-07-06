@@ -234,7 +234,7 @@ const UsersPage: React.FC = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-wrap gap-1">
-                                                {user.roles.map((role) => (
+                                                {user.roles.slice(0, 3).map((role) => (
                                                     <span
                                                         key={role.id}
                                                         className="px-2 py-1 text-xs font-medium rounded-full bg-gold/20 text-gold border border-gold/30"
@@ -242,6 +242,11 @@ const UsersPage: React.FC = () => {
                                                         {role.name}
                                                     </span>
                                                 ))}
+                                                {user.roles.length > 3 && (
+                                                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-600/20 text-gray-400 border border-gray-600/30">
+                                                        +{user.roles.length - 3} {t('common.more')}
+                                                    </span>
+                                                )}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -295,7 +300,7 @@ const UsersPage: React.FC = () => {
                                 <div className="mb-3">
                                     <span className="text-gray-400 text-sm">{t('users.roles')}:</span>
                                     <div className="flex flex-wrap gap-1 mt-1">
-                                        {user.roles.map((role) => (
+                                        {user.roles.slice(0, 3).map((role) => (
                                             <span
                                                 key={role.id}
                                                 className="px-2 py-1 text-xs font-medium rounded-full bg-gold/20 text-gold border border-gold/30"
@@ -303,6 +308,11 @@ const UsersPage: React.FC = () => {
                                                 {role.name}
                                             </span>
                                         ))}
+                                        {user.roles.length > 3 && (
+                                            <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-600/20 text-gray-400 border border-gray-600/30">
+                                                +{user.roles.length - 3} {t('common.more')}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                                 
