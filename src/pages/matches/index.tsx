@@ -6,7 +6,7 @@ import MatchForm from '../../components/matches/MatchForm';
 import Modal from '../../components/ui/Modal';
 import { useMatchStore } from '../../store/matchStore';
 import { useTournamentStore } from '../../store/tournamentStore';
-import type { CreateMatchRequest, MatchStatus, MatchFullResponse } from '../../types/matches';
+import type { CreateMatchRequest, UpdateMatchRequest, MatchStatus, MatchFullResponse } from '../../types/matches';
 import { formatDateTime } from '../../utils/dateUtils';
 import { showToast } from '../../utils/toast';
 
@@ -123,8 +123,22 @@ const MatchesPage: React.FC = () => {
   }, [matches, searchQuery, tournamentFilter, statusFilter, sortBy]);
   
   // Handle create match form submission
-  const handleCreateMatch = async (data: CreateMatchRequest) => {
-    const success = await createMatch(data);
+  const handleCreateMatch = async (data: CreateMatchRequest | UpdateMatchRequest) => {
+    // Ensure we have the required fields for creation
+    const createData: CreateMatchRequest = {
+      tournamentId: data.tournamentId,
+      teams: data.teams || [],
+      cityId: data.cityId || 1,
+      status: data.status || 'PENDING',
+      playgroundId: data.playgroundId || 1,
+      startTime: data.startTime || new Date().toISOString(),
+      endTime: data.endTime || new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+      maxCapacity: data.maxCapacity || 20,
+      description: data.description || '',
+      sportTypeId: data.sportTypeId || 1
+    };
+
+    const success = await createMatch(createData);
     if (success) {
       setShowCreateForm(false);
       showToast(t('matches.createSuccess'), 'success');
@@ -353,7 +367,8 @@ const MatchesPage: React.FC = () => {
       >
         <MatchForm 
           onSubmit={handleCreateMatch} 
-          onCancel={() => setShowCreateForm(false)} 
+          onCancel={() => setShowCreateForm(false)}
+          isEditing={false}
         />
       </Modal>
       

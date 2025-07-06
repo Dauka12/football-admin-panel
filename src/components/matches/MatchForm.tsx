@@ -14,9 +14,10 @@ interface MatchFormProps {
     initialData?: Partial<CreateMatchRequest | UpdateMatchRequest>;
     onSubmit: (data: CreateMatchRequest | UpdateMatchRequest) => Promise<void>;
     onCancel: () => void;
+    isEditing?: boolean; // Flag to distinguish between create and update modes
 }
 
-const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }) => {
+const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel, isEditing = false }) => {
     const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState(false);
     const { teams, fetchTeams } = useTeamStore();
@@ -270,8 +271,34 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
 
         setIsLoading(true);
         try {
-            // Prepare data for API
-            await onSubmit(formData);
+            // Prepare data for API - ensure all required fields are present
+            const submitData = isEditing ? {
+                // For updates, only send non-empty fields
+                ...(formData.tournamentId && { tournamentId: formData.tournamentId }),
+                ...(formData.teams && formData.teams.length > 0 && { teams: formData.teams }),
+                ...(formData.cityId && { cityId: formData.cityId }),
+                ...(formData.status && { status: formData.status }),
+                ...(formData.playgroundId && { playgroundId: formData.playgroundId }),
+                ...(formData.startTime && { startTime: formData.startTime }),
+                ...(formData.endTime && { endTime: formData.endTime }),
+                ...(formData.maxCapacity && { maxCapacity: formData.maxCapacity }),
+                ...(formData.description !== undefined && { description: formData.description }),
+                ...(formData.sportTypeId && { sportTypeId: formData.sportTypeId })
+            } : {
+                // For creation, ensure all required fields are present
+                tournamentId: formData.tournamentId,
+                teams: formData.teams || [],
+                cityId: formData.cityId || 1,
+                status: formData.status || 'PENDING',
+                playgroundId: formData.playgroundId || 1,
+                startTime: formData.startTime || new Date().toISOString(),
+                endTime: formData.endTime || new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+                maxCapacity: formData.maxCapacity || 20,
+                description: formData.description || '',
+                sportTypeId: formData.sportTypeId || 1
+            };
+
+            await onSubmit(submitData);
             showToast(t('matches.form.success'), 'success');
         } catch (error) {
             const errorMessage = ErrorHandler.handle(error);

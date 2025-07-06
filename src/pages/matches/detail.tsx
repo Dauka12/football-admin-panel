@@ -11,7 +11,7 @@ import Modal from '../../components/ui/Modal';
 import { useMatchStore } from '../../store/matchStore';
 import { useMatchEventStore } from '../../store/matchEventStore';
 import { teamApi } from '../../api/teams';
-import type { MatchStatus, UpdateMatchRequest } from '../../types/matches';
+import type { MatchStatus, UpdateMatchRequest, CreateMatchRequest } from '../../types/matches';
 import type { CreateMatchEventRequest } from '../../types/matchEvents';
 import type { TeamFullResponse } from '../../types/teams';
 import { formatDateTime } from '../../utils/dateUtils';
@@ -107,10 +107,24 @@ const MatchDetailPage: React.FC = () => {
     }, [matchId, currentMatch, fetchEventsByMatchId, clearEvents]);
 
     // Handle edit form submission
-    const handleUpdateMatch = async (data: UpdateMatchRequest) => {
+    const handleUpdateMatch = async (data: CreateMatchRequest | UpdateMatchRequest) => {
         if (!matchId) return;
 
-        const success = await updateMatch(matchId, data);
+        // Convert to UpdateMatchRequest format if needed
+        const updateData: UpdateMatchRequest = {
+            ...(data.tournamentId && { tournamentId: data.tournamentId }),
+            ...(data.teams && { teams: data.teams }),
+            ...(data.cityId && { cityId: data.cityId }),
+            ...(data.status && { status: data.status }),
+            ...(data.playgroundId && { playgroundId: data.playgroundId }),
+            ...(data.startTime && { startTime: data.startTime }),
+            ...(data.endTime && { endTime: data.endTime }),
+            ...(data.maxCapacity && { maxCapacity: data.maxCapacity }),
+            ...(data.description !== undefined && { description: data.description }),
+            ...(data.sportTypeId && { sportTypeId: data.sportTypeId })
+        };
+
+        const success = await updateMatch(matchId, updateData);
         if (success) {
             setShowEditForm(false);
             showToast(t('matches.updateSuccess'), 'success');
@@ -398,6 +412,7 @@ const MatchDetailPage: React.FC = () => {
                     }}
                     onSubmit={handleUpdateMatch}
                     onCancel={() => setShowEditForm(false)}
+                    isEditing={true}
                 />
             </Modal>
 
