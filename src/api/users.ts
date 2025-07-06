@@ -16,6 +16,8 @@ export const usersApi = {
         filters?: UserFilterParams
     ): Promise<UsersPageResponse> => {
         try {
+            console.log(`API Call: getAll - page: ${page}, size: ${size}`, filters);
+            
             const params = new URLSearchParams({
                 page: page.toString(),
                 size: size.toString()
@@ -32,7 +34,9 @@ export const usersApi = {
                 if (filters.sortDirection) params.append('sortDirection', filters.sortDirection);
             }
 
+            console.log(`Making API request to: /admin/users?${params}`);
             const response = await axiosInstance.get(`/admin/users?${params}`);
+            console.log('API Response:', response.data);
             return response.data;
         } catch (error) {
             console.error('Failed to fetch users:', error);

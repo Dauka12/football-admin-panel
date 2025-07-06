@@ -43,9 +43,9 @@ const UsersPage: React.FC = () => {
 
     // Load users on component mount
     useEffect(() => {
-        fetchUsers(currentPage, pageSize);
+        fetchUsers(0, pageSize); // Always start from page 0
         fetchRoles();
-    }, [fetchUsers, fetchRoles, currentPage, pageSize]);
+    }, [fetchUsers, fetchRoles, pageSize]); // Remove currentPage from dependencies
 
     // Sync local filter state with store filters
     useEffect(() => {
@@ -119,6 +119,7 @@ const UsersPage: React.FC = () => {
     };
 
     const handlePageChange = (newPage: number) => {
+        console.log(`Changing page to ${newPage}, current page: ${currentPage}`);
         fetchUsers(newPage, pageSize);
     };
 

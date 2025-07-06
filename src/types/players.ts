@@ -36,7 +36,6 @@ export const PlayerPositions = {
     CENTER_FORWARD: 'CENTER_FORWARD'
 } as const;
 
-// Base interface for player data - used for create/update requests
 export interface PlayerBase {
     position: PlayerPosition;
     teamId: number;

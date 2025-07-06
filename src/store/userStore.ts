@@ -57,17 +57,21 @@ export const useUserStore = create<UserStore>((set, get) => ({
         set({ isLoading: true, error: null });
         try {
             const { filters } = get();
+            
+            // Clear cache for pagination to ensure fresh data
+            apiService.clearCache(['fetchUsers']);
+            
             const response = await apiService.execute(
                 () => usersApi.getAll(page, size, filters),
-                'fetchUsers',
-                { enableCache: true, cacheTTL: 2 * 60 * 1000 }
+                `fetchUsers_${page}_${size}`, // Use page and size in cache key
+                { enableCache: false } // Disable cache for pagination
             );
             
             set({
                 users: response.content,
                 totalElements: response.totalElements,
                 totalPages: response.totalPages,
-                currentPage: response.number,
+                currentPage: page,
                 pageSize: response.size,
                 isLoading: false
             });
