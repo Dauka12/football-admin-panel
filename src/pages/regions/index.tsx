@@ -30,6 +30,15 @@ const RegionsPage: React.FC = () => {
         const regionsMap = new Map<string, RegionData>();
 
         cities.forEach(city => {
+            // Добавляем логирование для отладки
+            console.log('Processing city:', city);
+            
+            // Проверяем, что region и country существуют
+            if (!city.region || !city.country) {
+                console.warn('City missing region or country:', city);
+                return; // Пропускаем города без региона или страны
+            }
+
             const regionKey = `${city.region}-${city.country}`;
             
             if (!regionsMap.has(regionKey)) {
@@ -54,7 +63,9 @@ const RegionsPage: React.FC = () => {
             }
         });
 
-        return Array.from(regionsMap.values());
+        const result = Array.from(regionsMap.values());
+        console.log('Regions data:', result);
+        return result;
     }, [cities]);
 
     // Фильтрация регионов
@@ -74,10 +85,18 @@ const RegionsPage: React.FC = () => {
         }
 
         return filtered.sort((a, b) => {
-            if (a.country !== b.country) {
-                return a.country.localeCompare(b.country);
+            // Добавляем проверку на null/undefined
+            console.log('Sorting regions:', a, b);
+            
+            const countryA = a.country || '';
+            const countryB = b.country || '';
+            const nameA = a.name || '';
+            const nameB = b.name || '';
+            
+            if (countryA !== countryB) {
+                return countryA.localeCompare(countryB);
             }
-            return a.name.localeCompare(b.name);
+            return nameA.localeCompare(nameB);
         });
     }, [regionsData, searchQuery, selectedCountry]);
 
