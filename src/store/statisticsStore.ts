@@ -1,18 +1,26 @@
 import { create } from 'zustand';
 import { statisticsApi } from '../api/statistics';
-import type { PlayerStatisticsResponse, TeamMatchResultsResponse, TournamentMatchResult, TournamentTeamStatistics } from '../types/statistics';
+import type {
+    TournamentStatisticsResponse,
+    MatchResultsResponse,
+    TeamMatchesResponse,
+    PlayerStatisticsResponse
+} from '../types/statistics';
+import { ErrorHandler } from '../utils/errorHandler';
 
-interface StatisticsState {
+interface StatisticsStore {
     // Tournament statistics
-    tournamentStats: TournamentTeamStatistics[];
-    tournamentMatches: TournamentMatchResult[];
+    tournamentStats: TournamentStatisticsResponse[];
     isTournamentStatsLoading: boolean;
-    isTournamentMatchesLoading: boolean;
     tournamentStatsError: string | null;
-    tournamentMatchesError: string | null;
 
-    // Team statistics
-    teamMatches: TeamMatchResultsResponse | null;
+    // Match results
+    matchResults: MatchResultsResponse[];
+    isMatchResultsLoading: boolean;
+    matchResultsError: string | null;
+
+    // Team matches
+    teamMatches: TeamMatchesResponse | null;
     isTeamMatchesLoading: boolean;
     teamMatchesError: string | null;
 
@@ -23,23 +31,27 @@ interface StatisticsState {
 
     // Actions
     fetchTournamentStatistics: (tournamentId: number) => Promise<void>;
-    fetchTournamentMatches: (tournamentId: number) => Promise<void>;
+    fetchTournamentMatchResults: (tournamentId: number) => Promise<void>;
     fetchTeamMatches: (teamId: number, page?: number, size?: number) => Promise<void>;
     fetchPlayerStatistics: (playerId: number) => Promise<void>;
-    clearStatistics: () => void;
+    clearErrors: () => void;
+    reset: () => void;
 }
 
-export const useStatisticsStore = create<StatisticsState>((set) => ({
+export const useStatisticsStore = create<StatisticsStore>((set) => ({
     // Initial state
     tournamentStats: [],
-    tournamentMatches: [],
     isTournamentStatsLoading: false,
-    isTournamentMatchesLoading: false,
     tournamentStatsError: null,
-    tournamentMatchesError: null,
+
+    matchResults: [],
+    isMatchResultsLoading: false,
+    matchResultsError: null,
+
     teamMatches: null,
     isTeamMatchesLoading: false,
     teamMatchesError: null,
+
     playerStats: null,
     isPlayerStatsLoading: false,
     playerStatsError: null,
@@ -47,93 +59,94 @@ export const useStatisticsStore = create<StatisticsState>((set) => ({
     // Actions
     fetchTournamentStatistics: async (tournamentId: number) => {
         set({ isTournamentStatsLoading: true, tournamentStatsError: null });
-        
         try {
             const stats = await statisticsApi.getTournamentStatistics(tournamentId);
             set({ 
                 tournamentStats: stats,
-                isTournamentStatsLoading: false,
-                tournamentStatsError: null
+                isTournamentStatsLoading: false 
             });
         } catch (error) {
-            console.error('Failed to fetch tournament statistics:', error);
+            const errorMessage = ErrorHandler.handle(error);
             set({ 
-                isTournamentStatsLoading: false,
-                tournamentStatsError: 'Failed to load tournament statistics'
+                tournamentStatsError: errorMessage.message,
+                isTournamentStatsLoading: false 
             });
         }
     },
 
-    fetchTournamentMatches: async (tournamentId: number) => {
-        set({ isTournamentMatchesLoading: true, tournamentMatchesError: null });
-        
+    fetchTournamentMatchResults: async (tournamentId: number) => {
+        set({ isMatchResultsLoading: true, matchResultsError: null });
         try {
-            const matches = await statisticsApi.getTournamentMatches(tournamentId);
+            const results = await statisticsApi.getTournamentMatchResults(tournamentId);
             set({ 
-                tournamentMatches: matches,
-                isTournamentMatchesLoading: false,
-                tournamentMatchesError: null
+                matchResults: results,
+                isMatchResultsLoading: false 
             });
         } catch (error) {
-            console.error('Failed to fetch tournament matches:', error);
+            const errorMessage = ErrorHandler.handle(error);
             set({ 
-                isTournamentMatchesLoading: false,
-                tournamentMatchesError: 'Failed to load tournament matches'
+                matchResultsError: errorMessage.message,
+                isMatchResultsLoading: false 
             });
         }
     },
 
     fetchTeamMatches: async (teamId: number, page = 0, size = 10) => {
         set({ isTeamMatchesLoading: true, teamMatchesError: null });
-        
         try {
             const matches = await statisticsApi.getTeamMatches(teamId, page, size);
             set({ 
                 teamMatches: matches,
-                isTeamMatchesLoading: false,
-                teamMatchesError: null
+                isTeamMatchesLoading: false 
             });
         } catch (error) {
-            console.error('Failed to fetch team matches:', error);
+            const errorMessage = ErrorHandler.handle(error);
             set({ 
-                isTeamMatchesLoading: false,
-                teamMatchesError: 'Failed to load team matches'
+                teamMatchesError: errorMessage.message,
+                isTeamMatchesLoading: false 
             });
         }
     },
 
     fetchPlayerStatistics: async (playerId: number) => {
         set({ isPlayerStatsLoading: true, playerStatsError: null });
-        
         try {
             const stats = await statisticsApi.getPlayerStatistics(playerId);
             set({ 
                 playerStats: stats,
-                isPlayerStatsLoading: false,
-                playerStatsError: null
+                isPlayerStatsLoading: false 
             });
         } catch (error) {
-            console.error('Failed to fetch player statistics:', error);
+            const errorMessage = ErrorHandler.handle(error);
             set({ 
-                isPlayerStatsLoading: false,
-                playerStatsError: 'Failed to load player statistics'
+                playerStatsError: errorMessage.message,
+                isPlayerStatsLoading: false 
             });
         }
     },
 
-    clearStatistics: () => {
+    clearErrors: () => {
+        set({
+            tournamentStatsError: null,
+            matchResultsError: null,
+            teamMatchesError: null,
+            playerStatsError: null
+        });
+    },
+
+    reset: () => {
         set({
             tournamentStats: [],
-            tournamentMatches: [],
-            teamMatches: null,
-            playerStats: null,
             isTournamentStatsLoading: false,
-            isTournamentMatchesLoading: false,
-            isTeamMatchesLoading: false,
-            isPlayerStatsLoading: false,
             tournamentStatsError: null,
-            tournamentMatchesError: null,
+            matchResults: [],
+            isMatchResultsLoading: false,
+            matchResultsError: null,
+            teamMatches: null,
+            isTeamMatchesLoading: false,
             teamMatchesError: null,
+            playerStats: null,
+            isPlayerStatsLoading: false,
             playerStatsError: null
         });
     }

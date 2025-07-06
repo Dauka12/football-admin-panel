@@ -16,7 +16,9 @@ export const playerApi = {
                 params: { 
                     page, 
                     size,
-                    ...otherFilters
+                    ...otherFilters,
+                    // Add fullName support from Swagger
+                    fullName: otherFilters.fullName || ''
                 }
             });
             return response.data;

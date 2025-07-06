@@ -1,6 +1,10 @@
 // Types for file/image management
 export interface FileUploadResponse {
     id: number;
+    filename: string;
+    url: string;
+    size: number;
+    mimeType: string;
 }
 
 export interface MultipleFileUploadResponse {
@@ -33,17 +37,13 @@ export interface FileInfo {
 }
 
 // File types as string literal union (according to database and usage)
-export type FileType =
-    | 'team-avatar'
+export type FileType = 
     | 'user-avatar'
-    | 'playground-avatar'
-    | 'sport-club-avatar'
-    | 'sport-club-hero'
-    | 'tournament-logo'
-    | 'player-avatar'
-    | 'match-photo'
-    | 'achievement-icon'
-    | 'general';
+    | 'team-logo'
+    | 'player-image'
+    | 'tournament-banner'
+    | 'document'
+    | 'image';
 
 // Upload progress tracking
 export interface UploadProgress {

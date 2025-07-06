@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import Modal from '../../components/ui/Modal';
 import RoleManagementModal from '../../components/users/RoleManagementModal';
 import UserForm from '../../components/users/UserForm';
 import { useUserStore } from '../../store/userStore';
-import type { CreateUserRequest, User, UserFilterParams } from '../../types/users';
+import type { CreateUserRequest, User } from '../../types/users';
 
 const UsersPage: React.FC = () => {
     const { t } = useTranslation();
+    // Get everything from store including filter state
     const {
         users,
         roles,
@@ -23,68 +24,64 @@ const UsersPage: React.FC = () => {
         totalPages,
         currentPage,
         pageSize,
-        filters,
-        setFilters
+        
+        // Filter state
+        filterFirstName,
+        filterLastName,
+        filterPhone,
+        filterRoleIds,
+        sortField,
+        sortDirection,
+        
+        // Filter actions
+        setFilterFirstName,
+        setFilterLastName,
+        setFilterPhone,
+        toggleFilterRole,
+        setSortField,
+        setSortDirection,
+        
+        // Filter operations
+        applyFilters,
+        resetFilters,
     } = useUserStore();
 
-    const [showCreateForm, setShowCreateForm] = useState(false);
-    const [editingUser, setEditingUser] = useState<User | null>(null);
-    const [userToDelete, setUserToDelete] = useState<User | null>(null);
-    const [showRoleModal, setShowRoleModal] = useState<User | null>(null);
-    
-    // Filter state
-    const [isFilterOpen, setIsFilterOpen] = useState(false);
-    const [filterFirstName, setFilterFirstName] = useState('');
-    const [filterLastName, setFilterLastName] = useState('');
-    const [filterPhone, setFilterPhone] = useState('');
-    const [filterRoleIds, setFilterRoleIds] = useState<number[]>([]);
-    const [sortField, setSortField] = useState('');
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+    // Local UI state for modals
+    const [showCreateForm, setShowCreateForm] = React.useState(false);
+    const [editingUser, setEditingUser] = React.useState<User | null>(null);
+    const [userToDelete, setUserToDelete] = React.useState<User | null>(null);
+    const [showRoleModal, setShowRoleModal] = React.useState<User | null>(null);
+    const [isFilterOpen, setIsFilterOpen] = React.useState(false);
 
-    // Load users on component mount
+    // Initialize data on component mount
     useEffect(() => {
-        fetchUsers(0, pageSize); // Always start from page 0
+        fetchUsers(0, pageSize);
         fetchRoles();
-    }, [fetchUsers, fetchRoles, pageSize]); // Remove currentPage from dependencies
+    }, [fetchUsers, fetchRoles, pageSize]);
 
-    // Sync local filter state with store filters
-    useEffect(() => {
-        setFilterFirstName(filters.firstName || '');
-        setFilterLastName(filters.lastName || '');
-        setFilterPhone(filters.phone || '');
-        setFilterRoleIds(filters.roleIds || []);
-        setSortField(filters.sortField || '');
-        setSortDirection((filters.sortDirection as 'asc' | 'desc') || 'asc');
-    }, [filters]);
-
-    // Apply filters
-    const applyFilters = () => {
-        const newFilters: UserFilterParams = {
-            firstName: filterFirstName || undefined,
-            lastName: filterLastName || undefined,
-            phone: filterPhone || undefined,
-            roleIds: filterRoleIds.length > 0 ? filterRoleIds : undefined,
-            sortField: sortField || undefined,
-            sortDirection: sortDirection || undefined
-        };
-        setFilters(newFilters);
-        fetchUsers(0, pageSize);
+    // Apply filters handler
+    const handleApplyFilters = useCallback(() => {
+        applyFilters();
         setIsFilterOpen(false);
-    };
+    }, [applyFilters]);
 
-    // Reset filters
-    const resetFilters = () => {
-        setFilterFirstName('');
-        setFilterLastName('');
-        setFilterPhone('');
-        setFilterRoleIds([]);
-        setSortField('');
-        setSortDirection('asc');
-        setFilters({});
-        fetchUsers(0, pageSize);
+    // Reset filters handler
+    const handleResetFilters = useCallback(() => {
+        resetFilters();
         setIsFilterOpen(false);
-    };
+    }, [resetFilters]);
 
+    // Page change handler
+    const handlePageChange = useCallback((newPage: number) => {
+        fetchUsers(newPage, pageSize);
+    }, [fetchUsers, pageSize]);
+
+    // Handle role filter toggle - now using store action
+    const handleRoleFilterChange = useCallback((roleId: number) => {
+        toggleFilterRole(roleId);
+    }, [toggleFilterRole]);
+
+    // CRUD operations
     const handleCreateUser = async (data: CreateUserRequest) => {
         const success = await createUser(data);
         if (success) {
@@ -118,17 +115,7 @@ const UsersPage: React.FC = () => {
         }
     };
 
-    const handlePageChange = (newPage: number) => {
-        console.log(`Changing page to ${newPage}, current page: ${currentPage}`);
-        fetchUsers(newPage, pageSize);
-    };
-
-    const handleRoleFilterChange = (roleId: number, checked: boolean) => {
-        setFilterRoleIds(prev => 
-            checked ? [...prev, roleId] : prev.filter(id => id !== roleId)
-        );
-    };
-
+    // Loading state
     if (isLoading && users.length === 0) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -495,7 +482,7 @@ const UsersPage: React.FC = () => {
                                     <input
                                         type="checkbox"
                                         checked={filterRoleIds.includes(role.id)}
-                                        onChange={(e) => handleRoleFilterChange(role.id, e.target.checked)}
+                                        onChange={() => handleRoleFilterChange(role.id)}
                                         className="rounded border-gray-600 text-gold focus:ring-gold focus:ring-offset-0"
                                     />
                                     <span className="text-white">{role.name}</span>
@@ -538,14 +525,16 @@ const UsersPage: React.FC = () => {
 
                     <div className="flex flex-col sm:flex-row gap-3 sm:justify-end pt-4">
                         <button
-                            onClick={resetFilters}
+                            onClick={handleResetFilters}
                             className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors duration-200 font-medium"
+                            disabled={isLoading}
                         >
                             {t('common.reset')}
                         </button>
                         <button
-                            onClick={applyFilters}
+                            onClick={handleApplyFilters}
                             className="px-6 py-3 bg-gold text-darkest-bg rounded-lg hover:bg-gold/90 transition-colors duration-200 font-medium"
+                            disabled={isLoading}
                         >
                             {t('common.apply')}
                         </button>
@@ -557,3 +546,4 @@ const UsersPage: React.FC = () => {
 };
 
 export default UsersPage;
+

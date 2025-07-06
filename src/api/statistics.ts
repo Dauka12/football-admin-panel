@@ -1,5 +1,10 @@
-import type { PlayerStatisticsResponse, TeamMatchResultsResponse, TournamentMatchResult, TournamentTeamStatistics } from '../types/statistics';
 import axiosInstance from './axios';
+import type {
+    TournamentStatisticsResponse,
+    MatchResultsResponse,
+    TeamMatchesResponse,
+    PlayerStatisticsResponse
+} from '../types/statistics';
 
 // Add request interceptor for auth token
 axiosInstance.interceptors.request.use(
@@ -31,20 +36,49 @@ axiosInstance.interceptors.response.use(
 );
 
 export const statisticsApi = {
-    // Tournament statistics
-    getTournamentStatistics: (tournamentId: number): Promise<TournamentTeamStatistics[]> =>
-        axiosInstance.get(`/statistics/public/tournament/${tournamentId}`).then(res => res.data),
+    // Get tournament statistics
+    getTournamentStatistics: async (tournamentId: number): Promise<TournamentStatisticsResponse[]> => {
+        try {
+            const response = await axiosInstance.get(`/statistics/public/tournament/${tournamentId}`);
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch tournament statistics:', error);
+            throw error;
+        }
+    },
 
-    getTournamentMatches: (tournamentId: number): Promise<TournamentMatchResult[]> =>
-        axiosInstance.get(`/statistics/public/tournament/${tournamentId}/matches`).then(res => res.data),
+    // Get match results matrix for a tournament
+    getTournamentMatchResults: async (tournamentId: number): Promise<MatchResultsResponse[]> => {
+        try {
+            const response = await axiosInstance.get(`/statistics/public/tournament/${tournamentId}/matches`);
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch tournament match results:', error);
+            throw error;
+        }
+    },
 
-    // Team statistics
-    getTeamMatches: (teamId: number, page: number = 0, size: number = 10): Promise<TeamMatchResultsResponse> =>
-        axiosInstance.get(`/statistics/public/team/${teamId}/matches`, {
-            params: { page, size }
-        }).then(res => res.data),
+    // Get all matches for a specific team
+    getTeamMatches: async (teamId: number, page = 0, size = 10): Promise<TeamMatchesResponse> => {
+        try {
+            const response = await axiosInstance.get(`/statistics/public/team/${teamId}/matches`, {
+                params: { page, size }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch team matches:', error);
+            throw error;
+        }
+    },
 
-    // Player statistics
-    getPlayerStatistics: (playerId: number): Promise<PlayerStatisticsResponse> =>
-        axiosInstance.get(`/statistics/public/player/${playerId}`).then(res => res.data),
+    // Get player statistics
+    getPlayerStatistics: async (playerId: number): Promise<PlayerStatisticsResponse> => {
+        try {
+            const response = await axiosInstance.get(`/statistics/public/player/${playerId}`);
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch player statistics:', error);
+            throw error;
+        }
+    }
 };

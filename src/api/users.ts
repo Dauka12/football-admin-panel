@@ -8,6 +8,11 @@ import type {
 } from '../types/users';
 import axiosInstance from './axios';
 
+// Simple request logger for debugging
+const logRequest = (method: string, url: string, params?: any) => {
+    console.log(`🔹 API ${method}: ${url}`, params ? { params } : '');
+};
+
 export const usersApi = {
     // Get all users with pagination and filtering
     getAll: async (
@@ -16,8 +21,6 @@ export const usersApi = {
         filters?: UserFilterParams
     ): Promise<UsersPageResponse> => {
         try {
-            console.log(`API Call: getAll - page: ${page}, size: ${size}`, filters);
-            
             const params = new URLSearchParams({
                 page: page.toString(),
                 size: size.toString()
@@ -34,9 +37,10 @@ export const usersApi = {
                 if (filters.sortDirection) params.append('sortDirection', filters.sortDirection);
             }
 
-            console.log(`Making API request to: /admin/users?${params}`);
-            const response = await axiosInstance.get(`/admin/users?${params}`);
-            console.log('API Response:', response.data);
+            const url = `/admin/users?${params}`;
+            logRequest('GET', url);
+            
+            const response = await axiosInstance.get(url);
             return response.data;
         } catch (error) {
             console.error('Failed to fetch users:', error);
@@ -47,6 +51,7 @@ export const usersApi = {
     // Get user by ID
     getById: async (id: number): Promise<User> => {
         try {
+            logRequest('GET', `/admin/users/${id}`);
             const response = await axiosInstance.get(`/admin/users/${id}`);
             return response.data;
         } catch (error) {

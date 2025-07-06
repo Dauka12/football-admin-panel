@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { sportTypeApi } from '../../api/sportTypes';
 import { teamApi } from '../../api/teams';
+import UserSearchSelect from '../users/UserSearchSelect';
 import type { PlayerCreateRequest, PlayerPublicResponse, PlayerPosition } from '../../types/players';
 import type { SportType } from '../../types/sportTypes';
 import type { TeamFullResponse } from '../../types/teams';
@@ -279,6 +280,17 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
                 </div>
             </div>
 
+            {/* User Assignment Section */}
+            <div className="bg-darkest-bg p-4 rounded-md mb-4">
+                <h3 className="text-gold font-medium mb-3">{t('players.userAssignment')}</h3>
+                
+                <UserSearchSelect
+                    value={formData.userId}
+                    onChange={(userId) => setFormData(prev => ({ ...prev, userId }))}
+                    error={errors.userId}
+                />
+            </div>
+
             {/* Nationality Section */}
             <div className="bg-darkest-bg p-4 rounded-md mb-4">
                 <h3 className="text-gold font-medium mb-3">{t('players.nationalityInfo')}</h3>
@@ -370,23 +382,6 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
                         {errors.identificationNumber && (
                             <p className="text-red-500 text-xs mt-1">{errors.identificationNumber}</p>
                         )}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium mb-1" htmlFor="userId">
-                            {t('players.userId')} *
-                        </label>
-                        <input
-                            type="number"
-                            id="userId"
-                            name="userId"
-                            value={formData.userId}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            min="0"
-                            className={`form-input ${errors.userId ? 'border-red-500' : ''}`}
-                        />
-                        {errors.userId && <p className="text-red-500 text-xs mt-1">{errors.userId}</p>}
                     </div>
 
                     <div>

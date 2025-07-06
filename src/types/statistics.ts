@@ -1,4 +1,5 @@
-export interface TournamentTeamStatistics {
+// Tournament statistics interface
+export interface TournamentStatisticsResponse {
     teamId: number;
     teamName: string;
     gamesPlayed: number;
@@ -10,7 +11,8 @@ export interface TournamentTeamStatistics {
     points: number;
 }
 
-export interface TournamentMatchResult {
+// Match results matrix interface
+export interface MatchResultsResponse {
     homeTeamId: number;
     homeTeamName: string;
     awayTeamId: number;
@@ -19,7 +21,8 @@ export interface TournamentMatchResult {
     awayScore: number;
 }
 
-export interface TeamMatchResult {
+// Team match details interface
+export interface TeamMatchDetails {
     matchId: number;
     matchDate: string;
     opponentName: string;
@@ -28,11 +31,12 @@ export interface TeamMatchResult {
     tournamentName: string;
 }
 
-export interface TeamMatchResultsResponse {
+// Team matches paginated response
+export interface TeamMatchesResponse {
     totalElements: number;
     totalPages: number;
     size: number;
-    content: TeamMatchResult[];
+    content: TeamMatchDetails[];
     number: number;
     sort: {
         empty: boolean;
@@ -57,7 +61,7 @@ export interface TeamMatchResultsResponse {
     empty: boolean;
 }
 
-// Player statistics interfaces according to Swagger API
+// Player statistics interface
 export interface PlayerStatistics {
     matchesPlayed: number;
     goals: number;

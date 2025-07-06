@@ -12,11 +12,15 @@ import { ErrorHandler } from '../utils/errorHandler';
 import { showToast } from '../utils/toast';
 
 interface UserStore {
+    // Data
     users: User[];
     currentUser: User | null;
     roles: UserRole[];
+    
+    // UI State
     isLoading: boolean;
     error: string | null;
+    lastRequestId: string;
     
     // Pagination
     totalElements: number;
@@ -24,8 +28,14 @@ interface UserStore {
     currentPage: number;
     pageSize: number;
     
-    // Filters
+    // Filter State - moved from component to store
     filters: UserFilterParams;
+    filterFirstName: string;
+    filterLastName: string;
+    filterPhone: string;
+    filterRoleIds: number[];
+    sortField: string;
+    sortDirection: 'asc' | 'desc';
     
     // Actions
     fetchUsers: (page?: number, size?: number) => Promise<void>;
@@ -35,37 +45,72 @@ interface UserStore {
     updateUser: (id: number, data: UpdateUserRequest) => Promise<boolean>;
     updateUserRoles: (userId: number, roleIds: number[]) => Promise<boolean>;
     deleteUser: (id: number) => Promise<boolean>;
-    setFilters: (filters: UserFilterParams) => void;
+    
+    // Filter actions
+    setFilterFirstName: (value: string) => void;
+    setFilterLastName: (value: string) => void;
+    setFilterPhone: (value: string) => void;
+    toggleFilterRole: (roleId: number) => void;
+    setSortField: (field: string) => void;
+    setSortDirection: (direction: 'asc' | 'desc') => void;
+    
+    // Filter operations
+    applyFilters: () => Promise<void>;
+    resetFilters: () => Promise<void>;
+    
+    // Other actions
     clearError: () => void;
     setCurrentUser: (user: User | null) => void;
     reset: () => void;
 }
 
 export const useUserStore = create<UserStore>((set, get) => ({
+    // Initial data
     users: [],
     currentUser: null,
     roles: [],
+    
+    // Initial UI state
     isLoading: false,
     error: null,
+    lastRequestId: '',
+    
+    // Initial pagination
     totalElements: 0,
     totalPages: 0,
     currentPage: 0,
     pageSize: 10,
+    
+    // Initial filter state
     filters: {},
-
+    filterFirstName: '',
+    filterLastName: '',
+    filterPhone: '',
+    filterRoleIds: [],
+    sortField: '',
+    sortDirection: 'asc',
+    
+    // Fetch users with debounce and request ID
     fetchUsers: async (page = 0, size = 10) => {
-        set({ isLoading: true, error: null });
+        // Generate unique request ID
+        const requestId = Date.now().toString();
+        
+        // Set loading and request ID
+        set(state => ({
+            isLoading: true, 
+            error: null,
+            lastRequestId: requestId
+        }));
+        
         try {
             const { filters } = get();
+            const response = await usersApi.getAll(page, size, filters);
             
-            // Clear cache for pagination to ensure fresh data
-            apiService.clearCache(['fetchUsers']);
-            
-            const response = await apiService.execute(
-                () => usersApi.getAll(page, size, filters),
-                `fetchUsers_${page}_${size}`, // Use page and size in cache key
-                { enableCache: false } // Disable cache for pagination
-            );
+            // Check if this response is for the most recent request
+            if (get().lastRequestId !== requestId) {
+                console.log('Ignoring stale response for request:', requestId);
+                return;
+            }
             
             set({
                 users: response.content,
@@ -76,11 +121,14 @@ export const useUserStore = create<UserStore>((set, get) => ({
                 isLoading: false
             });
         } catch (error) {
-            const errorMessage = ErrorHandler.handle(error);
-            set({ 
-                error: errorMessage.message,
-                isLoading: false 
-            });
+            // Only update error if this is still the most recent request
+            if (get().lastRequestId === requestId) {
+                const errorMessage = ErrorHandler.handle(error);
+                set({ 
+                    error: errorMessage.message,
+                    isLoading: false 
+                });
+            }
         }
     },
 
@@ -107,7 +155,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
             const roles = await apiService.execute(
                 () => usersApi.getRoles(),
                 'fetchRoles',
-                { enableCache: true, cacheTTL: 10 * 60 * 1000 } // Cache for 10 minutes
+                { enableCache: true, cacheTTL: 10 * 60 * 1000 }
             );
             set({ roles });
         } catch (error) {
@@ -116,6 +164,63 @@ export const useUserStore = create<UserStore>((set, get) => ({
         }
     },
 
+    // Filter state actions
+    setFilterFirstName: (value: string) => set({ filterFirstName: value }),
+    setFilterLastName: (value: string) => set({ filterLastName: value }),
+    setFilterPhone: (value: string) => set({ filterPhone: value }),
+    toggleFilterRole: (roleId: number) => set(state => ({
+        filterRoleIds: state.filterRoleIds.includes(roleId)
+            ? state.filterRoleIds.filter(id => id !== roleId)
+            : [...state.filterRoleIds, roleId]
+    })),
+    setSortField: (field: string) => set({ sortField: field }),
+    setSortDirection: (direction: 'asc' | 'desc') => set({ sortDirection: direction }),
+    
+    // Apply filters
+    applyFilters: async () => {
+        const {
+            filterFirstName,
+            filterLastName,
+            filterPhone,
+            filterRoleIds,
+            sortField,
+            sortDirection,
+            pageSize
+        } = get();
+        
+        // Build filters object
+        const filters: UserFilterParams = {
+            firstName: filterFirstName || undefined,
+            lastName: filterLastName || undefined,
+            phone: filterPhone || undefined,
+            roleIds: filterRoleIds.length > 0 ? filterRoleIds : undefined,
+            sortField: sortField || undefined,
+            sortDirection: sortDirection || undefined
+        };
+        
+        // Update filters in store and fetch
+        set({ filters });
+        await get().fetchUsers(0, pageSize);
+    },
+    
+    // Reset filters with a clean approach
+    resetFilters: async () => {
+        // Reset all filter state in one operation
+        set({
+            filterFirstName: '',
+            filterLastName: '',
+            filterPhone: '',
+            filterRoleIds: [],
+            sortField: '',
+            sortDirection: 'asc',
+            filters: {}
+        });
+        
+        // After state is reset, fetch data
+        const { pageSize } = get();
+        await get().fetchUsers(0, pageSize);
+    },
+    
     createUser: async (data: CreateUserRequest) => {
         set({ isLoading: true, error: null });
         try {
@@ -124,11 +229,9 @@ export const useUserStore = create<UserStore>((set, get) => ({
                 'createUser'
             );
             
-            // Clear cache and refresh users list
-            apiService.clearCache(['fetchUsers']);
+            // Refresh users list with current page
             await get().fetchUsers(get().currentPage, get().pageSize);
             
-            set({ isLoading: false });
             showToast('User created successfully!', 'success');
             return true;
         } catch (error) {
@@ -149,10 +252,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
                 `updateUser_${id}`
             );
             
-            // Clear relevant cache entries
-            apiService.clearCache([`fetchUser_${id}`, 'fetchUsers']);
-            
-            // Update state with the correctly typed data from the API
+            // Update state
             set(state => ({
                 users: state.users.map(user => user.id === id ? updatedUser : user),
                 currentUser: state.currentUser?.id === id ? updatedUser : state.currentUser,
@@ -178,9 +278,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
                 () => usersApi.updateRoles(userId, roleIds),
                 `updateUserRoles_${userId}`
             );
-            
-            // Clear relevant cache entries
-            apiService.clearCache([`fetchUser_${userId}`, 'fetchUsers']);
             
             // Update state
             set(state => ({
@@ -209,10 +306,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
                 `deleteUser_${id}`
             );
 
-            // Clear relevant cache entries
-            apiService.clearCache([`fetchUser_${id}`, 'fetchUsers']);
-
-            // Remove from current list without reloading
+            // Update state
             set(state => ({
                 users: state.users.filter(user => user.id !== id),
                 currentUser: state.currentUser?.id === id ? null : state.currentUser,
@@ -231,10 +325,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
         }
     },
 
-    setFilters: (filters: UserFilterParams) => {
-        set({ filters });
-    },
-
     clearError: () => set({ error: null }),
 
     setCurrentUser: (user: User | null) => set({ currentUser: user }),
@@ -243,14 +333,19 @@ export const useUserStore = create<UserStore>((set, get) => ({
         set({
             users: [],
             currentUser: null,
-            roles: [],
             isLoading: false,
             error: null,
             totalElements: 0,
             totalPages: 0,
             currentPage: 0,
             pageSize: 10,
-            filters: {}
+            filters: {},
+            filterFirstName: '',
+            filterLastName: '',
+            filterPhone: '',
+            filterRoleIds: [],
+            sortField: '',
+            sortDirection: 'asc'
         });
     }
 }));
