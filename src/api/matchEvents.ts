@@ -78,7 +78,7 @@ export const matchEventsApi = {
   getMatchEventsByMatchId: async (matchId: number): Promise<MatchEvent[]> => {
     try {
       const response = await axiosInstance.get<{ events: MatchEvent[] }>(`/match-events/public/match/${matchId}`);
-      return response.data.events;
+      return response.data.events || [];
     } catch (error) {
       return handleMatchEventsApiError(error);
     }

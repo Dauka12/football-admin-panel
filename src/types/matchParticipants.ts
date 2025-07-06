@@ -1,4 +1,4 @@
-// Match Participant status enum
+// Match Participant status enum - matches Swagger API specification exactly
 export type MatchParticipantStatus = 'CONFIRMED' | 'WAITING_PAYMENT' | 'CANCELLED';
 
 export const MatchParticipantStatus = {

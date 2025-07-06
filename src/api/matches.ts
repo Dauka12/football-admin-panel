@@ -66,7 +66,7 @@ export const matchApi = {
         }
     },
 
-    // Get match by ID (public) - NOTE: API uses POST method according to Swagger
+    // Get match by ID (public) - Uses POST method according to Swagger
     getById: async (id: number): Promise<MatchFullResponse> => {
         try {
             const response = await axiosInstance.post(`/matches/public/${id}`);
@@ -111,7 +111,9 @@ export const matchApi = {
     // Update match (admin only)
     update: async (id: number, data: UpdateMatchRequest): Promise<void> => {
         try {
-            await axiosInstance.patch(`/matches/admin/${id}`, data);
+            // Ensure all required fields are present
+            const completeData = matchApi.prepareUpdateData(data);
+            await axiosInstance.patch(`/matches/admin/${id}`, completeData);
         } catch (error) {
             console.error('Failed to update match:', error);
             throw error;
@@ -128,14 +130,54 @@ export const matchApi = {
         }
     },
 
-    // Update match status (admin only) - uses PATCH with status in body
+    // Update match status (admin only) - NOT IMPLEMENTED IN SWAGGER
+    // This method is kept for backwards compatibility but may not work
     updateStatus: async (id: number, status: MatchStatus): Promise<void> => {
         try {
+            // Note: This endpoint doesn't exist in Swagger - might need to use update instead
+            console.warn('updateStatus method may not be supported by current API');
             await axiosInstance.patch(`/matches/admin/${id}`, { status });
         } catch (error) {
             console.error('Failed to update match status:', error);
             throw error;
         }
+    },
+
+    // Update only match status (lightweight operation)
+    updateMatchStatusOnly: async (id: number, status: MatchStatus): Promise<void> => {
+        try {
+            // For status-only updates, we can send minimal data
+            const updateData = {
+                status: status,
+                teams: [], // API may require this field
+                cityId: 1, // API may require this field
+                playgroundId: 1, // API may require this field
+                maxCapacity: 1, // API may require this field
+                description: '', // API may require this field
+                sportTypeId: 1 // API may require this field
+            };
+            
+            await axiosInstance.patch(`/matches/admin/${id}`, updateData);
+        } catch (error) {
+            console.error('Failed to update match status:', error);
+            throw error;
+        }
+    },
+
+    // Helper method to prepare update data with defaults
+    prepareUpdateData: (data: UpdateMatchRequest): UpdateMatchRequest => {
+        return {
+            teams: data.teams || [],
+            cityId: data.cityId || 1,
+            status: data.status || 'PENDING',
+            playgroundId: data.playgroundId || 1,
+            maxCapacity: data.maxCapacity || 20,
+            description: data.description || '',
+            sportTypeId: data.sportTypeId || 1,
+            ...(data.startTime && { startTime: data.startTime }),
+            ...(data.endTime && { endTime: data.endTime }),
+            ...(data.tournamentId && { tournamentId: data.tournamentId })
+        };
     },
 
     // Utility methods for better match management

@@ -26,7 +26,7 @@ export const matchParticipantApi = {
     // Create new participant
     create: async (data: CreateMatchParticipantRequest): Promise<MatchParticipantResponse> => {
         try {
-            const response = await axiosInstance.post(`/match-participants`, data);
+            const response = await axiosInstance.post('/match-participants', data);
             return response.data;
         } catch (error) {
             console.error('Failed to create match participant:', error);
@@ -91,7 +91,7 @@ export const matchParticipantApi = {
     // Get organized matches for current user
     getOrganizedMatches: async (): Promise<OrganizedMatchParticipant[]> => {
         try {
-            const response = await axiosInstance.get(`/match-participants/organized`);
+            const response = await axiosInstance.get('/match-participants/organized');
             return response.data;
         } catch (error) {
             console.error('Failed to fetch organized matches:', error);

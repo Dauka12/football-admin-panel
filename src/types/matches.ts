@@ -1,4 +1,4 @@
-// Match status enum - matches API specification
+// Match status enum - matches Swagger API specification exactly
 export type MatchStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 
 export const MatchStatus = {
@@ -8,8 +8,8 @@ export const MatchStatus = {
     CANCELLED: 'CANCELLED' as MatchStatus
 } as const;
 
-// Participant status enum
-export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED';
+// Participant status enum - matches MatchParticipantStatus for consistency
+export type ParticipantStatus = 'CONFIRMED' | 'WAITING_PAYMENT' | 'CANCELLED';
 
 // Tournament info for match responses - updated to match Swagger
 export interface MatchTournament {
@@ -119,15 +119,20 @@ export interface CreateMatchRequest {
 
 export interface UpdateMatchRequest {
     tournamentId?: number;
-    teams: number[];
-    cityId: number;
-    status: string;
-    playgroundId: number;
-    startTime: string; // ISO 8601 format (e.g., "2025-07-02T10:18:49.251Z")
-    endTime: string;   // ISO 8601 format (e.g., "2025-07-02T10:18:49.251Z")
-    maxCapacity: number;
-    description: string;
-    sportTypeId: number;
+    teams?: number[];
+    cityId?: number;
+    status?: string;
+    playgroundId?: number;
+    startTime?: string; // ISO 8601 format (e.g., "2025-07-02T10:18:49.251Z") - optional for status updates
+    endTime?: string;   // ISO 8601 format (e.g., "2025-07-02T10:18:49.251Z") - optional for status updates
+    maxCapacity?: number;
+    description?: string;
+    sportTypeId?: number;
+}
+
+// Specialized type for status-only updates
+export interface UpdateMatchStatusRequest {
+    status: MatchStatus;
 }
 
 // Response for create operations

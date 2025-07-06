@@ -127,6 +127,13 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
 
         setFormData(prev => {
             if (isChecked) {
+                // Check if we already have 2 teams selected
+                if (prev.teams.length >= 2) {
+                    showToast(t('matches.form.errors.maxTwoTeams'), 'error');
+                    e.target.checked = false; // Uncheck the checkbox
+                    return prev; // Don't add the team
+                }
+                
                 // Add team if not already in the list
                 if (!prev.teams.includes(teamId)) {
                     return { ...prev, teams: [...prev.teams, teamId] };
@@ -223,6 +230,8 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
             newErrors.teams = t('matches.form.errors.teamsRequired');
         } else if (formData.teams.length < 2) {
             newErrors.teams = t('matches.form.errors.minimumTwoTeams');
+        } else if (formData.teams.length > 2) {
+            newErrors.teams = t('matches.form.errors.maxTwoTeams');
         }
 
         // Check required fields
@@ -481,8 +490,16 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
             {/* Team selection */}
             <div>
                 <label className="block font-medium mb-2 text-sm">
-                    {t('matches.form.teams')} *
+                    {t('matches.form.teams')} * 
+                    <span className="text-gray-400 font-normal ml-1">
+                        ({formData.teams.length}/2 {t('matches.form.teamsSelected')})
+                    </span>
                 </label>
+                {formData.teams.length >= 2 && (
+                    <p className="text-yellow-500 text-xs mb-2">
+                        {t('matches.form.maxTeamsReached')}
+                    </p>
+                )}
                 {errors.teams && (
                     <p className="text-red-500 text-xs mb-2">{errors.teams}</p>
                 )}
@@ -491,15 +508,20 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
                     {teams.length === 0 ? (
                         <p className="text-gray-400 p-3 text-sm">{t('matches.form.noTeams')}</p>
                     ) : (
-                        teams.map(team => (
-                            <div key={team.id} className="flex items-center space-x-3 p-3 border-b border-gray-700 last:border-b-0">
+                        teams.map(team => {
+                            const isSelected = formData.teams.includes(team.id);
+                            const isDisabled = !isSelected && formData.teams.length >= 2;
+                            
+                            return (
+                            <div key={team.id} className={`flex items-center space-x-3 p-3 border-b border-gray-700 last:border-b-0 ${isDisabled ? 'opacity-50' : ''}`}>
                                 <input
                                     type="checkbox"
                                     id={`team-${team.id}`}
                                     value={team.id}
-                                    checked={formData.teams.includes(team.id)}
+                                    checked={isSelected}
+                                    disabled={isDisabled}
                                     onChange={handleTeamSelection}
-                                    className="h-4 w-4 text-gold focus:ring-gold border-gray-700 bg-darkest-bg rounded"
+                                    className="h-4 w-4 text-gold focus:ring-gold border-gray-700 bg-darkest-bg rounded disabled:opacity-50"
                                 />
                                 <div className="flex items-center flex-1">
                                     <div
@@ -520,7 +542,7 @@ const MatchForm: React.FC<MatchFormProps> = ({ initialData, onSubmit, onCancel }
                                     <span>{team.name}</span>
                                 </div>
                             </div>
-                        ))
+                        );})
                     )}
                 </div>
             </div>

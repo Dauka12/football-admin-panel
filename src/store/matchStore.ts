@@ -153,7 +153,15 @@ export const useMatchStore = create<MatchState>((set, get) => ({
         try {
             console.log('Updating match:', id, data);
             
-            await matchApi.update(id, data);
+            // Ensure startTime and endTime are included if not provided
+            const currentMatch = get().currentMatch;
+            const updateData: UpdateMatchRequest = {
+                ...data,
+                startTime: data.startTime || (currentMatch?.id === id ? currentMatch.startTime : undefined),
+                endTime: data.endTime || (currentMatch?.id === id ? currentMatch.endTime : undefined)
+            };
+            
+            await matchApi.update(id, updateData);
             
             console.log('Match updated successfully');
             
@@ -213,7 +221,32 @@ export const useMatchStore = create<MatchState>((set, get) => ({
         try {
             console.log('Updating match status:', id, status);
             
-            await matchApi.updateStatus(id, status);
+            // Try to use the lightweight status update method first
+            try {
+                await matchApi.updateMatchStatusOnly(id, status);
+            } catch (error) {
+                // If that fails, use the full update method with current match data
+                const currentMatch = get().currentMatch;
+                if (currentMatch && currentMatch.id === id) {
+                    const updateData: UpdateMatchRequest = {
+                        tournamentId: currentMatch.tournament?.id,
+                        teams: currentMatch.participants?.map(p => p.teamId) || [],
+                        cityId: currentMatch.cityId,
+                        status: status,
+                        playgroundId: currentMatch.reservation?.playground?.id || 1,
+                        startTime: currentMatch.startTime,
+                        endTime: currentMatch.endTime,
+                        maxCapacity: currentMatch.reservation?.playground?.maxCapacity || 20,
+                        description: currentMatch.description || '',
+                        sportTypeId: currentMatch.sportTypeId
+                    };
+                    
+                    await matchApi.update(id, updateData);
+                } else {
+                    // Last resort - minimal update
+                    await matchApi.update(id, { status });
+                }
+            }
             
             console.log('Match status updated successfully');
             
