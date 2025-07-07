@@ -1,4 +1,4 @@
-import { axiosInstanceDev } from './axios';
+import axiosInstance from './axios';
 import type { 
     News, 
     NewsListItem,
@@ -45,19 +45,19 @@ export const newsApi = {
             filters.sort.forEach(sort => params.append('pageable.sort', sort));
         }
         
-        const response = await axiosInstanceDev.get(`/news?${params.toString()}`);
+        const response = await axiosInstance.get(`/news?${params.toString()}`);
         return response.data;
     },
 
     // Get news by ID
     getById: async (id: number): Promise<News> => {
-        const response = await axiosInstanceDev.get(`/news/${id}`);
+        const response = await axiosInstance.get(`/news/${id}`);
         return response.data;
     },
 
     // Get news by slug
     getBySlug: async (slug: string): Promise<News> => {
-        const response = await axiosInstanceDev.get(`/news/slug/${slug}`);
+        const response = await axiosInstance.get(`/news/slug/${slug}`);
         return response.data;
     },
 
@@ -66,7 +66,7 @@ export const newsApi = {
         const params = new URLSearchParams();
         if (authorId) params.append('authorId', authorId.toString());
         
-        const response = await axiosInstanceDev.post(`/news${params.toString()}`, data);
+        const response = await axiosInstance.post(`/news${params.toString()}`, data);
         return response.data;
     },
 
@@ -75,41 +75,41 @@ export const newsApi = {
         const params = new URLSearchParams();
         if (authorId) params.append('authorId', authorId.toString());
         
-        const response = await axiosInstanceDev.put(`/news/${id}?${params.toString()}`, data);
+        const response = await axiosInstance.put(`/news/${id}?${params.toString()}`, data);
         return response.data;
     },
 
     // Delete news
     delete: async (id: number): Promise<void> => {
-        await axiosInstanceDev.delete(`/news/${id}`);
+        await axiosInstance.delete(`/news/${id}`);
     },
 
     // Increment view count
     incrementViewCount: async (id: number): Promise<void> => {
-        await axiosInstanceDev.post(`/news/${id}/view`);
+        await axiosInstance.post(`/news/${id}/view`);
     },
 
     // Set news status
     setStatus: async (id: number, status: NewsStatus): Promise<CreateNewsResponse> => {
-        const response = await axiosInstanceDev.patch(`/news/${id}/status?status=${status}`);
+        const response = await axiosInstance.patch(`/news/${id}/status?status=${status}`);
         return response.data;
     },
 
     // Publish news
     publish: async (id: number): Promise<CreateNewsResponse> => {
-        const response = await axiosInstanceDev.patch(`/news/${id}/publish`);
+        const response = await axiosInstance.patch(`/news/${id}/publish`);
         return response.data;
     },
 
     // Archive news
     archive: async (id: number): Promise<CreateNewsResponse> => {
-        const response = await axiosInstanceDev.patch(`/news/${id}/archive`);
+        const response = await axiosInstance.patch(`/news/${id}/archive`);
         return response.data;
     },
 
     // Get related news
     getRelated: async (id: number, limit: number = 5): Promise<NewsListItem[]> => {
-        const response = await axiosInstanceDev.get(`/news/${id}/related?limit=${limit}`);
+        const response = await axiosInstance.get(`/news/${id}/related?limit=${limit}`);
         return response.data;
     },
 
@@ -119,7 +119,7 @@ export const newsApi = {
         params.append('slug', slug);
         if (excludeId) params.append('excludeId', excludeId.toString());
         
-        const response = await axiosInstanceDev.get(`/news/validate-slug?${params.toString()}`);
+        const response = await axiosInstance.get(`/news/validate-slug?${params.toString()}`);
         return response.data;
     },
 
@@ -130,13 +130,13 @@ export const newsApi = {
         params.append('pageable.page', page.toString());
         params.append('pageable.size', size.toString());
         
-        const response = await axiosInstanceDev.get(`/news/tags?${params.toString()}`);
+        const response = await axiosInstance.get(`/news/tags?${params.toString()}`);
         return response.data;
     },
 
     // Get news statistics
     getStatistics: async (): Promise<NewsStatistics> => {
-        const response = await axiosInstanceDev.get('/news/statistics');
+        const response = await axiosInstance.get('/news/statistics');
         return response.data;
     },
 
@@ -147,13 +147,13 @@ export const newsApi = {
         params.append('pageable.page', page.toString());
         params.append('pageable.size', size.toString());
         
-        const response = await axiosInstanceDev.get(`/news/search?${params.toString()}`);
+        const response = await axiosInstance.get(`/news/search?${params.toString()}`);
         return response.data;
     },
 
     // Get recent news
     getRecent: async (limit: number = 10): Promise<NewsListItem[]> => {
-        const response = await axiosInstanceDev.get(`/news/recent?limit=${limit}`);
+        const response = await axiosInstance.get(`/news/recent?limit=${limit}`);
         return response.data;
     },
 
@@ -163,7 +163,7 @@ export const newsApi = {
         params.append('pageable.page', page.toString());
         params.append('pageable.size', size.toString());
         
-        const response = await axiosInstanceDev.get(`/news/published?${params.toString()}`);
+        const response = await axiosInstance.get(`/news/published?${params.toString()}`);
         return response.data;
     },
 
@@ -173,7 +173,7 @@ export const newsApi = {
         params.append('pageable.page', page.toString());
         params.append('pageable.size', size.toString());
         
-        const response = await axiosInstanceDev.get(`/news/popular?${params.toString()}`);
+        const response = await axiosInstance.get(`/news/popular?${params.toString()}`);
         return response.data;
     },
 
@@ -183,7 +183,7 @@ export const newsApi = {
         params.append('pageable.page', page.toString());
         params.append('pageable.size', size.toString());
         
-        const response = await axiosInstanceDev.get(`/news/featured?${params.toString()}`);
+        const response = await axiosInstance.get(`/news/featured?${params.toString()}`);
         return response.data;
     },
 
@@ -193,7 +193,7 @@ export const newsApi = {
         params.append('pageable.page', page.toString());
         params.append('pageable.size', size.toString());
         
-        const response = await axiosInstanceDev.get(`/news/category/${category}?${params.toString()}`);
+        const response = await axiosInstance.get(`/news/category/${category}?${params.toString()}`);
         return response.data;
     },
 
@@ -203,7 +203,7 @@ export const newsApi = {
         params.append('pageable.page', page.toString());
         params.append('pageable.size', size.toString());
         
-        const response = await axiosInstanceDev.get(`/news/breaking?${params.toString()}`);
+        const response = await axiosInstance.get(`/news/breaking?${params.toString()}`);
         return response.data;
     },
 
@@ -213,7 +213,7 @@ export const newsApi = {
         params.append('pageable.page', page.toString());
         params.append('pageable.size', size.toString());
         
-        const response = await axiosInstanceDev.get(`/news/author/${authorId}?${params.toString()}`);
+        const response = await axiosInstance.get(`/news/author/${authorId}?${params.toString()}`);
         return response.data;
     }
 };
