@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth';
+import { usePermissions } from '../../hooks/usePermissions';
 
 // Define sidebar menu items
 const sidebarItems = [
@@ -169,6 +170,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile, onClose }) => {
     const { t } = useTranslation();
     const location = useLocation();
     const { user, logout } = useAuthStore();
+    const { canAccessSidebarItem } = usePermissions();
+    
+    // Фильтруем элементы сайдбара на основе разрешений пользователя
+    const availableItems = sidebarItems.filter(item => canAccessSidebarItem(item.id));
 
     return (
         <div
@@ -194,7 +199,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobile, onClose }) => {
             {/* Navigation Items */}
             <nav className="flex-1 py-4">
                 <ul className="space-y-1">
-                    {sidebarItems.map((item) => {
+                    {availableItems.map((item) => {
                         const isActive = location.pathname.startsWith(item.path);
                         return (
                             <li key={item.id}>

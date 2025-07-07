@@ -1,3 +1,5 @@
+import type { UserRole } from './users';
+
 // Login
 export interface LoginRequest {
     phone: string;
@@ -9,7 +11,9 @@ export interface LoginResponse {
     firstname: string;
     lastname: string;
     phone: string;
-    role: string;
+    role: string | string[]; // Поддерживаем как строку, так и массив строк
+    roles?: UserRole[]; // Добавляем поддержку массива ролей
+    profilePictureUrl?: string; // Добавляем новое поле из ответа
 }
 
 // Registration

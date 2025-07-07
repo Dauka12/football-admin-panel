@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom';
 import DashboardLayout from './components/layout/DashboardLayout';
+import { ProtectedRoute as PermissionProtectedRoute } from './components/auth/ProtectedRoute';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import GlobalLoadingIndicator from './components/ui/GlobalLoadingIndicator';
 import { useAuthStore } from './store/auth';
@@ -101,29 +102,35 @@ const App: React.FC = () => {
             <Route
               path="teams"
               element={
-                <Suspense fallback={<RouteLoadingSpinner />}>
-                  <ErrorBoundary>
-                    <TeamsPage />
-                  </ErrorBoundary>
-                </Suspense>
+                <PermissionProtectedRoute permission="teams.view">
+                  <Suspense fallback={<RouteLoadingSpinner />}>
+                    <ErrorBoundary>
+                      <TeamsPage />
+                    </ErrorBoundary>
+                  </Suspense>
+                </PermissionProtectedRoute>
               }
             />          <Route
               path="teams/:id"
               element={
-                <Suspense fallback={<RouteLoadingSpinner />}>
-                  <ErrorBoundary>
-                    <TeamDetailPage />
-                  </ErrorBoundary>
-                </Suspense>
+                <PermissionProtectedRoute permission="teams.view">
+                  <Suspense fallback={<RouteLoadingSpinner />}>
+                    <ErrorBoundary>
+                      <TeamDetailPage />
+                    </ErrorBoundary>
+                  </Suspense>
+                </PermissionProtectedRoute>
               }
             />          <Route
               path="players"
               element={
-                <Suspense fallback={<RouteLoadingSpinner />}>
-                  <ErrorBoundary>
-                    <PlayersPage />
-                  </ErrorBoundary>
-                </Suspense>
+                <PermissionProtectedRoute permission="players.view">
+                  <Suspense fallback={<RouteLoadingSpinner />}>
+                    <ErrorBoundary>
+                      <PlayersPage />
+                    </ErrorBoundary>
+                  </Suspense>
+                </PermissionProtectedRoute>
               }
             />          <Route
               path="players/:id"
@@ -134,23 +141,27 @@ const App: React.FC = () => {
                   </ErrorBoundary>
                 </Suspense>
               }
-            /><Route
+            />            <Route
               path="users"
               element={
-                <Suspense fallback={<RouteLoadingSpinner />}>
-                  <ErrorBoundary>
-                    <UsersPage />
-                  </ErrorBoundary>
-                </Suspense>
+                <PermissionProtectedRoute permission="users.view">
+                  <Suspense fallback={<RouteLoadingSpinner />}>
+                    <ErrorBoundary>
+                      <UsersPage />
+                    </ErrorBoundary>
+                  </Suspense>
+                </PermissionProtectedRoute>
               }
             />          <Route
               path="users/:id"
               element={
-                <Suspense fallback={<RouteLoadingSpinner />}>
-                  <ErrorBoundary>
-                    <UserDetailPage />
-                  </ErrorBoundary>
-                </Suspense>
+                <PermissionProtectedRoute permission="users.view">
+                  <Suspense fallback={<RouteLoadingSpinner />}>
+                    <ErrorBoundary>
+                      <UserDetailPage />
+                    </ErrorBoundary>
+                  </Suspense>
+                </PermissionProtectedRoute>
               }
             />
 
@@ -295,9 +306,11 @@ const App: React.FC = () => {
             <Route
               path="permissions"
               element={
-                <Suspense fallback={<RouteLoadingSpinner />}>
-                  <PermissionsPage />
-                </Suspense>
+                <PermissionProtectedRoute permission="permissions.view">
+                  <Suspense fallback={<RouteLoadingSpinner />}>
+                    <PermissionsPage />
+                  </Suspense>
+                </PermissionProtectedRoute>
               }
             />
             <Route
@@ -365,11 +378,13 @@ const App: React.FC = () => {
             <Route
               path="news"
               element={
-                <Suspense fallback={<RouteLoadingSpinner />}>
-                  <ErrorBoundary>
-                    <NewsPage />
-                  </ErrorBoundary>
-                </Suspense>
+                <PermissionProtectedRoute permission="news.view">
+                  <Suspense fallback={<RouteLoadingSpinner />}>
+                    <ErrorBoundary>
+                      <NewsPage />
+                    </ErrorBoundary>
+                  </Suspense>
+                </PermissionProtectedRoute>
               }
             />
             <Route

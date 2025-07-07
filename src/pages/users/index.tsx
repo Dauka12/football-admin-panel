@@ -4,11 +4,14 @@ import { Link } from 'react-router-dom';
 import Modal from '../../components/ui/Modal';
 import RoleManagementModal from '../../components/users/RoleManagementModal';
 import UserForm from '../../components/users/UserForm';
+import { PermissionGate } from '../../components/auth/ProtectedRoute';
+import { usePermissions } from '../../hooks/usePermissions';
 import { useUserStore } from '../../store/userStore';
 import type { CreateUserRequest, User } from '../../types/users';
 
 const UsersPage: React.FC = () => {
     const { t } = useTranslation();
+    const { hasPermission, userRoles, isAdmin } = usePermissions();
     // Get everything from store including filter state
     const {
         users,
@@ -148,17 +151,39 @@ const UsersPage: React.FC = () => {
                         </svg>
                         {t('common.filter')}
                     </button>
-                    <button
-                        onClick={() => setShowCreateForm(true)}
-                        className="bg-gold text-darkest-bg px-6 py-2 rounded-lg hover:bg-gold/90 transition-colors duration-200 flex items-center gap-2 font-medium"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                        </svg>
-                        {t('users.createUser')}
-                    </button>
+                    <PermissionGate permission="users.create">
+                        <button
+                            onClick={() => setShowCreateForm(true)}
+                            className="bg-gold text-darkest-bg px-6 py-2 rounded-lg hover:bg-gold/90 transition-colors duration-200 flex items-center gap-2 font-medium"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            {t('users.createUser')}
+                        </button>
+                    </PermissionGate>
                 </div>
             </div>
+
+            {/* Permission Info (Demo) */}
+            {isAdmin() && (
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-6">
+                    <div className="flex items-start gap-3">
+                        <svg className="w-5 h-5 text-blue-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <h3 className="text-blue-400 font-medium">Информация о разрешениях</h3>
+                            <p className="text-blue-300 text-sm mt-1">
+                                Ваши роли: {userRoles.map(role => role.name).join(', ')}. 
+                                Доступные действия: {hasPermission('users.create') ? 'создание' : ''} 
+                                {hasPermission('users.edit') ? ', редактирование' : ''} 
+                                {hasPermission('users.delete') ? ', удаление' : ''} пользователей.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Error message */}
             {error && (
@@ -244,24 +269,30 @@ const UsersPage: React.FC = () => {
                                                 >
                                                     {t('common.viewDetails')}
                                                 </Link>
-                                                <button
-                                                    onClick={() => setEditingUser(user)}
-                                                    className="text-blue-400 hover:text-blue-300 transition-colors"
-                                                >
-                                                    {t('common.edit')}
-                                                </button>
-                                                <button
-                                                    onClick={() => setShowRoleModal(user)}
-                                                    className="text-green-400 hover:text-green-300 transition-colors"
-                                                >
-                                                    {t('users.manageRoles')}
-                                                </button>
-                                                <button
-                                                    onClick={() => setUserToDelete(user)}
-                                                    className="text-red-400 hover:text-red-300 transition-colors"
-                                                >
-                                                    {t('common.delete')}
-                                                </button>
+                                                <PermissionGate permission="users.edit">
+                                                    <button
+                                                        onClick={() => setEditingUser(user)}
+                                                        className="text-blue-400 hover:text-blue-300 transition-colors"
+                                                    >
+                                                        {t('common.edit')}
+                                                    </button>
+                                                </PermissionGate>
+                                                <PermissionGate permission="users.manage">
+                                                    <button
+                                                        onClick={() => setShowRoleModal(user)}
+                                                        className="text-green-400 hover:text-green-300 transition-colors"
+                                                    >
+                                                        {t('users.manageRoles')}
+                                                    </button>
+                                                </PermissionGate>
+                                                <PermissionGate permission="users.delete">
+                                                    <button
+                                                        onClick={() => setUserToDelete(user)}
+                                                        className="text-red-400 hover:text-red-300 transition-colors"
+                                                    >
+                                                        {t('common.delete')}
+                                                    </button>
+                                                </PermissionGate>
                                             </div>
                                         </td>
                                     </tr>
@@ -310,18 +341,22 @@ const UsersPage: React.FC = () => {
                                     >
                                         {t('common.viewDetails')}
                                     </Link>
-                                    <button
-                                        onClick={() => setEditingUser(user)}
-                                        className="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium hover:bg-blue-700 transition-colors"
-                                    >
-                                        {t('common.edit')}
-                                    </button>
-                                    <button
-                                        onClick={() => setUserToDelete(user)}
-                                        className="bg-red-600 text-white px-3 py-2 rounded text-sm font-medium hover:bg-red-700 transition-colors"
-                                    >
-                                        {t('common.delete')}
-                                    </button>
+                                    <PermissionGate permission="users.edit">
+                                        <button
+                                            onClick={() => setEditingUser(user)}
+                                            className="bg-blue-600 text-white px-3 py-2 rounded text-sm font-medium hover:bg-blue-700 transition-colors"
+                                        >
+                                            {t('common.edit')}
+                                        </button>
+                                    </PermissionGate>
+                                    <PermissionGate permission="users.delete">
+                                        <button
+                                            onClick={() => setUserToDelete(user)}
+                                            className="bg-red-600 text-white px-3 py-2 rounded text-sm font-medium hover:bg-red-700 transition-colors"
+                                        >
+                                            {t('common.delete')}
+                                        </button>
+                                    </PermissionGate>
                                 </div>
                             </div>
                         ))}

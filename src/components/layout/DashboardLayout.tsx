@@ -4,6 +4,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth';
 import LanguageSwitcher from '../LanguageSwitcher';
 import PerformanceDebugger from '../debug/PerformanceDebugger';
+import { PermissionDebugger } from '../debug/PermissionDebugger';
 import Sidebar from './Sidebar';
 
 const DashboardLayout: React.FC = () => {
@@ -101,6 +102,9 @@ const DashboardLayout: React.FC = () => {
 
             {/* Performance Debugger */}
             <PerformanceDebugger />
+            
+            {/* Permission Debugger */}
+            <PermissionDebugger />
         </div>
     );
 };
