@@ -32,6 +32,7 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
         identificationNumber: '', // Required for create/update requests
         userId: 0, // Required for create/update requests  
         heroId: initialData?.heroId || 0,
+        fullName: initialData?.fullName || '',
     });
 
     const [isLoading, setIsLoading] = useState(false);
@@ -107,6 +108,7 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
         // Create validation data with required fields, providing defaults for optional fields
         const validationData = {
             ...formData,
+            fullName: formData.fullName || '',
             teamId: formData.teamId || 0,
             sportTypeId: formData.sportTypeId || 0,
             nationality: formData.nationality || '',
@@ -117,6 +119,12 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
 
         if (!validateForm(validationData)) {
             showToast('Please fix the validation errors', 'error');
+            return;
+        }
+
+        // Check if required fields are filled
+        if (!formData.fullName.trim()) {
+            showToast('Please enter the player\'s full name', 'error');
             return;
         }
 
@@ -147,7 +155,27 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
         <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
             {/* Basic Info Section */}
             <div className="bg-darkest-bg p-4 rounded-md mb-4">
-                <h3 className="text-gold font-medium mb-3">{t('players.basicInfo')}</h3>                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                <h3 className="text-gold font-medium mb-3">{t('players.basicInfo')}</h3>
+                
+                {/* Full Name Field */}
+                <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1" htmlFor="fullName">
+                        {t('players.fullName')} *
+                    </label>
+                    <input
+                        type="text"
+                        id="fullName"
+                        name="fullName"
+                        value={formData.fullName}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        className={`form-input ${errors.fullName ? 'border-red-500' : ''}`}
+                        placeholder={t('players.fullNamePlaceholder')}
+                    />
+                    {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                     <div>
                         <label className="block text-sm font-medium mb-1" htmlFor="position">
                             {t('players.position')} *

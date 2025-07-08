@@ -120,6 +120,7 @@ export interface PlayerCreateRequest {
     userId: number;
     sportTypeId: number;
     heroId: number;
+    fullName: string;
 }
 
 // Update request interface - aligned with API specification  
@@ -137,6 +138,7 @@ export interface PlayerUpdateRequest {
     userId: number;
     sportTypeId: number;
     heroId: number;
+    fullName: string;
 }
 
 // Response for create/update operations

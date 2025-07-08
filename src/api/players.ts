@@ -17,8 +17,8 @@ export const playerApi = {
                     page, 
                     size,
                     ...otherFilters,
-                    // Add fullName support from Swagger
-                    fullName: otherFilters.fullName || ''
+                    // Ensure fullName is properly passed
+                    fullName: otherFilters.fullName || undefined
                 }
             });
             return response.data;

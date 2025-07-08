@@ -176,6 +176,11 @@ export const authValidators = {
 
 export const playerValidators = {
     create: new Validator({
+        fullName: [
+            validationRules.required('Full name is required'),
+            validationRules.minLength(2, 'Full name must be at least 2 characters'),
+            validationRules.maxLength(100, 'Full name must be less than 100 characters')
+        ],
         position: [
             validationRules.required('Position is required')
         ],

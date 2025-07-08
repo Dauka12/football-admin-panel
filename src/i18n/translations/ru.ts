@@ -543,6 +543,8 @@ export const ru = {
         noPlayersAvailable: "Нет доступных игроков",
         createFirst: "Создайте вашего первого игрока",
         fullName: "Полное имя",
+        fullNamePlaceholder: "Введите полное имя игрока",
+        searchPlaceholder: "Поиск по имени, позиции или национальности",
         position: "Позиция",
         club: "Клуб",
         team: "Команда",

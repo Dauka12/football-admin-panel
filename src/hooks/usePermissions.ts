@@ -19,12 +19,8 @@ export function usePermissions() {
   const userRoles = useMemo(() => {
     if (!user) return [];
     
-    console.log('🔍 usePermissions - user object:', user);
-    console.log('🔍 usePermissions - user.role:', user.role);
-    
     // Если в LoginResponse есть поле roles как массив объектов
     if ('roles' in user && Array.isArray(user.roles)) {
-      console.log('✅ Found roles array:', user.roles);
       return user.roles;
     }
     
@@ -34,25 +30,19 @@ export function usePermissions() {
         id: index + 1,
         name: roleName
       }));
-      console.log('✅ Mapped roles from array:', mappedRoles);
       return mappedRoles;
     }
     
     // Если роль хранится как строка
     if (user.role && typeof user.role === 'string') {
       const singleRole = [{ id: 1, name: user.role }];
-      console.log('✅ Mapped single role:', singleRole);
       return singleRole;
     }
-    
-    console.log('❌ No roles found');
     return [];
   }, [user]);
   
   const permissions = useMemo(() => {
     const perms = getUserPermissions(userRoles);
-    console.log('🔐 Calculated permissions:', perms);
-    console.log('🔐 User roles for permissions:', userRoles);
     return perms;
   }, [userRoles]);
   

@@ -465,6 +465,8 @@ export const en = {
         noPlayersAvailable: "No players available",
         createFirst: "Create your first player",
         fullName: "Full Name",
+        fullNamePlaceholder: "Enter player's full name",
+        searchPlaceholder: "Search by name, position, or nationality",
         position: "Position",
         club: "Club",
         team: "Team",

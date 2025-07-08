@@ -44,6 +44,7 @@ const PlayersPage: React.FC = () => {
     const [filterNationality, setFilterNationality] = useState(filters.nationality || '');
     const [filterAge, setFilterAge] = useState<string>(filters.age?.toString() || '');
     const [filterPreferredFoot, setFilterPreferredFoot] = useState<string>(filters.preferredFoot || '');
+    const [filterFullName, setFilterFullName] = useState<string>(filters.fullName || '');
 
     // Load teams on component mount
     useEffect(() => {
@@ -57,10 +58,15 @@ const PlayersPage: React.FC = () => {
         if (!searchQuery.trim()) return players;
 
         const query = searchQuery.toLowerCase();
-        return players.filter(player =>
-            player.position?.toLowerCase().includes(query) ||
-            player.nationality?.toLowerCase().includes(query)
-        );
+        return players.filter(player => {
+            const displayName = getPlayerDisplayName(player).toLowerCase();
+            const position = getPlayerPosition(player).toLowerCase();
+            const nationality = player.nationality?.toLowerCase() || '';
+            
+            return displayName.includes(query) ||
+                   position.includes(query) ||
+                   nationality.includes(query);
+        });
     }, [players, searchQuery]);
 
     // Apply filters and fetch players
@@ -72,6 +78,7 @@ const PlayersPage: React.FC = () => {
         if (filterNationality) newFilters.nationality = filterNationality;
         if (filterAge) newFilters.age = parseInt(filterAge);
         if (filterPreferredFoot) newFilters.preferredFoot = filterPreferredFoot as any; // Cast to PreferredFoot
+        if (filterFullName) newFilters.fullName = filterFullName;
         
         setFilters(newFilters);
         // Reset to first page when applying new filters
@@ -87,6 +94,7 @@ const PlayersPage: React.FC = () => {
         setFilterNationality('');
         setFilterAge('');
         setFilterPreferredFoot('');
+        setFilterFullName('');
         setFilters({});
         setPage(0);
         fetchPlayers(true, 0, pageSize, {});
@@ -198,7 +206,7 @@ const PlayersPage: React.FC = () => {
                 <div className="relative flex-1 w-full lg:w-auto">
                     <input
                         type="text"
-                        placeholder={t('common.searchByPosition')}
+                        placeholder={t('players.searchPlaceholder')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full px-4 py-3 pl-10 bg-card-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold transition-colors duration-200"
@@ -299,6 +307,18 @@ const PlayersPage: React.FC = () => {
                             {isTeamsLoading && (
                                 <div className="text-xs text-gray-400 mt-1">{t('common.loading')}</div>
                             )}
+                        </div>
+                        
+                        {/* Full Name filter */}
+                        <div className="space-y-1">
+                            <label className="text-sm text-gray-400">{t('players.fullName')}</label>
+                            <input
+                                type="text"
+                                value={filterFullName}
+                                onChange={(e) => setFilterFullName(e.target.value)}
+                                placeholder={t('players.fullName')}
+                                className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold transition-colors duration-200"
+                            />
                         </div>
                         
                         {/* Nationality filter */}
