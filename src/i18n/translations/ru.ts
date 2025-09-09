@@ -488,7 +488,7 @@ export const ru = {
         viewGif: "Просмотреть GIF",
         viewDetails: "Подробнее",
         backToList: "Вернуться к списку",
-        search: "Поиск...",
+        search: "Поиск",
         actions: "Действия",
         searchByPosition: "Поиск по позиции, клубу или гражданству...",
         searchByName: "Поиск по названию команды или описанию...",
