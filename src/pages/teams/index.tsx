@@ -120,9 +120,7 @@ const TeamsPage: React.FC = () => {
                 </button>
             </div>
 
-            {/* Search and Filter Bar */}
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 mb-6">
-                {/* Search input */}
                 <div className="relative flex-1 w-full lg:w-auto">
                     <input
                         type="text"
@@ -148,7 +146,6 @@ const TeamsPage: React.FC = () => {
                     )}
                 </div>
 
-                {/* Filter button */}
                 <div className="flex space-x-2 w-full lg:w-auto">
                     <button
                         onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -175,13 +172,11 @@ const TeamsPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Filter Panel */}
             {isFilterOpen && (
                 <div className="bg-card-bg border border-gray-700 rounded-lg p-4 mb-6 animate-fade-in">
                     <h3 className="text-lg font-semibold mb-4">{t('common.filterOptions')}</h3>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {/* Team Name filter */}
                         <div className="space-y-1">
                             <label className="text-sm text-gray-400">{t('teams.name')}</label>
                             <input
@@ -193,7 +188,6 @@ const TeamsPage: React.FC = () => {
                             />
                         </div>
                         
-                        {/* Primary Color filter */}
                         <div className="space-y-1">
                             <label className="text-sm text-gray-400">{t('teams.primaryColor')}</label>
                             <input
@@ -204,7 +198,6 @@ const TeamsPage: React.FC = () => {
                                 className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold transition-colors duration-200"
                             />
                         </div>
-                          {/* Secondary Color filter */}
                         <div className="space-y-1">
                             <label className="text-sm text-gray-400">{t('teams.secondaryColor')}</label>
                             <input
@@ -216,7 +209,6 @@ const TeamsPage: React.FC = () => {
                             />
                         </div>
                         
-                        {/* Sport Type filter */}
                         <div className="space-y-1">
                             <label className="text-sm text-gray-400">{t('teams.sportType')}</label>
                             <select
@@ -305,7 +297,6 @@ const TeamsPage: React.FC = () => {
                                 
                                 <p className="text-gray-400 text-sm mb-3 line-clamp-2">{team.description}</p>
                                 
-                                {/* Адаптивный макет для цветов команды */}
                                 <div className="flex flex-col sm:flex-row gap-2 mb-3">
                                     <div className="flex items-center">
                                         <span className="text-xs sm:text-sm text-gray-400 mr-2 whitespace-nowrap">{t('teams.primaryColor')}:</span>
@@ -403,7 +394,6 @@ const TeamsPage: React.FC = () => {
                 />
             </Modal>
 
-            {/* Delete Confirmation Modal */}
             <Modal
                 isOpen={teamToDelete !== null}
                 onClose={() => setTeamToDelete(null)}

@@ -70,12 +70,11 @@ const TeamDetailPage: React.FC = () => {
         if (teamId > 0) {
             fetchTeamMatches(teamId);
         }
-    }, [teamId]); // Remove fetchTeamMatches from dependencies
+    }, [teamId]);
 
     useEffect(() => {
         const getPlayerDetails = async () => {
             if (currentTeam && Array.isArray(currentTeam.players) && currentTeam.players.length > 0) {
-                // Skip if we already have the players loaded
                 if (teamPlayers.length > 0) return;
                 
                 setIsLoadingPlayers(true);
@@ -115,8 +114,8 @@ const TeamDetailPage: React.FC = () => {
                         : [];
                     
                     if (JSON.stringify(currentPlayerIds) !== JSON.stringify(data.players)) {
-                        setTeamPlayers([]); // Clear current players to force reload
-                        setIsLoadingPlayers(true); // Show loading indicator
+                        setTeamPlayers([]);
+                        setIsLoadingPlayers(true);
                         try {
                             const players = await fetchPlayersByIds(data.players);
                             setTeamPlayers(players);
@@ -377,6 +376,8 @@ const TeamDetailPage: React.FC = () => {
                             description: currentTeam.description,
                             primaryColor: currentTeam.primaryColor,
                             secondaryColor: currentTeam.secondaryColor,
+                            sportTypeId: currentTeam?.sportTypeId,
+                            cityId: currentTeam?.cityId,
                             players: Array.isArray(currentTeam.players) 
                                 ? currentTeam.players.map(p => typeof p === 'number' ? p : p.id)
                                 : []

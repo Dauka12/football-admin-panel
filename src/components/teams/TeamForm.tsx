@@ -26,52 +26,43 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
         secondaryColor: initialData?.secondaryColor || '#002b3d',
         cityId: initialData?.cityId || 0,
         sportTypeId: initialData?.sportTypeId || 0,
-    });    const { players, fetchPlayers } = usePlayerStore();
+    }); const { players, fetchPlayers } = usePlayerStore();
     const { sportTypes, fetchSportTypes } = useSportTypeStore();
     const { cities, fetchCities } = useCityStore();
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingSportTypes, setIsLoadingSportTypes] = useState(false);
-    const [isLoadingCities, setIsLoadingCities] = useState(false);    const { 
-        errors, 
-        validateForm, 
-        validateField, 
-        clearFieldError 
-    } = useFormValidation(currentTeamId ? teamValidators.edit : teamValidators.create);const [showPlayerSelector, setShowPlayerSelector] = useState(false);
+    const [isLoadingCities, setIsLoadingCities] = useState(false); const {
+        errors,
+        validateForm,
+        validateField,
+        clearFieldError
+    } = useFormValidation(currentTeamId ? teamValidators.edit : teamValidators.create); const [showPlayerSelector, setShowPlayerSelector] = useState(false);
     const [selectedPlayers, setSelectedPlayers] = useState<(typeof players[0])[]>([]);
-    
-    // Check if current language is Russian for adaptive text sizing
+
     const isRussian = i18n.language === 'ru';    // Helper function to get player display name - fix for API bug where fullName="Unknown" and real name is in position
     const getPlayerDisplayName = (player: any) => {
-        // If fullName exists and is not "Unknown" or "string", use it
         if (player.fullName && player.fullName !== "Unknown" && player.fullName !== "string") {
             return player.fullName;
         }
-        // If position field has actual data (not "string"), use it as name
         if (player.position && player.position !== "string") {
             return player.position;
-        }        // Fallback to player ID if available
+        }
         return player.id ? `Player #${player.id}` : t('players.unknownPlayer') || 'Unknown Player';
     };
 
-    // Helper function to get player position - since real name might be in position field
     const getPlayerPosition = (player: any) => {
-        // If fullName is "Unknown" or "string", then position field might contain the name, not the position
         if (player.fullName === "Unknown" || player.fullName === "string") {
-            // If position field also has placeholder data, try to use a meaningful fallback
             if (player.position === "string") {
                 return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
             }
-            // If position has real data but fullName is placeholder, position might be the actual name
-            // In this case, use club as position fallback
             return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
         }
-        // If fullName is valid, then position field should contain actual position
         return player.position && player.position !== "string" ? player.position : t('common.notSpecified');
-    };    // Fetch players, sport types, and cities when component mounts
+    };
     useEffect(() => {
         const loadData = async () => {
             fetchPlayers();
-            
+
             setIsLoadingSportTypes(true);
             try {
                 await fetchSportTypes();
@@ -90,21 +81,22 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
                 setIsLoadingCities(false);
             }
         };
-        
+
         loadData();
-    }, []); // Remove dependencies to prevent infinite loops
-    
-    // Update selected players when form data changes
+    }, []);
+
     useEffect(() => {
         if (players.length > 0 && formData.players.length > 0) {
             const selected = players.filter(p => formData.players.includes(p.id));
             setSelectedPlayers(selected);
         } else {
             setSelectedPlayers([]);
-        }    }, [players, formData.players]);
-      const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        }
+    }, [players, formData.players]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        
+
         // Handle numeric fields
         if (name === 'cityId' || name === 'sportTypeId') {
             setFormData(prev => ({ ...prev, [name]: Number(value) || 0 }));
@@ -120,27 +112,27 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
 
     const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        
+
         if (name === 'cityId' || name === 'sportTypeId') {
             validateField(name as keyof CreateTeamRequest, Number(value) || 0);
         } else {
             validateField(name as keyof CreateTeamRequest, value);
         }
     };
-    
+
     const handlePlayerSelection = (selectedIds: number[]) => {
         setFormData(prev => ({
             ...prev,
             players: selectedIds
         }));
     };
-    
+
     const removePlayer = (playerId: number) => {
         setFormData(prev => ({
             ...prev,
             players: prev.players.filter(id => id !== playerId)
         }));
-    };    const handleSubmit = async (e: React.FormEvent) => {
+    }; const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!validateForm(formData)) {
@@ -268,7 +260,7 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
                                 onChange={handleChange}
                                 className="h-8 w-8 cursor-pointer mr-2"
                             />
-                            <div 
+                            <div
                                 className="flex-1 h-8 rounded"
                                 style={{ backgroundColor: formData.primaryColor }}
                             ></div>
@@ -298,7 +290,7 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
                                 onChange={handleChange}
                                 className="h-8 w-8 cursor-pointer mr-2"
                             />
-                            <div 
+                            <div
                                 className="flex-1 h-8 rounded"
                                 style={{ backgroundColor: formData.secondaryColor }}
                             ></div>
@@ -306,13 +298,13 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
                     </div>
                     {errors.secondaryColor && <p className="text-red-500 text-xs mt-1">{errors.secondaryColor}</p>}                </div>
             </div>
-            
+
             <div>
                 <div className="flex justify-between items-center mb-2">
                     <label className={`block font-medium ${isRussian ? 'text-xs' : 'text-sm'}`}>
                         {t('teams.players')}
                     </label>
-                    <button 
+                    <button
                         type="button"
                         onClick={() => setShowPlayerSelector(true)}
                         className="text-sm text-gold hover:underline flex items-center"
@@ -323,15 +315,15 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
                         {t('teams.addPlayers')}
                     </button>
                 </div>
-                
+
                 <div className="bg-darkest-bg rounded-md p-2">
                     {selectedPlayers.length === 0 ? (
                         <p className="text-gray-400 text-sm p-2">{t('teams.noPlayersSelected')}</p>
                     ) : (
                         <div className="max-h-40 overflow-y-auto">
                             {selectedPlayers.map(player => (
-                                <div 
-                                    key={player.id} 
+                                <div
+                                    key={player.id}
                                     className="flex justify-between items-center p-2 border-b border-gray-700 last:border-b-0"
                                 >
                                     <div className="flex items-center">
@@ -388,7 +380,7 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
                     )}
                 </button>
             </div>
-            
+
             <PlayerSelectionModal
                 isOpen={showPlayerSelector}
                 onClose={() => setShowPlayerSelector(false)}
