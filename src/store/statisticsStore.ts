@@ -20,7 +20,7 @@ interface StatisticsStore {
     matchResultsError: string | null;
 
     // Team matches
-    teamMatches: TeamMatchesResponse | null;
+    teamMatches: TeamMatchesResponse;
     isTeamMatchesLoading: boolean;
     teamMatchesError: string | null;
 
@@ -48,7 +48,26 @@ export const useStatisticsStore = create<StatisticsStore>((set) => ({
     isMatchResultsLoading: false,
     matchResultsError: null,
 
-    teamMatches: null,
+    teamMatches: {
+        content: [],
+        totalElements: 0,
+        totalPages: 0,
+        size: 10,
+        number: 0,
+        sort: { empty: true, sorted: false, unsorted: true },
+        pageable: {
+            offset: 0,
+            sort: { empty: true, sorted: false, unsorted: true },
+            paged: false,
+            pageNumber: 0,
+            pageSize: 10,
+            unpaged: true
+        },
+        first: true,
+        last: true,
+        numberOfElements: 0,
+        empty: true
+    },
     isTeamMatchesLoading: false,
     teamMatchesError: null,
 
@@ -142,7 +161,26 @@ export const useStatisticsStore = create<StatisticsStore>((set) => ({
             matchResults: [],
             isMatchResultsLoading: false,
             matchResultsError: null,
-            teamMatches: null,
+            teamMatches: {
+                content: [],
+                totalElements: 0,
+                totalPages: 0,
+                size: 10,
+                number: 0,
+                sort: { empty: true, sorted: false, unsorted: true },
+                pageable: {
+                    offset: 0,
+                    sort: { empty: true, sorted: false, unsorted: true },
+                    paged: false,
+                    pageNumber: 0,
+                    pageSize: 10,
+                    unpaged: true
+                },
+                first: true,
+                last: true,
+                numberOfElements: 0,
+                empty: true
+            },
             isTeamMatchesLoading: false,
             teamMatchesError: null,
             playerStats: null,

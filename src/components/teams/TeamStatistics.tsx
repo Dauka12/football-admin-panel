@@ -1,9 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TeamMatchResultsResponse } from '../../types/statistics';
+import type { TeamMatchesResponse } from '../../types/statistics';
 
 interface TeamStatisticsProps {
-    matches: TeamMatchResultsResponse | null;
+    matches: TeamMatchesResponse;
     isLoading: boolean;
     error: string | null;
     onLoadMore?: () => void;
@@ -213,7 +213,7 @@ const TeamStatistics: React.FC<TeamStatisticsProps> = ({
                 </div>
 
                 {/* Load More Button */}
-                {!matches.last && onLoadMore && (
+                {matches.totalElements > matches.content.length && onLoadMore && (
                     <div className="text-center mt-6">
                         <button
                             onClick={onLoadMore}

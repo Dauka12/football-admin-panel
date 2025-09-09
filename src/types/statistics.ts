@@ -21,6 +21,18 @@ export interface MatchResultsResponse {
     awayScore: number;
 }
 
+export interface MatchResults {
+    matchDate: string;
+    matchId: number;
+    opponentName: string;
+    opponentScore: number;
+    teamScore: number;
+    tournamentName: string;
+}
+export interface TeamMatchResultsResponse {
+    content: MatchResults[];
+    totalElements: number;
+}
 // Team match details interface
 export interface TeamMatchDetails {
     matchId: number;
