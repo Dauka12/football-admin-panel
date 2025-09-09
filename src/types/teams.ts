@@ -6,7 +6,6 @@ export const PreferredFoot = {
     BOTH: 'BOTH' as PreferredFoot
 } as const;
 
-// Player type used in team responses
 export interface Player {
     id: number;
     fullName: string;
@@ -25,7 +24,6 @@ export interface Player {
     heroGif: string;
 }
 
-// Basic team interface with common properties
 export interface TeamBase {
     name: string;
     description: string;
@@ -35,7 +33,6 @@ export interface TeamBase {
     sportTypeId: number;
 }
 
-// Request interfaces
 export interface CreateTeamRequest extends TeamBase {
     players: number[];
 }
@@ -44,7 +41,6 @@ export interface UpdateTeamRequest extends TeamBase {
     players: number[];
 }
 
-// Response interfaces
 export interface TeamBaseResponse extends TeamBase {
     id: number;
     avatar: string;
@@ -62,12 +58,11 @@ export interface TeamCreateResponse {
     id: number;
 }
 
-// Paginated response for teams
 export interface TeamsPageResponse {
-    content: TeamFullResponse[];
     totalElements: number;
     totalPages: number;
     size: number;
+    content: TeamFullResponse[];
     number: number;
     sort: {
         empty: boolean;
@@ -96,7 +91,6 @@ export interface TeamErrorResponse {
     id: number;
 }
 
-// Compatibility namespaces to avoid breaking existing code
 export namespace TeamRequest {
     export type Create = CreateTeamRequest;
     export type Update = UpdateTeamRequest;

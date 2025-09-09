@@ -14,23 +14,24 @@ interface PlayerStore {
     // Data
     players: PlayerPublicResponse[];
     currentPlayer: PlayerPublicResponse | null;
-    
+
     // UI State
     isLoading: boolean;
     error: string | null;
-    
+
     // Pagination
     totalElements: number;
     totalPages: number;
     currentPage: number;
     pageSize: number;
-    
+
     // Filters
     filters: PlayerFilterParams;
-    
+
     // Actions
     fetchPlayers: (force?: boolean, page?: number, size?: number, filters?: PlayerFilterParams) => Promise<void>;
     fetchPlayer: (id: number) => Promise<void>;
+    fetchPlayersByIds: (ids: number[]) => Promise<PlayerPublicResponse[]>;
     createPlayer: (data: PlayerCreateRequest) => Promise<boolean>;
     updatePlayer: (id: number, data: PlayerUpdateRequest) => Promise<boolean>;
     deletePlayer: (id: number) => Promise<boolean>;
@@ -42,22 +43,22 @@ interface PlayerStore {
 
 export const usePlayerStore = create<PlayerStore>((set, get) => ({
     // Initial data
-    players: [],
+    players: [] as PlayerPublicResponse[],
     currentPlayer: null,
-    
+
     // Initial UI state
     isLoading: false,
     error: null,
-    
+
     // Initial pagination
     totalElements: 0,
     totalPages: 0,
     currentPage: 0,
     pageSize: 10,
-    
+
     // Initial filters
     filters: {},
-    
+
     // Fetch players
     fetchPlayers: async (force = false, page = 0, size = 10, filters = {}) => {
         set({ isLoading: true, error: null });
@@ -73,9 +74,9 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
             });
         } catch (error) {
             const errorMessage = ErrorHandler.handle(error);
-            set({ 
+            set({
                 error: errorMessage.message,
-                isLoading: false 
+                isLoading: false
             });
         }
     },
@@ -88,12 +89,26 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
             set({ currentPlayer: player, isLoading: false });
         } catch (error) {
             const errorMessage = ErrorHandler.handle(error);
-            set({ 
+            set({
                 error: errorMessage.message,
-                isLoading: false 
+                isLoading: false
             });
         }
     },
+
+    fetchPlayersByIds: async (ids: number[]): Promise<PlayerPublicResponse[]> => {
+        try {
+            const players = await Promise.all(
+                ids.map(id => playerApi.getById(id))
+            );
+            return players;
+        } catch (error) {
+            const errorMessage = ErrorHandler.handle(error);
+            set({ error: errorMessage.message });
+            return [];
+        }
+    },
+
 
     // Create player
     createPlayer: async (data: PlayerCreateRequest) => {

@@ -1,33 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { FileType } from '../../types/files';
 
 interface ImageDisplayProps {
     objectId: number;
     type: FileType;
     alt: string;
+    avatar: string;
     className?: string;
+    showLoader?: boolean;
     fallbackSrc?: string;
     onClick?: () => void;
 }
 
 const ImageDisplay: React.FC<ImageDisplayProps> = ({
-    objectId,
-    type,
     alt,
+    avatar,
     className = '',
     fallbackSrc = '/default-placeholder.png',
+    showLoader,
     onClick
 }) => {
     const [hasError, setHasError] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(showLoader);
 
-    // Mock image URL generation based on objectId and type
-    const generateImageUrl = (id: number, fileType: FileType): string => {
-        // This would normally call your file service
-        return `https://sport-empire.kz/api/v1/files/${fileType}/${id}`;
-    };
-
-    const imageUrl = hasError ? fallbackSrc : generateImageUrl(objectId, type);
 
     const handleImageError = () => {
         setHasError(true);
@@ -47,7 +42,7 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({
             )}
             
             <img
-                src={imageUrl}
+                src={avatar || fallbackSrc}
                 alt={alt}
                 className={`w-full h-full object-cover transition-opacity duration-200 ${
                     isLoading ? 'opacity-0' : 'opacity-100'

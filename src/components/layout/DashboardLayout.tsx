@@ -100,11 +100,11 @@ const DashboardLayout: React.FC = () => {
                 </main>
             </div>
 
-            {/* Performance Debugger */}
+            {/* Performance Debugger
             <PerformanceDebugger />
             
-            {/* Permission Debugger */}
-            <PermissionDebugger />
+            {/* Permission Debugger
+            <PermissionDebugger /> */}
         </div>
     );
 };

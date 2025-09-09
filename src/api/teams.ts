@@ -7,7 +7,6 @@ import type {
 } from '../types/teams';
 import axiosInstance from './axios';
 
-// Define a type for filter parameters
 export interface TeamFilterParams {
     name?: string;
     tournamentId?: number;
@@ -16,7 +15,6 @@ export interface TeamFilterParams {
     sportTypeId?: number;
 }
 
-// Remove redundant base URL prefix to prevent double paths
 export const teamApi = {
     getAll: async (
         page = 0, 

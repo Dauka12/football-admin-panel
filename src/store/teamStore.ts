@@ -15,16 +15,16 @@ interface TeamState {
     currentTeam: TeamFullResponse | null;
     isLoading: boolean;
     error: string | null;
-    
+
     // Pagination state
     totalElements: number;
     totalPages: number;
     currentPage: number;
     pageSize: number;
-    
+
     // Filter state
     filters: TeamFilterParams;
-    
+
     fetchTeams: (forceRefresh?: boolean, page?: number, size?: number, filters?: TeamFilterParams) => Promise<void>;
     setFilters: (filters: TeamFilterParams) => void;
     fetchTeam: (id: number) => Promise<void>;
@@ -39,37 +39,44 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
     currentTeam: null,
     isLoading: false,
     error: null,
-    
+
     // Pagination state
     totalElements: 0,
     totalPages: 0,
     currentPage: 0,
     pageSize: 10,
-    
+
     // Filter state
     filters: {},
-    
+
     // Set filters method
-    setFilters: (filters: TeamFilterParams) => {
-        set({ filters });
+    setFilters: (newFilters: TeamFilterParams) => {
+        set((state) => {
+            // Если фильтры такие же, то не обновляем store
+            if (JSON.stringify(state.filters) === JSON.stringify(newFilters)) {
+                return state; // возвращаем текущее состояние (zustand оптимизирует)
+            }
+            return { filters: newFilters };
+        });
     },
+
 
     fetchTeams: async (forceRefresh = false, page = 0, size = 10, filters?: TeamFilterParams) => {
         // Check if we already have teams loaded for the same page and avoid redundant requests
         const { teams, currentPage, pageSize, filters: currentFilters } = get();
-        
+
         // Use provided filters or fall back to current filters in state
         const filtersToApply = filters || currentFilters;
-        
+
         // If not forcing refresh, we only want to avoid a request if:
         // 1. We have teams
         // 2. We're on the same page
         // 3. We're using the same page size
         // 4. We're using the same filters (deep comparison)
         if (
-            teams.length > 0 && 
-            currentPage === page && 
-            pageSize === size && 
+            teams.length > 0 &&
+            currentPage === page &&
+            pageSize === size &&
             !forceRefresh &&
             JSON.stringify(currentFilters) === JSON.stringify(filtersToApply)
         ) {
@@ -84,11 +91,11 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
                 'fetchTeams',
                 { enableCache: false } // Disable cache to ensure fresh data
             );
-            
+
             // Ensure response contains content array
             if (response && response.content && Array.isArray(response.content)) {
-                set({ 
-                    teams: response.content, 
+                set({
+                    teams: response.content,
                     totalElements: response.totalElements,
                     totalPages: response.totalPages,
                     currentPage: response.number,
@@ -99,7 +106,7 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
                 });
             } else {
                 // Fallback if response structure is unexpected
-                set({ 
+                set({
                     teams: [],
                     totalElements: 0,
                     totalPages: 0,
@@ -143,10 +150,10 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
 
     fetchTeamsByIds: async (ids: number[]) => {
         if (ids.length === 0) return [];
-        
+
         try {
             // For each id, fetch the team details with caching
-            const teamPromises = ids.map(id => 
+            const teamPromises = ids.map(id =>
                 apiService.execute(
                     () => teamApi.getById(id),
                     `fetchTeam_${id}`,
@@ -169,11 +176,11 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
                 () => teamApi.create(data),
                 'createTeam'
             );
-            
+
             // Clear cache and refresh teams list
             apiService.clearCache(['fetchTeams']);
             await get().fetchTeams(true);
-            
+
             set({ isLoading: false });
             showToast('Team created successfully!', 'success');
             return true;
@@ -189,23 +196,23 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
 
     updateTeam: async (id: number, data: UpdateTeamRequest) => {
         set({ isLoading: true, error: null });
-        
+
         try {
             await apiService.execute(
                 () => teamApi.update(id, data),
                 `updateTeam_${id}`
             );
-            
+
             // Fetch the latest data to ensure proper typing
             const updatedTeam = await apiService.execute(
                 () => teamApi.getById(id),
                 `fetchTeam_${id}`,
                 { forceRefresh: true }
             );
-            
+
             // Clear relevant cache entries
             apiService.clearCache([`fetchTeam_${id}`, 'fetchTeams']);
-            
+
             // Update state with the correctly typed data from the API
             set(state => ({
                 // Update the teams list with the correctly typed team
@@ -214,15 +221,15 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
                 currentTeam: state.currentTeam?.id === id ? updatedTeam : state.currentTeam,
                 isLoading: false
             }));
-            
+
             showToast('Team updated successfully!', 'success');
             return true;
-        } 
+        }
         catch (error: any) {
             const errorMessage = ErrorHandler.handle(error);
-            set({ 
-                error: errorMessage.message, 
-                isLoading: false 
+            set({
+                error: errorMessage.message,
+                isLoading: false
             });
             return false;
         }
@@ -245,7 +252,7 @@ export const useTeamStore = create<TeamState>()((set, get) => ({
                 currentTeam: get().currentTeam?.id === id ? null : get().currentTeam,
                 isLoading: false
             });
-            
+
             showToast('Team deleted successfully!', 'success');
             return true;
         } catch (error: any) {

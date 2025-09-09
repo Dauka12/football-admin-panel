@@ -34,40 +34,28 @@ const TeamDetailPage: React.FC = () => {
     const [isLoadingPlayers, setIsLoadingPlayers] = useState(false);
     const [playerError, setPlayerError] = useState<string | null>(null);
     
-    // Check if current language is Russian for adaptive text sizing
     const isRussian = i18n.language === 'ru';
 
-    // Helper function to get player display name - fix for API bug where fullName="Unknown" and real name is in position
     const getPlayerDisplayName = (player: any) => {
-        // If fullName exists and is not "Unknown" or "string", use it
         if (player.fullName && player.fullName !== "Unknown" && player.fullName !== "string") {
             return player.fullName;
         }
-        // If position field has actual data (not "string"), use it as name
         if (player.position && player.position !== "string") {
             return player.position;
         }
-        // Fallback to player ID if available
         return player.id ? `Player #${player.id}` : t('players.unknownPlayer') || 'Unknown Player';
     };
 
-    // Helper function to get player position - since real name might be in position field
     const getPlayerPosition = (player: any) => {
-        // If fullName is "Unknown" or "string", then position field might contain the name, not the position
         if (player.fullName === "Unknown" || player.fullName === "string") {
-            // If position field also has placeholder data, try to use a meaningful fallback
             if (player.position === "string") {
                 return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
             }
-            // If position has real data but fullName is placeholder, position might be the actual name
-            // In this case, use club as position fallback
             return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
         }
-        // If fullName is valid, then position field should contain actual position
         return player.position && player.position !== "string" ? player.position : t('common.notSpecified');
     };
 
-    // Fetch team data - Fixed with useCallback and proper dependency array
     const loadTeam = useCallback(() => {
         if (teamId > 0) {
             fetchTeam(teamId);
@@ -76,18 +64,14 @@ const TeamDetailPage: React.FC = () => {
 
     useEffect(() => {
         loadTeam();
-        // Only run this effect once when the component mounts or when teamId changes
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [teamId]);
     
-    // Fetch team statistics
     useEffect(() => {
         if (teamId > 0) {
             fetchTeamMatches(teamId);
         }
     }, [teamId]); // Remove fetchTeamMatches from dependencies
-    
-    // Fetch player details - Fixed to prevent infinite loop
+
     useEffect(() => {
         const getPlayerDetails = async () => {
             if (currentTeam && Array.isArray(currentTeam.players) && currentTeam.players.length > 0) {
@@ -98,14 +82,11 @@ const TeamDetailPage: React.FC = () => {
                 setPlayerError(null);
                 
                 try {
-                    // Check if players are already full objects or just IDs
                     if (typeof currentTeam.players[0] === 'number') {
-                        // If they're IDs, fetch the full player data
                         const playerIds = currentTeam.players as unknown as number[];
                         const players = await fetchPlayersByIds(playerIds);
                         setTeamPlayers(players);
                     } else {
-                        // If they're already full objects, use them directly
                         setTeamPlayers(currentTeam.players as unknown as PlayerPublicResponse[]);
                     }
                 } catch (error) {
@@ -127,15 +108,12 @@ const TeamDetailPage: React.FC = () => {
             const success = await updateTeam(teamId, data);
             if (success) {
                 setIsEditing(false);
-                // Explicitly refresh team data after update
                 await fetchTeam(teamId);
-                // Also reload players data if player list changed
                 if (data.players && currentTeam?.players) {
                     const currentPlayerIds = Array.isArray(currentTeam.players) 
                         ? currentTeam.players.map(p => typeof p === 'number' ? p : p.id)
                         : [];
                     
-                    // Check if player list changed
                     if (JSON.stringify(currentPlayerIds) !== JSON.stringify(data.players)) {
                         setTeamPlayers([]); // Clear current players to force reload
                         setIsLoadingPlayers(true); // Show loading indicator
@@ -165,8 +143,6 @@ const TeamDetailPage: React.FC = () => {
 
     const handleAvatarUpload = (fileIds: number[]) => {
         if (fileIds.length > 0) {
-            // Here you could update the team with the new avatar ID
-            // For now, we'll just close the upload modal and refresh the team data
             setShowAvatarUpload(false);
             loadTeam(); // Refresh team data to show new avatar
         }
@@ -182,7 +158,6 @@ const TeamDetailPage: React.FC = () => {
         }
     };
 
-    // Fix the edit button handler
     const handleEdit = () => {
         setIsEditing(true);
     };
@@ -213,7 +188,6 @@ const TeamDetailPage: React.FC = () => {
         );
     }
 
-    // Breadcrumb items
     const breadcrumbItems = [
         { label: t('sidebar.home'), path: '/dashboard' },
         { label: t('sidebar.teams'), path: '/dashboard/teams' },
@@ -222,7 +196,6 @@ const TeamDetailPage: React.FC = () => {
 
     return (
         <div>
-            {/* Breadcrumbs */}
             <Breadcrumb items={breadcrumbItems} />
 
             <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
@@ -237,7 +210,7 @@ const TeamDetailPage: React.FC = () => {
 
                 <div className="flex space-x-2">
                     <button
-                        onClick={handleEdit} // Use the explicit handler here
+                        onClick={handleEdit}
                         className="bg-gold text-darkest-bg px-3 py-1.5 rounded-md hover:bg-gold/90 transition-colors duration-200 flex items-center"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1">
@@ -257,9 +230,7 @@ const TeamDetailPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Team Details */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {/* Team Info */}
                 <div className="md:col-span-4 bg-card-bg rounded-lg shadow-md overflow-hidden">
                     <div className="p-4 md:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
                         <div className="relative">
@@ -272,6 +243,7 @@ const TeamDetailPage: React.FC = () => {
                             >
                                 <ImageDisplay
                                     objectId={teamId}
+                                    avatar={currentTeam.avatar}
                                     type={'team-avatar' as FileType}
                                     alt={`${currentTeam.name} avatar`}
                                     className="w-full h-full object-cover"
@@ -313,7 +285,6 @@ const TeamDetailPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Players Header */}
                 <div className="md:col-span-4">
                     <h3 className={`font-semibold mb-4 flex items-center ${isRussian ? 'text-lg' : 'text-xl'}`}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-2 text-gold">
@@ -323,7 +294,6 @@ const TeamDetailPage: React.FC = () => {
                     </h3>
                 </div>
 
-                {/* Players List */}
                 {isLoadingPlayers ? (
                     <div className="md:col-span-4 flex justify-center py-12">
                         <svg className="animate-spin h-8 w-8 text-gold" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -355,7 +325,7 @@ const TeamDetailPage: React.FC = () => {
                                             {player.id}
                                         </div>
                                         <div className="min-w-0">
-                                            <h4 className="font-medium text-sm whitespace-nowrap overflow-hidden text-ellipsis">{getPlayerDisplayName(player)}</h4>
+                                            <h4 className="font-medium text-sm whitespace-nowrap overflow-hidden text-ellipsis">{player.fullName}</h4>
                                             <p className="text-xs text-gray-400 whitespace-nowrap overflow-hidden text-ellipsis">{getPlayerPosition(player)}</p>
                                         </div>
                                     </div>
@@ -388,7 +358,6 @@ const TeamDetailPage: React.FC = () => {
                 )}
             </div>
 
-            {/* Team Statistics */}
             <TeamStatistics
                 matches={teamMatches}
                 isLoading={isTeamMatchesLoading}
@@ -396,7 +365,6 @@ const TeamDetailPage: React.FC = () => {
                 onLoadMore={handleLoadMore}
             />
 
-            {/* Edit Team Modal */}
             <Modal
                 isOpen={isEditing}
                 onClose={() => setIsEditing(false)}
@@ -420,7 +388,6 @@ const TeamDetailPage: React.FC = () => {
                 )}
             </Modal>
 
-            {/* Delete Confirmation Modal */}
             <Modal
                 isOpen={showDeleteConfirm}
                 onClose={() => setShowDeleteConfirm(false)}
@@ -445,7 +412,6 @@ const TeamDetailPage: React.FC = () => {
                 </div>
             </Modal>
 
-            {/* Team Avatar Upload Modal */}
             <Modal
                 isOpen={showAvatarUpload}
                 onClose={() => setShowAvatarUpload(false)}

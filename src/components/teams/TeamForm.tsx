@@ -196,7 +196,6 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
                 {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
             </div>
 
-            {/* Sport Type and City Selection */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="sportTypeId">
@@ -247,7 +246,6 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
                 </div>
             </div>
 
-            {/* Improved color selection section with larger inputs */}
             <div className="grid grid-cols-1 gap-4">
                 <div>
                     <label className={`block font-medium mb-2 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="primaryColor">
@@ -309,7 +307,6 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
                     {errors.secondaryColor && <p className="text-red-500 text-xs mt-1">{errors.secondaryColor}</p>}                </div>
             </div>
             
-            {/* Player Selection Section */}
             <div>
                 <div className="flex justify-between items-center mb-2">
                     <label className={`block font-medium ${isRussian ? 'text-xs' : 'text-sm'}`}>
@@ -327,7 +324,6 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
                     </button>
                 </div>
                 
-                {/* Selected players list */}
                 <div className="bg-darkest-bg rounded-md p-2">
                     {selectedPlayers.length === 0 ? (
                         <p className="text-gray-400 text-sm p-2">{t('teams.noPlayersSelected')}</p>
@@ -393,7 +389,6 @@ const TeamForm: React.FC<TeamFormProps> = React.memo(({ initialData, currentTeam
                 </button>
             </div>
             
-            {/* Player Selection Modal */}
             <PlayerSelectionModal
                 isOpen={showPlayerSelector}
                 onClose={() => setShowPlayerSelector(false)}

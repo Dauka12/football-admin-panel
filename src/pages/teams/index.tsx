@@ -27,7 +27,7 @@ const TeamsPage: React.FC = () => {
         filters,
         setFilters 
     } = useTeamStore();
-      const { sportTypes, fetchSportTypes } = useSportTypeStore();
+    const { sportTypes, fetchSportTypes } = useSportTypeStore();
     
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [teamToDelete, setTeamToDelete] = useState<number | null>(null);
@@ -41,7 +41,6 @@ const TeamsPage: React.FC = () => {
     const [filterSecondaryColor, setFilterSecondaryColor] = useState(filters.secondaryColor || '');
     const [filterSportTypeId, setFilterSportTypeId] = useState<number | undefined>(filters.sportTypeId);
 
-    // Memoized filtered teams to avoid recalculation on every render
     const filteredTeams = useMemo(() => {
         if (!teams) return [];
         
@@ -52,14 +51,17 @@ const TeamsPage: React.FC = () => {
             team.name.toLowerCase().includes(query) ||
             team.description.toLowerCase().includes(query)
         );
-    }, [teams, searchQuery]);    // Fetch teams on mount and when pagination/filters change
+    }, [teams, searchQuery]);
+
     useEffect(() => {
         fetchTeams(true, page, pageSize, filters);
-    }, [fetchTeams, page, pageSize, filters]);    // Fetch sport types once on mount for filter dropdown
+
+    }, [page, pageSize, filters]);  
     useEffect(() => {
         console.log('Teams page useEffect for sportTypes triggered');
         fetchSportTypes();
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps// Apply filters and fetch teams
+    }, []);
+
     const applyFilters = () => {
         const newFilters: TeamFilterParams = {};
         
@@ -69,7 +71,6 @@ const TeamsPage: React.FC = () => {
         if (filterSportTypeId) newFilters.sportTypeId = filterSportTypeId;
         
         setFilters(newFilters);
-        // Reset to first page when applying new filters
         setPage(0);
         fetchTeams(true, 0, pageSize, newFilters);
         setIsFilterOpen(false);
@@ -83,7 +84,6 @@ const TeamsPage: React.FC = () => {
         setFilterSportTypeId(undefined);
         setFilters({});
         setPage(0);
-        fetchTeams(true, 0, pageSize, {});
     };
 
     const handleCreateTeam = async (data: CreateTeamRequest) => {
@@ -91,7 +91,6 @@ const TeamsPage: React.FC = () => {
         if (success) {
             setShowCreateForm(false);
 
-            // Force refresh the teams list after creation
             await fetchTeams(true, page, pageSize, filters);
         }
     };
@@ -101,7 +100,6 @@ const TeamsPage: React.FC = () => {
             const success = await deleteTeam(teamToDelete);
             if (success) {
                 setTeamToDelete(null);
-                // Refresh the teams list after deletion
                 await fetchTeams(true, page, pageSize, filters);
             }
         }
@@ -284,18 +282,14 @@ const TeamsPage: React.FC = () => {
                         </>
                     )}
                 </div>
-            ) : (                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            ) : (                
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {filteredTeams.map((team) => (
                         <div key={team.id} className="bg-card-bg rounded-lg overflow-hidden shadow-lg border border-gray-700 transition-transform hover:-translate-y-1 hover:shadow-xl">
                             <div className="p-3 sm:p-4">
                                 <div className="flex items-center justify-between mb-3">
                                     <h3 className="text-lg sm:text-xl font-semibold line-clamp-1 pr-2">{team.name}</h3>
                                     <div className="flex space-x-1 sm:space-x-2 shrink-0">
-                                        <FavoriteButton
-                                            entityType="TEAM"
-                                            entityId={team.id}
-                                            className="p-1"
-                                        />
                                         <Link
                                             to={`/dashboard/teams/${team.id}`}
                                             className="text-gold hover:text-gold/80 transition-colors p-1"
@@ -345,7 +339,6 @@ const TeamsPage: React.FC = () => {
                 </div>
             )}
 
-            {/* Pagination Controls */}
             {totalPages > 1 && (
                 <div className="flex flex-col sm:flex-row justify-between items-center px-4 py-3 mt-6 border-t border-gray-700 bg-card-bg rounded-lg">
                     <div className="text-sm text-gray-400 mb-3 sm:mb-0">
@@ -362,10 +355,8 @@ const TeamsPage: React.FC = () => {
                             {t('common.previous')}
                         </button>
 
-                        {/* Page numbers */}
                         <div className="flex gap-1">
                             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                // Calculate page numbers to show
                                 let pageNum;
                                 if (totalPages <= 5) {
                                     pageNum = i;
@@ -401,7 +392,6 @@ const TeamsPage: React.FC = () => {
                 </div>
             )}
 
-            {/* Create Team Modal */}
             <Modal
                 isOpen={showCreateForm}
                 onClose={() => setShowCreateForm(false)}
