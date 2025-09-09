@@ -45,7 +45,7 @@ export const newsApi = {
             filters.sort.forEach(sort => params.append('pageable.sort', sort));
         }
         
-        const response = await axiosInstance.get(`/news?${params.toString()}`);
+        const response = await axiosInstance.get(`/news/public?${params.toString()}`);
         return response.data;
     },
 

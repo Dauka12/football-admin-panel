@@ -6,7 +6,6 @@ import Modal from '../../components/ui/Modal';
 import { usePlayerStore } from '../../store/playerStore';
 import { useTeamStore } from '../../store/teamStore';
 import type { PlayerCreateRequest, PlayerFilterParams, PlayerPosition } from '../../types/players';
-                                    
 
 const PlayersPage: React.FC = () => {
     const { t } = useTranslation();
@@ -24,8 +23,7 @@ const PlayersPage: React.FC = () => {
         filters,
         setFilters
     } = usePlayerStore();
-    
-    // Get teams for dropdown
+
     const {
         teams,
         fetchTeams,
@@ -36,8 +34,7 @@ const PlayersPage: React.FC = () => {
     const [playerToDelete, setPlayerToDelete] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [page, setPage] = useState(0);
-    
-    // Filter state
+
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [filterPosition, setFilterPosition] = useState<PlayerPosition | ''>(filters.position || '');
     const [filterTeamId, setFilterTeamId] = useState<number | undefined>(filters.teamId);
@@ -46,12 +43,10 @@ const PlayersPage: React.FC = () => {
     const [filterPreferredFoot, setFilterPreferredFoot] = useState<string>(filters.preferredFoot || '');
     const [filterFullName, setFilterFullName] = useState<string>(filters.fullName || '');
 
-    // Load teams on component mount
     useEffect(() => {
         fetchTeams();
     }, [fetchTeams]);
 
-    // Memoized filtered players to avoid recalculation on every render
     const filteredPlayers = useMemo(() => {
         if (!players || !Array.isArray(players)) return [];
 
@@ -62,32 +57,29 @@ const PlayersPage: React.FC = () => {
             const displayName = getPlayerDisplayName(player).toLowerCase();
             const position = getPlayerPosition(player).toLowerCase();
             const nationality = player.nationality?.toLowerCase() || '';
-            
+
             return displayName.includes(query) ||
-                   position.includes(query) ||
-                   nationality.includes(query);
+                position.includes(query) ||
+                nationality.includes(query);
         });
     }, [players, searchQuery]);
 
-    // Apply filters and fetch players
     const applyFilters = () => {
         const newFilters: PlayerFilterParams = {};
-        
+
         if (filterPosition) newFilters.position = filterPosition as PlayerPosition;
         if (filterTeamId) newFilters.teamId = filterTeamId;
         if (filterNationality) newFilters.nationality = filterNationality;
         if (filterAge) newFilters.age = parseInt(filterAge);
         if (filterPreferredFoot) newFilters.preferredFoot = filterPreferredFoot as any; // Cast to PreferredFoot
         if (filterFullName) newFilters.fullName = filterFullName;
-        
+
         setFilters(newFilters);
-        // Reset to first page when applying new filters
         setPage(0);
         fetchPlayers(true, 0, pageSize, newFilters);
         setIsFilterOpen(false);
     };
 
-    // Reset all filters
     const resetFilters = () => {
         setFilterPosition('');
         setFilterTeamId(undefined);
@@ -101,15 +93,13 @@ const PlayersPage: React.FC = () => {
     };
 
     useEffect(() => {
-        // Force refresh players list with current page
         fetchPlayers(true, page, 10, filters);
-    }, [fetchPlayers, page, filters]); 
-    
+    }, [fetchPlayers, page, filters]);
+
     const handleCreatePlayer = async (data: PlayerCreateRequest) => {
         const success = await createPlayer(data);
         if (success) {
             setShowCreateForm(false);
-            // Force refresh players list with current page
             await fetchPlayers(true, page, pageSize, filters);
         }
     };
@@ -118,7 +108,6 @@ const PlayersPage: React.FC = () => {
         if (playerToDelete !== null) {
             await deletePlayer(playerToDelete);
             setPlayerToDelete(null);
-            // Refresh players list with current page
             await fetchPlayers(true, page, pageSize, filters);
         }
     };
@@ -132,21 +121,16 @@ const PlayersPage: React.FC = () => {
         }
     };
 
-    // Helper function to get player display name - fix for API bug where fullName="Unknown" and real name is in position
     const getPlayerDisplayName = (player: any) => {
-        // If fullName exists and is not "Unknown" or "string", use it
         if (player.fullName && player.fullName !== "Unknown" && player.fullName !== "string") {
             return player.fullName;
         }
-        // If position field has actual data (not "string"), use it as name
         if (player.position && player.position !== "string") {
             return player.position;
         }
-        // Fallback to player ID if available
         return player.id ? `Player #${player.id}` : t('players.unknownPlayer') || 'Unknown Player';
     };
 
-    // Helper function to translate position
     const translatePosition = (position: string) => {
         const positionMap: Record<string, string> = {
             'GOALKEEPER': t('players.positions.goalkeeper'),
@@ -168,19 +152,13 @@ const PlayersPage: React.FC = () => {
         return positionMap[position] || position;
     };
 
-    // Helper function to get player position - since real name might be in position field
     const getPlayerPosition = (player: any) => {
-        // If fullName is "Unknown" or "string", then position field might contain the name, not the position
         if (player.fullName === "Unknown" || player.fullName === "string") {
-            // If position field also has placeholder data, try to use a meaningful fallback
             if (player.position === "string") {
                 return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
             }
-            // If position has real data but fullName is placeholder, position might be the actual name
-            // In this case, use club as position fallback
             return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
         }
-        // If fullName is valid, then position field should contain actual position
         const position = player.position && player.position !== "string" ? player.position : '';
         return position ? translatePosition(position) : t('common.notSpecified');
     };
@@ -200,9 +178,7 @@ const PlayersPage: React.FC = () => {
                 </button>
             </div>
 
-            {/* Search and Filter Bar */}
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 mb-6">
-                {/* Search input */}
                 <div className="relative flex-1 w-full lg:w-auto">
                     <input
                         type="text"
@@ -232,18 +208,17 @@ const PlayersPage: React.FC = () => {
                 <div className="flex space-x-2 w-full lg:w-auto">
                     <button
                         onClick={() => setIsFilterOpen(!isFilterOpen)}
-                        className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${
-                            Object.keys(filters).length > 0 
-                            ? 'bg-gold text-darkest-bg' 
-                            : 'bg-card-bg border border-gray-700 text-white hover:bg-gray-700'
-                        }`}
+                        className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${Object.keys(filters).length > 0
+                                ? 'bg-gold text-darkest-bg'
+                                : 'bg-card-bg border border-gray-700 text-white hover:bg-gray-700'
+                            }`}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                         </svg>
                         {t('common.filter')} {Object.keys(filters).length > 0 && `(${Object.keys(filters).length})`}
                     </button>
-                    
+
                     {Object.keys(filters).length > 0 && (
                         <button
                             onClick={resetFilters}
@@ -259,7 +234,7 @@ const PlayersPage: React.FC = () => {
             {isFilterOpen && (
                 <div className="bg-card-bg border border-gray-700 rounded-lg p-4 mb-6 animate-fade-in">
                     <h3 className="text-lg font-semibold mb-4">{t('common.filterOptions')}</h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {/* Position filter */}
                         <div className="space-y-1">
@@ -287,8 +262,7 @@ const PlayersPage: React.FC = () => {
                                 <option value="CENTER_FORWARD">{t('players.positions.centerForward')}</option>
                             </select>
                         </div>
-                        
-                        {/* Team filter - new dropdown */}
+
                         <div className="space-y-1">
                             <label className="text-sm text-gray-400">{t('players.team')}</label>
                             <select
@@ -308,8 +282,7 @@ const PlayersPage: React.FC = () => {
                                 <div className="text-xs text-gray-400 mt-1">{t('common.loading')}</div>
                             )}
                         </div>
-                        
-                        {/* Full Name filter */}
+
                         <div className="space-y-1">
                             <label className="text-sm text-gray-400">{t('players.fullName')}</label>
                             <input
@@ -320,8 +293,7 @@ const PlayersPage: React.FC = () => {
                                 className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold transition-colors duration-200"
                             />
                         </div>
-                        
-                        {/* Nationality filter */}
+
                         <div className="space-y-1">
                             <label className="text-sm text-gray-400">{t('players.nationality')}</label>
                             <input
@@ -333,7 +305,6 @@ const PlayersPage: React.FC = () => {
                             />
                         </div>
 
-                        {/* Age filter */}
                         <div className="space-y-1">
                             <label className="text-sm text-gray-400">{t('players.age')}</label>
                             <input
@@ -345,8 +316,7 @@ const PlayersPage: React.FC = () => {
                                 className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold transition-colors duration-200"
                             />
                         </div>
-                        
-                        {/* Preferred foot filter */}
+
                         <div className="space-y-1">
                             <label className="text-sm text-gray-400">{t('players.preferredFoot')}</label>
                             <select
@@ -361,7 +331,7 @@ const PlayersPage: React.FC = () => {
                             </select>
                         </div>
                     </div>
-                    
+
                     <div className="flex justify-end mt-6 space-x-3">
                         <button
                             onClick={() => setIsFilterOpen(false)}
@@ -418,7 +388,7 @@ const PlayersPage: React.FC = () => {
                             <table className="w-full">
                                 <thead className="bg-darkest-bg">
                                     <tr>
-                                        <th className="px-4 py-3 text-left">{t('players.fullName') || 'Name'}</th>
+                                        <th className="px-4 py-3 text-left">{t('players.fullName')}</th>
                                         <th className="px-4 py-3 text-left">{t('players.position')}</th>
                                         <th className="px-4 py-3 text-left hidden md:table-cell">{t('players.nationality')}</th>
                                         <th className="px-4 py-3 text-center hidden sm:table-cell">{t('players.age')}</th>
@@ -433,8 +403,8 @@ const PlayersPage: React.FC = () => {
                                                 <div className="flex items-center">
                                                     <div className="w-8 h-8 bg-gold text-darkest-bg rounded-full flex items-center justify-center font-bold mr-3 overflow-hidden">
                                                         {player.imageUrl ? (
-                                                            <img 
-                                                                src={player.imageUrl} 
+                                                            <img
+                                                                src={player.imageUrl}
                                                                 alt={getPlayerDisplayName(player)}
                                                                 className="w-full h-full object-cover"
                                                                 onError={(e) => {
@@ -449,10 +419,10 @@ const PlayersPage: React.FC = () => {
                                                         ) : null}
                                                         <span className={player.imageUrl ? 'hidden' : 'flex'}>{player.id}</span>
                                                     </div>
-                                                    <span>{getPlayerDisplayName(player)}</span>
+                                                    <span>{player.fullName}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-3">{getPlayerPosition(player)}</td>
+                                            <td className="px-4 py-3">{player.position}</td>
                                             <td className="px-4 py-3 hidden md:table-cell">{player.nationality}</td>
                                             <td className="px-4 py-3 text-center hidden sm:table-cell">{player.age}</td>
                                             <td className="px-4 py-3 text-center hidden lg:table-cell">{getPreferredFootLabel(player.preferredFoot)}</td>
@@ -486,19 +456,18 @@ const PlayersPage: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Mobile View (Cards) - Enhanced for better mobile experience */}
                     <div className="space-y-4 sm:hidden">
                         {filteredPlayers.map((player) => (
-                            <div 
-                                key={player.id} 
+                            <div
+                                key={player.id}
                                 className="bg-card-bg rounded-lg overflow-hidden shadow-md p-4 border border-gray-700"
                             >
                                 <div className="flex justify-between items-center mb-3">
                                     <div className="flex items-center">
                                         <div className="w-8 h-8 bg-gold text-darkest-bg rounded-full flex items-center justify-center font-bold mr-2 overflow-hidden">
                                             {player.imageUrl ? (
-                                                <img 
-                                                    src={player.imageUrl} 
+                                                <img
+                                                    src={player.imageUrl}
                                                     alt={getPlayerDisplayName(player)}
                                                     className="w-full h-full object-cover"
                                                     onError={(e) => {
@@ -559,7 +528,6 @@ const PlayersPage: React.FC = () => {
                         ))}
                     </div>
 
-                    {/* Pagination Controls - Improved for mobile */}
                     {totalPages > 1 && (
                         <div className="flex flex-col sm:flex-row justify-between items-center px-4 py-3 border-t border-gray-700 bg-card-bg rounded-lg">
                             <div className="text-sm text-gray-400 mb-3 sm:mb-0">
@@ -576,10 +544,8 @@ const PlayersPage: React.FC = () => {
                                     {t('common.previous')}
                                 </button>
 
-                                {/* Page numbers */}
                                 <div className="flex gap-1">
                                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                        // Calculate page numbers to show
                                         let pageNum;
                                         if (totalPages <= 5) {
                                             pageNum = i;
@@ -617,7 +583,6 @@ const PlayersPage: React.FC = () => {
                 </div>
             )}
 
-            {/* Create Player Modal */}
             <Modal
                 isOpen={showCreateForm}
                 onClose={() => setShowCreateForm(false)}
@@ -629,7 +594,6 @@ const PlayersPage: React.FC = () => {
                 />
             </Modal>
 
-            {/* Delete Confirmation Modal */}
             <Modal
                 isOpen={playerToDelete !== null}
                 onClose={() => setPlayerToDelete(null)}

@@ -110,7 +110,9 @@ const App: React.FC = () => {
                   </Suspense>
                 </PermissionProtectedRoute>
               }
-            />          <Route
+            />
+
+            <Route
               path="teams/:id"
               element={
                 <PermissionProtectedRoute permission="teams.view">
@@ -121,7 +123,9 @@ const App: React.FC = () => {
                   </Suspense>
                 </PermissionProtectedRoute>
               }
-            />          <Route
+            />
+
+            <Route
               path="players"
               element={
                 <PermissionProtectedRoute permission="players.view">
@@ -132,7 +136,9 @@ const App: React.FC = () => {
                   </Suspense>
                 </PermissionProtectedRoute>
               }
-            />          <Route
+            />
+
+            <Route
               path="players/:id"
               element={
                 <Suspense fallback={<RouteLoadingSpinner />}>
@@ -141,7 +147,9 @@ const App: React.FC = () => {
                   </ErrorBoundary>
                 </Suspense>
               }
-            />            <Route
+            />
+
+            <Route
               path="users"
               element={
                 <PermissionProtectedRoute permission="users.view">
@@ -152,7 +160,9 @@ const App: React.FC = () => {
                   </Suspense>
                 </PermissionProtectedRoute>
               }
-            />          <Route
+            />
+
+            <Route
               path="users/:id"
               element={
                 <PermissionProtectedRoute permission="users.view">
@@ -174,7 +184,9 @@ const App: React.FC = () => {
                   </ErrorBoundary>
                 </Suspense>
               }
-            />            <Route
+            />
+
+            <Route
               path="sport-types/:id"
               element={
                 <Suspense fallback={<RouteLoadingSpinner />}>
@@ -217,6 +229,7 @@ const App: React.FC = () => {
                 </Suspense>
               }
             />
+
             <Route
               path="cities/:id"
               element={
@@ -227,6 +240,7 @@ const App: React.FC = () => {
                 </Suspense>
               }
             />
+
             <Route
               path="tournaments"
               element={
@@ -236,7 +250,9 @@ const App: React.FC = () => {
                   </ErrorBoundary>
                 </Suspense>
               }
-            />          <Route
+            />
+
+            <Route
               path="tournaments/:id"
               element={
                 <Suspense fallback={<RouteLoadingSpinner />}>
@@ -244,6 +260,7 @@ const App: React.FC = () => {
                 </Suspense>
               }
             />
+
             <Route
               path="tournament-categories"
               element={
@@ -254,6 +271,7 @@ const App: React.FC = () => {
                 </Suspense>
               }
             />
+
             <Route
               path="tournament-categories/:id"
               element={
@@ -264,6 +282,7 @@ const App: React.FC = () => {
                 </Suspense>
               }
             />
+
             <Route
               path="matches"
               element={
@@ -273,7 +292,9 @@ const App: React.FC = () => {
                   </ErrorBoundary>
                 </Suspense>
               }
-            />          <Route
+            />
+
+            <Route
               path="matches/:id"
               element={
                 <Suspense fallback={<RouteLoadingSpinner />}>
@@ -283,6 +304,7 @@ const App: React.FC = () => {
                 </Suspense>
               }
             />
+
             <Route
               path="match-participants"
               element={
@@ -293,6 +315,7 @@ const App: React.FC = () => {
                 </Suspense>
               }
             />
+
             <Route
               path="match-participants/:matchId"
               element={
@@ -303,6 +326,7 @@ const App: React.FC = () => {
                 </Suspense>
               }
             />
+
             <Route
               path="permissions"
               element={
@@ -313,6 +337,7 @@ const App: React.FC = () => {
                 </PermissionProtectedRoute>
               }
             />
+
             <Route
               path="countries"
               element={
@@ -321,6 +346,7 @@ const App: React.FC = () => {
                 </Suspense>
               }
             />
+
             <Route
               path="achievements"
               element={
@@ -329,6 +355,7 @@ const App: React.FC = () => {
                 </Suspense>
               }
             />
+
             <Route
               path="achievements/:id"
               element={
@@ -339,6 +366,7 @@ const App: React.FC = () => {
                 </Suspense>
               }
             />
+
             <Route
               path="regions"
               element={
@@ -347,6 +375,7 @@ const App: React.FC = () => {
                 </Suspense>
               }
             />
+
             <Route
               path="playgrounds"
               element={
@@ -357,6 +386,7 @@ const App: React.FC = () => {
                 </Suspense>
               }
             />
+
             <Route
               path="playgrounds/:id"
               element={
@@ -365,7 +395,9 @@ const App: React.FC = () => {
                     <PlaygroundDetailPage />
                   </ErrorBoundary>
                 </Suspense>
-              } />            <Route
+              } />
+
+            <Route
               path="files"
               element={
                 <Suspense fallback={<RouteLoadingSpinner />}>
@@ -375,6 +407,7 @@ const App: React.FC = () => {
                 </Suspense>
               }
             />
+
             <Route
               path="news"
               element={
@@ -387,6 +420,7 @@ const App: React.FC = () => {
                 </PermissionProtectedRoute>
               }
             />
+
             <Route
               path="favorites"
               element={
@@ -397,7 +431,6 @@ const App: React.FC = () => {
                 </Suspense>
               }
             />
-            {/* Other routes will be added here */}
           </Route>        {/* Redirect from root to dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
