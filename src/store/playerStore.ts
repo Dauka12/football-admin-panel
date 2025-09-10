@@ -60,7 +60,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
     filters: {},
 
     // Fetch players
-    fetchPlayers: async (force = false, page = 0, size = 10, filters = {}) => {
+    fetchPlayers: async (force = false, page = 0, size = 100, filters = {}) => {
         set({ isLoading: true, error: null });
         try {
             const response = await playerApi.getAll({ page, size, ...filters });

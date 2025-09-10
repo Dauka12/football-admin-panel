@@ -18,54 +18,36 @@ const PlayerSelectionModal: React.FC<PlayerSelectionModalProps> = ({
     onClose,
     onSelect,
     currentSelectedIds,
-    currentTeamId,
     title
-}) => {    const { t } = useTranslation();
+}) => {
+    const { t } = useTranslation();
     const { players, fetchPlayers, isLoading } = usePlayerStore();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedIds, setSelectedIds] = useState<number[]>(currentSelectedIds || []);
-    const [availablePlayers, setAvailablePlayers] = useState<PlayerPublicResponse[]>([]);    // Helper function to get player display name - fix for API bug where fullName="Unknown" and real name is in position
-    const getPlayerDisplayName = (player: any) => {
-        // If fullName exists and is not "Unknown" or "string", use it
-        if (player.fullName && player.fullName !== "Unknown" && player.fullName !== "string") {
-            return player.fullName;
-        }
-        // If position field has actual data (not "string"), use it as name
-        if (player.position && player.position !== "string") {
-            return player.position;
-        }        // Fallback to player ID if available
-        return player.id ? `Player #${player.id}` : t('players.unknownPlayer') || 'Unknown Player';
-    };
+    const [availablePlayers, setAvailablePlayers] = useState<PlayerPublicResponse[]>([]);
 
-    // Helper function to get player position - since real name might be in position field
     const getPlayerPosition = (player: any) => {
-        // If fullName is "Unknown" or "string", then position field might contain the name, not the position
+        
         if (player.fullName === "Unknown" || player.fullName === "string") {
-            // If position field also has placeholder data, try to use a meaningful fallback
             if (player.position === "string") {
                 return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
             }
-            // If position has real data but fullName is placeholder, position might be the actual name
-            // In this case, use club as position fallback
             return player.club && player.club !== "string" ? player.club : t('common.notSpecified');
         }
-        // If fullName is valid, then position field should contain actual position
         return player.position && player.position !== "string" ? player.position : t('common.notSpecified');
     };
 
-    // Load players when modal opens
     useEffect(() => {
         if (isOpen) {
             fetchPlayers();
         }
-    }, [isOpen, fetchPlayers]);    // Filter players when search query changes or players load
+    }, [isOpen]);
     useEffect(() => {
-        // Filter by search query
         const filtered = players.filter(player => {
             const matchesSearch = searchQuery.trim() === '' ||
                 player.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 player.nationality.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (player.club && player.club.toLowerCase().includes(searchQuery.toLowerCase()));
+                player.fullName.toLowerCase().includes(searchQuery.toLowerCase())
 
             return matchesSearch;
         });
@@ -73,7 +55,6 @@ const PlayerSelectionModal: React.FC<PlayerSelectionModalProps> = ({
         setAvailablePlayers(filtered);
     }, [players, searchQuery]);
 
-    // Reset selected players when modal opens with current selections
     useEffect(() => {
         if (isOpen) {
             setSelectedIds(currentSelectedIds);
@@ -100,7 +81,6 @@ const PlayerSelectionModal: React.FC<PlayerSelectionModalProps> = ({
             title={title || t('teams.selectPlayers')}
         >
             <div className="space-y-4">
-                {/* Search input */}
                 <div className="relative">
                     <input
                         type="text"
@@ -116,7 +96,6 @@ const PlayerSelectionModal: React.FC<PlayerSelectionModalProps> = ({
                     </div>
                 </div>
 
-                {/* Player list */}
                 <div className="max-h-96 overflow-y-auto pr-1">
                     {isLoading ? (
                         <div className="py-8 flex justify-center">
@@ -134,18 +113,18 @@ const PlayerSelectionModal: React.FC<PlayerSelectionModalProps> = ({
                                     key={player.id}
                                     onClick={() => handleTogglePlayer(player.id)}
                                     className={`
-                    p-3 rounded-md cursor-pointer transition-all duration-200 flex items-center
-                    ${selectedIds.includes(player.id)
-                                            ? 'bg-gold/20 border border-gold'
-                                            : 'bg-darkest-bg hover:bg-darkest-bg/70'
-                                        }
-                  `}
+                                                p-3 rounded-md cursor-pointer transition-all duration-200 flex items-center
+                                                ${selectedIds.includes(player.id)
+                                                                        ? 'bg-gold/20 border border-gold'
+                                                                        : 'bg-darkest-bg hover:bg-darkest-bg/70'
+                                                                    }
+                                            `}
                                 >
                                     <div
                                         className={`
-                      w-6 h-6 rounded-md flex items-center justify-center mr-3 flex-shrink-0
-                      ${selectedIds.includes(player.id) ? 'bg-gold text-darkest-bg' : 'border border-gray-500'}
-                    `}
+                                                    w-6 h-6 rounded-md flex items-center justify-center mr-3 flex-shrink-0
+                                                    ${selectedIds.includes(player.id) ? 'bg-gold text-darkest-bg' : 'border border-gray-500'}
+                                                    `}
                                     >
                                         {selectedIds.includes(player.id) && (
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -154,10 +133,10 @@ const PlayerSelectionModal: React.FC<PlayerSelectionModalProps> = ({
                                         )}
                                     </div>                                    <div className="min-w-0 flex-1">
                                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                                            <div className="font-medium">{getPlayerDisplayName(player)}</div>
+                                            <div className="font-medium">{player.fullName}</div>
                                             <div className="text-sm text-gray-400">{player.nationality}</div>
                                         </div>
-                                        <div className="text-xs text-gray-400 truncate">{getPlayerPosition(player)} • {player.club || 'No club'}</div>
+                                        {!player.teamId && <div className="text-xs text-gray-400 truncate">{getPlayerPosition(player)} • {'No club'}</div>}
                                     </div>
                                 </div>
                             ))}
@@ -165,7 +144,6 @@ const PlayerSelectionModal: React.FC<PlayerSelectionModalProps> = ({
                     )}
                 </div>
 
-                {/* Selection summary and actions */}
                 <div className="border-t border-gray-700 pt-4 mt-4">
                     <div className="mb-4 text-sm">
                         <span className="text-gold">{selectedIds.length}</span> {t('teams.playersSelected')}

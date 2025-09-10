@@ -193,6 +193,7 @@ export const ru = {
     matches: {
         title: "Матчи",
         match: "Матч",
+        matches: "Матчей",
         createMatch: "Создать матч",
         editMatch: "Редактировать матч",
         noMatches: "Матчи не найдены",
@@ -394,6 +395,7 @@ export const ru = {
     },
     teams: {
         title: "Команды",
+        selectPlayers: "Выбрать игроков",
         createTeam: "Создать команду",
         editTeam: "Редактировать команду",
         noTeams: "Команды не найдены",
@@ -496,6 +498,7 @@ export const ru = {
         select: "Выбрать",
         previous: "Назад",
         next: "Вперед",
+        selectDateTime: "Выберите дату и время",
         of: "из",
         showing: "Показано",
         page: "Страница",
@@ -573,8 +576,11 @@ export const ru = {
         notFound: "Игрок не найден",
         playerDetails: "Детали игрока",
         basicInfo: "Информация",
+        userAssignment: "Назначение пользователя",
         physicalData: "Физические данные",
         nationalityInfo: "Гражданство",
+        user: "Пользователь",
+        searchUser: "Поиск пользователя...",
         additionalInfo: "Доп. информация",
         biography: "Биография",
         noResults: "Не найдено игроков по вашему запросу",
@@ -1060,7 +1066,7 @@ export const ru = {
             loadFailed: "Не удалось загрузить изображение"
         }
     },
-    // Tournament Categories
+
     tournamentCategories: {
         title: "Категории турниров",
         description: "Управление категориями турниров",
@@ -1085,7 +1091,6 @@ export const ru = {
         allCategories: "Все категории",
         unknownCategory: "Неизвестная категория",
         
-        // Validation messages
         validation: {
             nameRequired: "Название категории обязательно",
             nameMinLength: "Название категории должно содержать минимум 2 символа",
@@ -1095,8 +1100,8 @@ export const ru = {
             descriptionMaxLength: "Описание не должно превышать 500 символов"
         }
     },
-    
-    // Users
+
+
     users: {
         title: "Пользователи",
         subtitle: "Управление пользователями системы и их ролями",
@@ -1104,6 +1109,8 @@ export const ru = {
         editUser: "Редактировать пользователя",
         userDetails: "Детали пользователя",
         noUsers: "Пользователи не найдены",
+        noUsersFound: "Пользователи не найдены",
+        searchHint: "Поиск по имени, фамилии или телефону...",
         createFirst: "Создайте первого пользователя",
         basicInfo: "Основная информация",
         firstname: "Имя",
@@ -1124,13 +1131,11 @@ export const ru = {
         deleteWarningDetail: "Вы уверены, что хотите удалить пользователя {name}? Это действие нельзя отменить и удалит все связанные данные.",
         notFound: "Пользователь не найден",
         
-        // Form placeholders
         firstnamePlaceholder: "Введите имя",
         lastnamePlaceholder: "Введите фамилию",
         phonePlaceholder: "Введите номер телефона",
         passwordPlaceholder: "Введите пароль",
         
-        // Filter and search
         searchByFirstname: "Поиск по имени...",
         searchByLastname: "Поиск по фамилии...",
         searchByPhone: "Поиск по телефону...",
@@ -1139,7 +1144,6 @@ export const ru = {
         ascending: "По возрастанию",
         descending: "По убыванию",
         
-        // Validation messages
         validation: {
             selectRole: "Должна быть выбрана хотя бы одна роль"
         }
@@ -1155,7 +1159,7 @@ export const ru = {
         export: "Экспорт"
     },
 
-    // Sport Clubs
+
     sportClubs: {
         title: "Спортивные секции",
         subtitle: "Управление спортивными секциями и клубами",
