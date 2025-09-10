@@ -344,7 +344,10 @@ const SportClubsPage: React.FC = () => {
                                             {club.sportTypeName || '-'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                            {club.minAge} - {club.maxAge} {t('common.years')}
+                                            {club.ageCategories && club.ageCategories.length > 0 
+                                                ? club.ageCategories.map(cat => cat.ageCategory).join(', ')
+                                                : '-'
+                                            }
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                                             {club.teams?.length || 0}
@@ -412,9 +415,12 @@ const SportClubsPage: React.FC = () => {
                                         </span>
                                     </div>
                                     <div>
-                                        <span className="text-gray-400">{t('sportClubs.ageRange')}:</span>
+                                        <span className="text-gray-400">{t('sportClubs.ageCategories')}:</span>
                                         <span className="ml-1 text-white">
-                                            {club.minAge} - {club.maxAge}
+                                            {club.ageCategories && club.ageCategories.length > 0 
+                                                ? club.ageCategories.map(cat => cat.ageCategory).join(', ')
+                                                : '-'
+                                            }
                                         </span>
                                     </div>
                                     {club.sportTypeName && (

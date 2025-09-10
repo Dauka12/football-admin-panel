@@ -3,12 +3,19 @@ import { useTranslation } from 'react-i18next';
 import { useCityStore } from '../../store/cityStore';
 import { useSportTypeStore } from '../../store/sportTypeStore';
 import { useTeamStore } from '../../store/teamStore';
-import type { CreateSportClubRequest, SportClubAddress, UpdateSportClubRequest } from '../../types/sportClubs';
+import type { 
+    CreateSportClubRequest, 
+    SportClubAddress, 
+    UpdateSportClubRequest, 
+    OpeningHours, 
+    AgeCategory 
+} from '../../types/sportClubs';
 import type { FileType } from '../../types/files';
 import { ErrorHandler } from '../../utils/errorHandler';
 import { showToast } from '../../utils/toast';
 import TeamSelectionModal from '../tournaments/TeamSelectionModal';
 import FileUpload from '../ui/FileUpload';
+import { YandexMapPicker } from '../maps/YandexMapPicker';
 
 interface SportClubFormProps {
     initialData?: Partial<CreateSportClubRequest | UpdateSportClubRequest>;
@@ -42,18 +49,33 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
                 cityId: 0,
                 zipCode: '',
                 description: '',
-                isPrimary: true
+                isPrimary: true,
+                latitude: '',
+                longitude: ''
             }
         ],
-        minAge: initialData?.minAge || 5,
-        maxAge: initialData?.maxAge || 65,
+        openingHours: initialData?.openingHours || [
+            {
+                dayOfWeek: 'MONDAY',
+                openTime: '09:00',
+                closeTime: '18:00',
+                isClosed: false
+            }
+        ],
+        ageCategories: initialData?.ageCategories || [
+            {
+                ageCategory: 'U6',
+                isActive: true,
+                maxParticipants: 20,
+                categoryDescription: ''
+            }
+        ],
         contactEmail: initialData?.contactEmail || '',
         contactPhone: initialData?.contactPhone || '',
         website: initialData?.website || '',
         facilities: initialData?.facilities || '',
         membershipFee: initialData?.membershipFee || 0,
         membershipBenefits: initialData?.membershipBenefits || '',
-        operatingHours: initialData?.operatingHours || '',
         sportTypeId: initialData?.sportTypeId || 0,
         establishmentYear: initialData?.establishmentYear || new Date().getFullYear(),
         teams: initialData?.teams || [],
@@ -66,6 +88,10 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
     const [showTeamSelector, setShowTeamSelector] = useState(false);
     const [selectedTeams, setSelectedTeams] = useState<(typeof teams[0])[]>([]);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [mapPickerState, setMapPickerState] = useState<{
+        isOpen: boolean;
+        addressIndex: number;
+    }>({ isOpen: false, addressIndex: -1 });
 
     // Load dependencies
     useEffect(() => {
@@ -116,7 +142,7 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
             }));
         }
         // Handle numeric fields
-        else if (name === 'minAge' || name === 'maxAge' || name === 'sportTypeId' || name === 'establishmentYear') {
+        else if (name === 'sportTypeId' || name === 'establishmentYear') {
             setFormData(prev => ({
                 ...prev,
                 [name]: value === '' ? 0 : parseInt(value)
@@ -159,7 +185,9 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
                     cityId: 0,
                     zipCode: '',
                     description: '',
-                    isPrimary: false
+                    isPrimary: false,
+                    latitude: '',
+                    longitude: ''
                 }
             ]
         }));
@@ -184,6 +212,70 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
         }));
     };
 
+    // Opening Hours handlers
+    const handleOpeningHoursChange = (index: number, field: keyof OpeningHours, value: string | boolean) => {
+        setFormData(prev => ({
+            ...prev,
+            openingHours: prev.openingHours?.map((hours, i) => 
+                i === index ? { ...hours, [field]: value } : hours
+            ) || []
+        }));
+    };
+
+    const addOpeningHours = () => {
+        setFormData(prev => ({
+            ...prev,
+            openingHours: [
+                ...(prev.openingHours || []),
+                {
+                    dayOfWeek: 'MONDAY' as const,
+                    openTime: '09:00',
+                    closeTime: '18:00',
+                    isClosed: false
+                }
+            ]
+        }));
+    };
+
+    const removeOpeningHours = (index: number) => {
+        setFormData(prev => ({
+            ...prev,
+            openingHours: prev.openingHours?.filter((_, i) => i !== index) || []
+        }));
+    };
+
+    // Age Categories handlers
+    const handleAgeCategoryChange = (index: number, field: keyof AgeCategory, value: string | boolean | number) => {
+        setFormData(prev => ({
+            ...prev,
+            ageCategories: prev.ageCategories?.map((category, i) => 
+                i === index ? { ...category, [field]: value } : category
+            ) || []
+        }));
+    };
+
+    const addAgeCategory = () => {
+        setFormData(prev => ({
+            ...prev,
+            ageCategories: [
+                ...(prev.ageCategories || []),
+                {
+                    ageCategory: 'U6' as const,
+                    isActive: true,
+                    maxParticipants: 20,
+                    categoryDescription: ''
+                }
+            ]
+        }));
+    };
+
+    const removeAgeCategory = (index: number) => {
+        setFormData(prev => ({
+            ...prev,
+            ageCategories: prev.ageCategories?.filter((_, i) => i !== index) || []
+        }));
+    };
+
     const handleTeamSelection = (selectedTeamIds: number[]) => {
         setFormData(prev => ({
             ...prev,
@@ -201,14 +293,6 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
 
         if (!formData.sportTypeId) {
             newErrors.sportTypeId = t('sportClubs.sportTypeRequired');
-        }
-
-        if (formData.minAge < 0) {
-            newErrors.minAge = t('sportClubs.minAgeInvalid');
-        }
-
-        if (formData.maxAge < formData.minAge) {
-            newErrors.maxAge = t('sportClubs.maxAgeInvalid');
         }
 
         if (formData.addresses.length === 0) {
@@ -420,43 +504,102 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
                     </div>
                 </div>
 
-                {/* Age Range */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="minAge">
-                            {t('sportClubs.minAge')} *
-                        </label>
-                        <input
-                            type="number"
-                            id="minAge"
-                            name="minAge"
-                            value={formData.minAge}
-                            onChange={handleChange}
-                            min="0"
-                            max="100"
-                            className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 focus:ring-gold
-                                ${errors.minAge ? 'border-red-500' : 'border-gray-700'}`}
-                        />
-                        {errors.minAge && <p className="text-red-500 text-xs mt-1">{errors.minAge}</p>}
+                {/* Age Categories */}
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <h4 className="text-md font-medium text-white">{t('sportClubs.ageCategories')}</h4>
+                        <button
+                            type="button"
+                            onClick={addAgeCategory}
+                            className="text-gold hover:text-gold/80 text-sm flex items-center gap-1"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            {t('sportClubs.addAgeCategory')}
+                        </button>
                     </div>
 
-                    <div>
-                        <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="maxAge">
-                            {t('sportClubs.maxAge')} *
-                        </label>
-                        <input
-                            type="number"
-                            id="maxAge"
-                            name="maxAge"
-                            value={formData.maxAge}
-                            onChange={handleChange}
-                            min={formData.minAge}
-                            max="100"
-                            className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 focus:ring-gold
-                                ${errors.maxAge ? 'border-red-500' : 'border-gray-700'}`}
-                        />
-                        {errors.maxAge && <p className="text-red-500 text-xs mt-1">{errors.maxAge}</p>}
-                    </div>
+                    {formData.ageCategories?.map((category, index) => (
+                        <div key={index} className="border border-gray-700 rounded-lg p-4 space-y-3">
+                            <div className="flex items-center justify-between">
+                                <h5 className="text-sm font-medium text-gray-300">{t('sportClubs.ageCategory')} {index + 1}</h5>
+                                {formData.ageCategories && formData.ageCategories.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeAgeCategory(index)}
+                                        className="text-red-400 hover:text-red-300"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                                        {t('sportClubs.ageCategoryType')}
+                                    </label>
+                                    <select
+                                        value={category.ageCategory}
+                                        onChange={(e) => handleAgeCategoryChange(index, 'ageCategory', e.target.value as AgeCategory['ageCategory'])}
+                                        className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
+                                    >
+                                        <option value="U6">U6</option>
+                                        <option value="U8">U8</option>
+                                        <option value="U10">U10</option>
+                                        <option value="U12">U12</option>
+                                        <option value="U14">U14</option>
+                                        <option value="U16">U16</option>
+                                        <option value="U18">U18</option>
+                                        <option value="U21">U21</option>
+                                        <option value="SENIOR">SENIOR</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                                        {t('sportClubs.maxParticipants')}
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        value={category.maxParticipants}
+                                        onChange={(e) => handleAgeCategoryChange(index, 'maxParticipants', parseInt(e.target.value) || 0)}
+                                        className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-1">
+                                    {t('sportClubs.categoryDescription')}
+                                </label>
+                                <textarea
+                                    rows={2}
+                                    value={category.categoryDescription || ''}
+                                    onChange={(e) => handleAgeCategoryChange(index, 'categoryDescription', e.target.value)}
+                                    className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold resize-none"
+                                    placeholder={t('sportClubs.categoryDescriptionPlaceholder')}
+                                />
+                            </div>
+
+                            <div className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    id={`ageCategory_${index}_active`}
+                                    checked={category.isActive}
+                                    onChange={(e) => handleAgeCategoryChange(index, 'isActive', e.target.checked)}
+                                    className="mr-2"
+                                />
+                                <label htmlFor={`ageCategory_${index}_active`} className="text-sm text-gray-300">
+                                    {t('sportClubs.categoryActive')}
+                                </label>
+                            </div>
+                        </div>
+                    ))}
                 </div>
 
                 {/* Establishment Year */}
@@ -661,6 +804,31 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
                             </div>
                         </div>
 
+                        {/* Location Picker */}
+                        <div className="space-y-3">
+                            <label className="block text-xs font-medium text-gray-400">
+                                {t('sportClubs.location')}
+                            </label>
+                            <div className="flex items-center space-x-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setMapPickerState({ isOpen: true, addressIndex: index })}
+                                    className="bg-gold text-darkest-bg px-3 py-2 rounded-md hover:bg-gold/90 transition-colors duration-200 flex items-center text-sm"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                                    </svg>
+                                    {t('sportClubs.selectOnMap')}
+                                </button>
+                                {(address.latitude || address.longitude) && (
+                                    <span className="text-xs text-gray-400">
+                                        {t('sportClubs.coordinates')}: {address.latitude}, {address.longitude}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+
                         <div>
                             <label className="block text-xs font-medium text-gray-400 mb-1">
                                 {t('sportClubs.addressDescription')}
@@ -721,19 +889,102 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
                     />
                 </div>
 
-                <div>
-                    <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="operatingHours">
-                        {t('sportClubs.operatingHours')}
-                    </label>
-                    <input
-                        type="text"
-                        id="operatingHours"
-                        name="operatingHours"
-                        value={formData.operatingHours}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
-                        placeholder={t('sportClubs.operatingHoursPlaceholder')}
-                    />
+                {/* Opening Hours */}
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <h4 className="text-md font-medium text-white">{t('sportClubs.openingHours')}</h4>
+                        <button
+                            type="button"
+                            onClick={addOpeningHours}
+                            className="text-gold hover:text-gold/80 text-sm flex items-center gap-1"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            {t('sportClubs.addOpeningHours')}
+                        </button>
+                    </div>
+
+                    {formData.openingHours?.map((hours, index) => (
+                        <div key={index} className="border border-gray-700 rounded-lg p-4 space-y-3">
+                            <div className="flex items-center justify-between">
+                                <h5 className="text-sm font-medium text-gray-300">{t('sportClubs.day')} {index + 1}</h5>
+                                {formData.openingHours && formData.openingHours.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeOpeningHours(index)}
+                                        className="text-red-400 hover:text-red-300"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                                        {t('sportClubs.dayOfWeek')}
+                                    </label>
+                                    <select
+                                        value={hours.dayOfWeek}
+                                        onChange={(e) => handleOpeningHoursChange(index, 'dayOfWeek', e.target.value as OpeningHours['dayOfWeek'])}
+                                        className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
+                                    >
+                                        <option value="MONDAY">{t('common.days.monday')}</option>
+                                        <option value="TUESDAY">{t('common.days.tuesday')}</option>
+                                        <option value="WEDNESDAY">{t('common.days.wednesday')}</option>
+                                        <option value="THURSDAY">{t('common.days.thursday')}</option>
+                                        <option value="FRIDAY">{t('common.days.friday')}</option>
+                                        <option value="SATURDAY">{t('common.days.saturday')}</option>
+                                        <option value="SUNDAY">{t('common.days.sunday')}</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                                        {t('sportClubs.openTime')}
+                                    </label>
+                                    <input
+                                        type="time"
+                                        value={hours.openTime}
+                                        onChange={(e) => handleOpeningHoursChange(index, 'openTime', e.target.value)}
+                                        disabled={hours.isClosed}
+                                        className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold disabled:opacity-50"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                                        {t('sportClubs.closeTime')}
+                                    </label>
+                                    <input
+                                        type="time"
+                                        value={hours.closeTime}
+                                        onChange={(e) => handleOpeningHoursChange(index, 'closeTime', e.target.value)}
+                                        disabled={hours.isClosed}
+                                        className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold disabled:opacity-50"
+                                    />
+                                </div>
+
+                                <div className="flex items-center justify-center">
+                                    <div className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            id={`openingHours_${index}_closed`}
+                                            checked={hours.isClosed}
+                                            onChange={(e) => handleOpeningHoursChange(index, 'isClosed', e.target.checked)}
+                                            className="mr-2"
+                                        />
+                                        <label htmlFor={`openingHours_${index}_closed`} className="text-sm text-gray-300">
+                                            {t('sportClubs.closed')}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
 
                 {/* Active status - only for edit mode */}
@@ -832,6 +1083,29 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
                     )}
                 </button>
             </div>
+
+            {/* Map Picker Modal */}
+            <YandexMapPicker
+                isOpen={mapPickerState.isOpen}
+                onClose={() => setMapPickerState({ isOpen: false, addressIndex: -1 })}
+                onLocationSelect={(lat: number, lng: number) => {
+                    if (mapPickerState.addressIndex >= 0) {
+                        handleAddressChange(mapPickerState.addressIndex, 'latitude', lat.toString());
+                        handleAddressChange(mapPickerState.addressIndex, 'longitude', lng.toString());
+                    }
+                    setMapPickerState({ isOpen: false, addressIndex: -1 });
+                }}
+                initialLat={
+                    mapPickerState.addressIndex >= 0 && formData.addresses[mapPickerState.addressIndex]?.latitude
+                        ? parseFloat(formData.addresses[mapPickerState.addressIndex].latitude!) 
+                        : 51.1694
+                }
+                initialLng={
+                    mapPickerState.addressIndex >= 0 && formData.addresses[mapPickerState.addressIndex]?.longitude
+                        ? parseFloat(formData.addresses[mapPickerState.addressIndex].longitude!) 
+                        : 71.4491
+                }
+            />
 
             {/* Team Selection Modal */}
             <TeamSelectionModal

@@ -128,12 +128,6 @@ const PlayerForm: React.FC<PlayerFormProps> = React.memo(({ initialData, onSubmi
             return;
         }
 
-        // Check if teamId and sportTypeId are actually selected
-        if (!formData.teamId) {
-            showToast('Please select a team', 'error');
-            return;
-        }
-
         if (!formData.sportTypeId) {
             showToast('Please select a sport type', 'error');
             return;

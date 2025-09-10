@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { City, CityCreateRequest, CityUpdateRequest } from '../../types/cities';
 import { cityValidators, useFormValidation } from '../../utils/validation';
+import { useCountriesStore } from '../../store/countriesStore';
+import { YandexMapPicker } from '../maps/YandexMapPicker';
 
 interface CityFormProps {
     city?: City;
@@ -17,6 +19,7 @@ const CityForm: React.FC<CityFormProps> = ({
     isSubmitting = false
 }) => {
     const { t } = useTranslation();
+    const { countries, fetchCountries, isLoading: isLoadingCountries } = useCountriesStore();
     
     const { 
         errors, 
@@ -24,9 +27,11 @@ const CityForm: React.FC<CityFormProps> = ({
         clearFieldError 
     } = useFormValidation(cityValidators.create);
 
+    const [isMapPickerOpen, setIsMapPickerOpen] = useState(false);
     const [formData, setFormData] = useState({
         name: city?.name || '',
         country: city?.country || '',
+        countryId: 0,
         region: city?.region || '',
         population: 0,
         latitude: city?.latitude || 0,
@@ -36,11 +41,17 @@ const CityForm: React.FC<CityFormProps> = ({
         active: city?.active ?? true
     });
 
+    // Load countries on component mount
+    useEffect(() => {
+        fetchCountries();
+    }, [fetchCountries]);
+
     useEffect(() => {
         if (city) {
             setFormData({
                 name: city.name,
                 country: city.country,
+                countryId: 0, // Will be set when countries are loaded
                 region: city.region,
                 population: 0, // Default value as this field is not returned from API
                 latitude: city.latitude,
@@ -102,22 +113,36 @@ const CityForm: React.FC<CityFormProps> = ({
 
                 {/* Country */}
                 <div className="space-y-1">
-                    <label htmlFor="country" className="text-sm font-medium text-gray-300">
+                    <label htmlFor="countryId" className="text-sm font-medium text-gray-300">
                         {t('cities.country')} *
                     </label>
-                    <input
-                        id="country"
-                        type="text"
-                        value={formData.country}
-                        onChange={(e) => handleChange('country', e.target.value)}
+                    <select
+                        id="countryId"
+                        value={formData.countryId || ''}
+                        onChange={(e) => {
+                            const selectedCountryId = parseInt(e.target.value) || 0;
+                            const selectedCountry = countries.find(c => c.id === selectedCountryId);
+                            handleChange('countryId', selectedCountryId);
+                            if (selectedCountry) {
+                                handleChange('country', selectedCountry.name);
+                            }
+                        }}
                         className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 transition-colors duration-200 ${
                             errors.country 
                                 ? 'border-red-500 focus:ring-red-500' 
                                 : 'border-gray-700 focus:ring-gold'
                         }`}
-                        placeholder={t('cities.country')}
-                        disabled={isSubmitting}
-                    />
+                        disabled={isSubmitting || isLoadingCountries}
+                    >
+                        <option value="">
+                            {isLoadingCountries ? t('common.loading') : t('cities.selectCountry')}
+                        </option>
+                        {countries.map((country) => (
+                            <option key={country.id} value={country.id}>
+                                {country.name}
+                            </option>
+                        ))}
+                    </select>
                     {errors.country && (
                         <p className="text-red-500 text-xs">{errors.country}</p>
                     )}
@@ -170,55 +195,31 @@ const CityForm: React.FC<CityFormProps> = ({
                     )}
                 </div>
 
-                {/* Latitude */}
-                <div className="space-y-1">
-                    <label htmlFor="latitude" className="text-sm font-medium text-gray-300">
-                        {t('cities.latitude')} *
+                {/* Location Picker */}
+                <div className="md:col-span-2 space-y-3">
+                    <label className="text-sm font-medium text-gray-300">
+                        {t('cities.location')} *
                     </label>
-                    <input
-                        id="latitude"
-                        type="number"
-                        step="0.000001"
-                        min="-90"
-                        max="90"
-                        value={formData.latitude}
-                        onChange={(e) => handleChange('latitude', parseFloat(e.target.value) || 0)}
-                        className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 transition-colors duration-200 ${
-                            errors.latitude 
-                                ? 'border-red-500 focus:ring-red-500' 
-                                : 'border-gray-700 focus:ring-gold'
-                        }`}
-                        placeholder={t('cities.latitude')}
-                        disabled={isSubmitting}
-                    />
-                    {errors.latitude && (
-                        <p className="text-red-500 text-xs">{errors.latitude}</p>
-                    )}
-                </div>
-
-                {/* Longitude */}
-                <div className="space-y-1">
-                    <label htmlFor="longitude" className="text-sm font-medium text-gray-300">
-                        {t('cities.longitude')} *
-                    </label>
-                    <input
-                        id="longitude"
-                        type="number"
-                        step="0.000001"
-                        min="-180"
-                        max="180"
-                        value={formData.longitude}
-                        onChange={(e) => handleChange('longitude', parseFloat(e.target.value) || 0)}
-                        className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 transition-colors duration-200 ${
-                            errors.longitude 
-                                ? 'border-red-500 focus:ring-red-500' 
-                                : 'border-gray-700 focus:ring-gold'
-                        }`}
-                        placeholder={t('cities.longitude')}
-                        disabled={isSubmitting}
-                    />
-                    {errors.longitude && (
-                        <p className="text-red-500 text-xs">{errors.longitude}</p>
+                    <div className="flex items-center space-x-3">
+                        <button
+                            type="button"
+                            onClick={() => setIsMapPickerOpen(true)}
+                            className="bg-gold text-darkest-bg px-4 py-2 rounded-md hover:bg-gold/90 transition-colors duration-200 flex items-center"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                            </svg>
+                            {t('cities.selectOnMap')}
+                        </button>
+                        {(formData.latitude !== 0 || formData.longitude !== 0) && (
+                            <span className="text-sm text-gray-400">
+                                {t('cities.coordinates')}: {formData.latitude.toFixed(6)}, {formData.longitude.toFixed(6)}
+                            </span>
+                        )}
+                    </div>
+                    {(formData.latitude === 0 && formData.longitude === 0) && (
+                        <p className="text-red-500 text-xs">{t('cities.coordinatesRequired')}</p>
                     )}
                 </div>
 
@@ -307,6 +308,19 @@ const CityForm: React.FC<CityFormProps> = ({
                     {isSubmitting ? t('common.saving') : t('common.save')}
                 </button>
             </div>
+
+            {/* Map Picker Modal */}
+            <YandexMapPicker
+                isOpen={isMapPickerOpen}
+                onClose={() => setIsMapPickerOpen(false)}
+                onLocationSelect={(lat: number, lng: number) => {
+                    handleChange('latitude', lat);
+                    handleChange('longitude', lng);
+                    setIsMapPickerOpen(false);
+                }}
+                initialLat={formData.latitude || 51.1694}
+                initialLng={formData.longitude || 71.4491}
+            />
         </form>
     );
 };

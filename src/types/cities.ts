@@ -15,6 +15,7 @@ export interface City {
 export interface CityCreateRequest {
     name: string;
     country: string;
+    countryId: number;
     region: string;
     population: number;
     latitude: number;
@@ -27,6 +28,7 @@ export interface CityCreateRequest {
 export interface CityUpdateRequest {
     name: string;
     country: string;
+    countryId: number;
     region: string;
     population: number;
     latitude: number;

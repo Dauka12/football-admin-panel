@@ -198,11 +198,11 @@ export const playerValidators = {
         ],
         identificationNumber: [
             validationRules.required('Identification number is required'),
-            validationRules.minLength(5, 'Identification number must be at least 5 characters')
+            validationRules.minLength(1, 'Identification number must be at least 1 character')
         ],
         userId: [
-            validationRules.required('User ID is required'),
-            validationRules.min(1, 'User ID must be a positive number')
+            // validationRules.required('User ID is required'),
+            // validationRules.min(1, 'User ID must be a positive number')
         ],
         age: [
             validationRules.required('Age is required'),
@@ -281,6 +281,7 @@ export const teamValidators = {
 interface CityFormData {
     name: string;
     country: string;
+    countryId: number;
     region: string;
     population: number;
     latitude: number;
@@ -301,6 +302,10 @@ export const cityValidators = {
             validationRules.required('Country is required'),
             validationRules.minLength(2, 'Country must be at least 2 characters'),
             validationRules.maxLength(100, 'Country must be less than 100 characters')
+        ],
+        countryId: [
+            validationRules.required('Country selection is required'),
+            validationRules.min(1, 'Please select a valid country')
         ],
         region: [
             validationRules.required('Region is required'),

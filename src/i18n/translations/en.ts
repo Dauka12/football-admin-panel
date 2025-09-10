@@ -599,6 +599,7 @@ export const en = {
         createFirst: "Create your first city",
         name: "Name",
         country: "Country",
+        selectCountry: "Select a country",
         region: "Region",
         population: "Population",
         latitude: "Latitude",
@@ -606,6 +607,8 @@ export const en = {
         postalCode: "Postal Code",
         location: "Location",
         coordinates: "Coordinates",
+        coordinatesRequired: "Please select location on map",
+        selectOnMap: "Select on Map",
         selectCity: "Select city",
         allCities: "All cities",
         unknownCity: "Unknown city",
@@ -626,6 +629,7 @@ export const en = {
     common: {
         save: "Save",
         cancel: "Cancel",
+        remove: "Remove",
         delete: "Delete",
         edit: "Edit",
         create: "Create",
@@ -684,6 +688,15 @@ export const en = {
         close: "Close",
         back: "Back",
         goToMatchesToManageParticipants: "Go to matches to manage participants",
+        days: {
+            monday: "Monday",
+            tuesday: "Tuesday",
+            wednesday: "Wednesday",
+            thursday: "Thursday",
+            friday: "Friday",
+            saturday: "Saturday",
+            sunday: "Sunday"
+        },
         creation: {
             success: "Created successfully",
             error: "Creation failed"
@@ -1208,6 +1221,28 @@ export const en = {
         addressDescriptionPlaceholder: "Description of location (e.g., 'main entrance')",
         primary: "Primary",
         setPrimary: "Set as Primary",
+        location: "Location",
+        coordinates: "Coordinates",
+        selectOnMap: "Select on Map",
+        
+        // Opening Hours
+        openingHours: "Opening Hours",
+        addOpeningHours: "Add Opening Hours",
+        day: "Day",
+        dayOfWeek: "Day of Week",
+        openTime: "Open Time",
+        closeTime: "Close Time",
+        closed: "Closed",
+        
+        // Age Categories
+        ageCategories: "Age Categories",
+        addAgeCategory: "Add Age Category",
+        ageCategory: "Age Category",
+        ageCategoryType: "Age Category Type",
+        maxParticipants: "Max Participants",
+        categoryDescription: "Category Description",
+        categoryDescriptionPlaceholder: "Description for this age category",
+        categoryActive: "Active",
         
         // Additional Information
         additionalInfo: "Additional Information",

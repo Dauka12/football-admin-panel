@@ -7,6 +7,22 @@ export interface SportClubAddress {
     zipCode?: string;
     description?: string;
     isPrimary: boolean;
+    latitude?: string;
+    longitude?: string;
+}
+
+export interface OpeningHours {
+    dayOfWeek: 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
+    openTime: string;
+    closeTime: string;
+    isClosed: boolean;
+}
+
+export interface AgeCategory {
+    ageCategory: 'U6' | 'U8' | 'U10' | 'U12' | 'U14' | 'U16' | 'U18' | 'U21' | 'SENIOR';
+    isActive: boolean;
+    maxParticipants: number;
+    categoryDescription?: string;
 }
 
 export interface SportClubTeam {
@@ -43,15 +59,14 @@ export interface SportClub {
     description?: string;
     clubType: 'KIDS' | 'REGULAR' | 'PROFESSIONAL' | 'MIXED';
     addresses: SportClubAddress[];
-    minAge: number;
-    maxAge: number;
+    openingHours?: OpeningHours[];
+    ageCategories?: AgeCategory[];
     contactEmail?: string;
     contactPhone?: string;
     website?: string;
     facilities?: string;
     membershipFee?: number;
     membershipBenefits?: string;
-    operatingHours?: string;
     sportTypeId: number;
     sportTypeName?: string;
     establishmentYear?: number;
@@ -68,15 +83,14 @@ export interface CreateSportClubRequest {
     description?: string;
     clubType: 'KIDS' | 'REGULAR' | 'PROFESSIONAL' | 'MIXED';
     addresses: Omit<SportClubAddress, 'id' | 'cityName'>[];
-    minAge: number;
-    maxAge: number;
+    openingHours?: OpeningHours[];
+    ageCategories?: AgeCategory[];
     contactEmail?: string;
     contactPhone?: string;
     website?: string;
     facilities?: string;
     membershipFee?: number;
     membershipBenefits?: string;
-    operatingHours?: string;
     sportTypeId: number;
     establishmentYear?: number;
     teams?: number[];
@@ -84,6 +98,21 @@ export interface CreateSportClubRequest {
     imageUrl?: number; // File ID for club avatar
     heroId?: number; // File ID for hero image
     heroGif?: string; // URL for hero GIF
+}
+
+export interface CreateSportClubAddressRequest {
+    streetLine1: string;
+    streetLine2?: string;
+    cityId: number;
+    zipCode?: string;
+    description?: string;
+    isPrimary: boolean;
+    latitude?: string;
+    longitude?: string;
+}
+
+export interface UpdateSportClubAddressRequest extends CreateSportClubAddressRequest {
+    // All fields from CreateSportClubAddressRequest are available for update
 }
 
 export interface UpdateSportClubRequest extends CreateSportClubRequest {
