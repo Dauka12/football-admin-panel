@@ -87,7 +87,7 @@ const TeamStatistics: React.FC<TeamStatisticsProps> = ({
 
     if (!matches || !matches.content || matches.content.length === 0) {
         return (
-            <div className="bg-card-bg rounded-lg p-6">
+            <div className="bg-card-bg rounded-lg p-6 mt-8">
                 <h2 className={`font-semibold mb-4 ${isRussian ? 'text-lg' : 'text-xl'}`}>
                     {t('statistics.recentMatches')}
                 </h2>
@@ -153,6 +153,7 @@ const TeamStatistics: React.FC<TeamStatisticsProps> = ({
                     </div>
                 </div>
             </div>
+            
 
             {/* Recent Matches */}
             <div className="bg-card-bg rounded-lg p-6">
