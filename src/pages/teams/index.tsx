@@ -31,7 +31,7 @@ const TeamsPage: React.FC = () => {
     
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [teamToDelete, setTeamToDelete] = useState<number | null>(null);
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState(filters.name || '');
     const [page, setPage] = useState(0);
 
     // Filter state
@@ -41,17 +41,22 @@ const TeamsPage: React.FC = () => {
     const [filterSecondaryColor, setFilterSecondaryColor] = useState(filters.secondaryColor || '');
     const [filterSportTypeId, setFilterSportTypeId] = useState<number | undefined>(filters.sportTypeId);
 
-    const filteredTeams = useMemo(() => {
-        if (!teams) return [];
-        
-        if (!searchQuery.trim()) return teams;
-        
-        const query = searchQuery.toLowerCase();
-        return teams.filter(team =>
-            team.name.toLowerCase().includes(query) ||
-            team.description.toLowerCase().includes(query)
-        );
-    }, [teams, searchQuery]);
+    // Debounce search query to update filters
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (searchQuery !== (filters.name || '')) {
+                setFilters({ ...filters, name: searchQuery || undefined });
+                setPage(0);
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery, filters, setFilters]);
+
+    // Sync filterName with filters.name
+    useEffect(() => {
+        setFilterName(filters.name || '');
+        setSearchQuery(filters.name || '');
+    }, [filters.name]);
 
     useEffect(() => {
         fetchTeams(true, page, pageSize, filters);
@@ -63,16 +68,23 @@ const TeamsPage: React.FC = () => {
     }, []);
 
     const applyFilters = () => {
-        const newFilters: TeamFilterParams = {};
+        const newFilters: TeamFilterParams = { ...filters };
         
         if (filterName) newFilters.name = filterName;
+        else delete newFilters.name;
+
         if (filterPrimaryColor) newFilters.primaryColor = filterPrimaryColor;
+        else delete newFilters.primaryColor;
+
         if (filterSecondaryColor) newFilters.secondaryColor = filterSecondaryColor;
+        else delete newFilters.secondaryColor;
+
         if (filterSportTypeId) newFilters.sportTypeId = filterSportTypeId;
+        else delete newFilters.sportTypeId;
         
         setFilters(newFilters);
         setPage(0);
-        fetchTeams(true, 0, pageSize, newFilters);
+        // fetchTeams will be triggered by useEffect on filters change
         setIsFilterOpen(false);
     };
 
@@ -82,6 +94,7 @@ const TeamsPage: React.FC = () => {
         setFilterPrimaryColor('');
         setFilterSecondaryColor('');
         setFilterSportTypeId(undefined);
+        setSearchQuery('');
         setFilters({});
         setPage(0);
     };
@@ -258,7 +271,7 @@ const TeamsPage: React.FC = () => {
                 </div>
             )}
 
-            {!isLoading && filteredTeams.length === 0 ? (
+            {!isLoading && teams.length === 0 ? (
                 <div className="text-center py-12">
                     {searchQuery || Object.keys(filters).length > 0 ? (
                         <p className="text-gray-400 mb-4">{t('teams.noResultsFound')}</p>
@@ -276,7 +289,7 @@ const TeamsPage: React.FC = () => {
                 </div>
             ) : (                
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                    {filteredTeams.map((team) => (
+                    {teams.map((team) => (
                         <div key={team.id} className="bg-card-bg rounded-lg overflow-hidden shadow-lg border border-gray-700 transition-transform hover:-translate-y-1 hover:shadow-xl">
                             <div className="p-3 sm:p-4">
                                 <div className="flex items-center justify-between mb-3">

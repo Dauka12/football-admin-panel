@@ -274,8 +274,14 @@ export const useNewsStore = create<NewsState>((set, get) => ({
     fetchNewsByCategory: async (category: NewsCategory) => {
         set({ loading: true, error: null });
         try {
-            const { pagination } = get();
-            const response = await newsApi.getByCategory(category, pagination.page, pagination.size);
+            const { filters, pagination } = get();
+            const response = await newsApi.getAll({
+                ...filters,
+                category,
+                page: pagination.page,
+                size: pagination.size,
+                sort: ['createdAt,desc']
+            });
             
             set({
                 news: response.content,
@@ -310,8 +316,19 @@ export const useNewsStore = create<NewsState>((set, get) => ({
     searchNews: async (keyword: string) => {
         set({ loading: true, error: null });
         try {
-            const { pagination } = get();
-            const response = await newsApi.search(keyword, pagination.page, pagination.size);
+            const { filters, pagination } = get();
+            // Update filters with keyword so it persists
+            set(state => ({
+                filters: { ...state.filters, keyword }
+            }));
+            
+            const response = await newsApi.getAll({
+                ...filters,
+                keyword,
+                page: pagination.page,
+                size: pagination.size,
+                sort: ['createdAt,desc']
+            });
             
             set({
                 news: response.content,
@@ -333,8 +350,15 @@ export const useNewsStore = create<NewsState>((set, get) => ({
     fetchRecentNews: async (limit = 10) => {
         set({ loading: true, error: null });
         try {
-            const recentNews = await newsApi.getRecent(limit);
-            set({ news: recentNews, loading: false });
+            // Recent news ignores filters usually, but if we want to support filters:
+            const { filters } = get();
+            const response = await newsApi.getAll({
+                ...filters,
+                page: 0,
+                size: limit,
+                sort: ['createdAt,desc']
+            });
+            set({ news: response.content, loading: false });
         } catch (error) {
             set({ 
                 error: error instanceof Error ? error.message : 'Failed to fetch recent news',
@@ -346,8 +370,14 @@ export const useNewsStore = create<NewsState>((set, get) => ({
     fetchFeaturedNews: async () => {
         set({ loading: true, error: null });
         try {
-            const { pagination } = get();
-            const response = await newsApi.getFeatured(pagination.page, pagination.size);
+            const { filters, pagination } = get();
+            const response = await newsApi.getAll({
+                ...filters,
+                isFeatured: true,
+                page: pagination.page,
+                size: pagination.size,
+                sort: ['createdAt,desc']
+            });
             
             set({
                 news: response.content,
@@ -369,8 +399,13 @@ export const useNewsStore = create<NewsState>((set, get) => ({
     fetchPopularNews: async () => {
         set({ loading: true, error: null });
         try {
-            const { pagination } = get();
-            const response = await newsApi.getPopular(pagination.page, pagination.size);
+            const { filters, pagination } = get();
+            const response = await newsApi.getAll({
+                ...filters,
+                page: pagination.page,
+                size: pagination.size,
+                sort: ['viewCount,desc']
+            });
             
             set({
                 news: response.content,
@@ -392,8 +427,14 @@ export const useNewsStore = create<NewsState>((set, get) => ({
     fetchPublishedNews: async () => {
         set({ loading: true, error: null });
         try {
-            const { pagination } = get();
-            const response = await newsApi.getPublished(pagination.page, pagination.size);
+            const { filters, pagination } = get();
+            const response = await newsApi.getAll({
+                ...filters,
+                status: 'PUBLISHED',
+                page: pagination.page,
+                size: pagination.size,
+                sort: ['publishedAt,desc']
+            });
             
             set({
                 news: response.content,
@@ -415,8 +456,14 @@ export const useNewsStore = create<NewsState>((set, get) => ({
     fetchBreakingNews: async () => {
         set({ loading: true, error: null });
         try {
-            const { pagination } = get();
-            const response = await newsApi.getBreaking(pagination.page, pagination.size);
+            const { filters, pagination } = get();
+            const response = await newsApi.getAll({
+                ...filters,
+                isBreaking: true,
+                page: pagination.page,
+                size: pagination.size,
+                sort: ['createdAt,desc']
+            });
             
             set({
                 news: response.content,
@@ -438,8 +485,14 @@ export const useNewsStore = create<NewsState>((set, get) => ({
     fetchNewsByAuthor: async (authorId: number) => {
         set({ loading: true, error: null });
         try {
-            const { pagination } = get();
-            const response = await newsApi.getByAuthor(authorId, pagination.page, pagination.size);
+            const { filters, pagination } = get();
+            const response = await newsApi.getAll({
+                ...filters,
+                authorId,
+                page: pagination.page,
+                size: pagination.size,
+                sort: ['createdAt,desc']
+            });
             
             set({
                 news: response.content,
@@ -461,8 +514,14 @@ export const useNewsStore = create<NewsState>((set, get) => ({
     fetchNewsByTags: async (tags: string[]) => {
         set({ loading: true, error: null });
         try {
-            const { pagination } = get();
-            const response = await newsApi.getByTags(tags, pagination.page, pagination.size);
+            const { filters, pagination } = get();
+            const response = await newsApi.getAll({
+                ...filters,
+                tags,
+                page: pagination.page,
+                size: pagination.size,
+                sort: ['createdAt,desc']
+            });
             
             set({
                 news: response.content,

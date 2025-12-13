@@ -15,15 +15,13 @@ type SortOption = 'date-asc' | 'date-desc' | 'status';
 
 const MatchesPage: React.FC = () => {
   const { t } = useTranslation();
-  const { matches, isLoading, error, fetchMatches, createMatch, deleteMatch } = useMatchStore();
+  const { matches, isLoading, error, fetchMatches, createMatch, deleteMatch, filters, setFilters } = useMatchStore();
   const { tournaments, fetchTournaments } = useTournamentStore();
   
   // UI state
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [matchToDelete, setMatchToDelete] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [tournamentFilter, setTournamentFilter] = useState<number | null>(null);
-  const [statusFilter, setStatusFilter] = useState<MatchStatus | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>('date-desc');
   
   // Data loading
@@ -31,7 +29,7 @@ const MatchesPage: React.FC = () => {
     const loadData = async () => {
       try {
         await Promise.all([
-          fetchMatches(undefined, true), // Force refresh
+          fetchMatches(filters, true), // Force refresh with current filters
           fetchTournaments()
         ]);
       } catch (error) {
@@ -40,8 +38,21 @@ const MatchesPage: React.FC = () => {
       }
     };
     loadData();
-  }, [fetchMatches, fetchTournaments]);
+  }, [fetchMatches, fetchTournaments]); // filters is in dependency of fetchMatches? No, fetchMatches is stable.
   
+  // Handle filter changes
+  const handleTournamentChange = (tournamentId: number | null) => {
+      const newFilters = { ...filters, tournamentId: tournamentId || undefined, page: 0 };
+      setFilters(newFilters);
+      fetchMatches(newFilters, true);
+  };
+
+  const handleStatusChange = (status: MatchStatus | null) => {
+      const newFilters = { ...filters, status: status || undefined, page: 0 };
+      setFilters(newFilters);
+      fetchMatches(newFilters, true);
+  };
+
   // Filtered matches
   const filteredMatches = useMemo(() => {
     // Make sure matches is an array
@@ -56,7 +67,7 @@ const MatchesPage: React.FC = () => {
     
     let result = [...matches];
     
-    // Filter by search query
+    // Filter by search query (Client-side only as API doesn't support it yet)
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       result = result.filter(match => {
@@ -65,18 +76,6 @@ const MatchesPage: React.FC = () => {
           p.teamName && p.teamName.toLowerCase().includes(query)
         );
       });
-    }
-    
-    // Filter by tournament
-    if (tournamentFilter) {
-      result = result.filter(match => match.tournament && match.tournament.id === tournamentFilter);
-    }
-    
-    // Filter by status
-    if (statusFilter) {
-      result = result.filter(match => 
-        match.status && match.status.toUpperCase() === statusFilter.toUpperCase()
-      );
     }
     
     // Sort the results
@@ -120,7 +119,7 @@ const MatchesPage: React.FC = () => {
     }
     
     return result;
-  }, [matches, searchQuery, tournamentFilter, statusFilter, sortBy]);
+  }, [matches, searchQuery, sortBy]);
   
   // Handle create match form submission
   const handleCreateMatch = async (data: CreateMatchRequest | UpdateMatchRequest) => {
@@ -221,8 +220,8 @@ const MatchesPage: React.FC = () => {
         
         <div className="sm:w-72">
           <select
-            value={tournamentFilter || ''}
-            onChange={(e) => setTournamentFilter(e.target.value ? parseInt(e.target.value, 10) : null)}
+            value={filters.tournamentId || ''}
+            onChange={(e) => handleTournamentChange(e.target.value ? parseInt(e.target.value, 10) : null)}
             className="w-full px-3 py-2 bg-card-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold transition-colors duration-200"
           >
             <option value="">{t('matches.allTournaments')}</option>
@@ -236,8 +235,8 @@ const MatchesPage: React.FC = () => {
         
         <div className="sm:w-52">
           <select
-            value={statusFilter || ''}
-            onChange={(e) => setStatusFilter(e.target.value ? e.target.value as MatchStatus : null)}
+            value={filters.status || ''}
+            onChange={(e) => handleStatusChange(e.target.value ? e.target.value as MatchStatus : null)}
             className="w-full px-3 py-2 bg-card-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold transition-colors duration-200"
           >
             <option value="">{t('matches.status.allStatuses')}</option>
@@ -275,7 +274,7 @@ const MatchesPage: React.FC = () => {
       {/* Empty state */}
       {!isLoading && (!filteredMatches || filteredMatches.length === 0) ? (
         <div className="text-center py-12">
-          {searchQuery || tournamentFilter || statusFilter ? (
+          {searchQuery || filters.tournamentId || filters.status ? (
             <p className="text-gray-400 mb-4">{t('matches.noResultsFound')}</p>
           ) : (
             <>
