@@ -470,7 +470,14 @@ export const ru = {
         sportType: "Вид спорта",
         category: "Категория турнира",
         numberOfMatches: "Количество матчей",
-        location: "Местоположение"
+        location: "Местоположение",
+        nameRequired: "Название турнира обязательно",
+        startDateRequired: "Дата начала обязательна",
+        endDateRequired: "Дата окончания обязательна",
+        cityRequired: "Город обязателен",
+        sportTypeRequired: "Вид спорта обязателен",
+        categoryRequired: "Категория обязательна",
+        minTeamsRequired: "Требуется минимум 2 команды"
     },
     common: {
         save: "Сохранить",
