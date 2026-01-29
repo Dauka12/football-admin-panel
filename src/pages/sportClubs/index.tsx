@@ -534,11 +534,11 @@ const SportClubsPage: React.FC = () => {
                 </>
             )}
 
-            {/* Create Sport Club Modal */}
             <Modal
                 isOpen={showCreateForm}
                 onClose={() => setShowCreateForm(false)}
                 title={t('sportClubs.createSportClub')}
+                maxWidth="7xl"
             >
                 <SportClubForm
                     onSubmit={handleCreateSportClub}

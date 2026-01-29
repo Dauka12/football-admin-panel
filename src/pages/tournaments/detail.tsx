@@ -5,6 +5,10 @@ import TournamentForm from '../../components/tournaments/TournamentForm';
 import TournamentStatistics from '../../components/tournaments/TournamentStatistics';
 import Bread from '../../components/ui/Breadcrumb';
 import SimpleModal from '../../components/ui/SimpleModal';
+import { teamApi } from '../../api/teams';
+import { useCityStore } from '../../store/cityStore';
+import { useSportTypeStore } from '../../store/sportTypeStore';
+import { useTournamentCategoryStore } from '../../store/tournamentCategoryStore';
 import { useStatisticsStore } from '../../store/statisticsStore';
 import { useTeamStore } from '../../store/teamStore';
 import { useTournamentStore } from '../../store/tournamentStore';
@@ -18,6 +22,9 @@ const TournamentDetailPage: React.FC = () => {
     const { t, i18n } = useTranslation();
     const { currentTournament, isLoading: tournamentLoading, error: tournamentError, fetchTournament, updateTournament, deleteTournament } = useTournamentStore();
     const { fetchTeamsByIds } = useTeamStore();
+    const { cities, currentCity, fetchCities, fetchCity } = useCityStore();
+    const { sportTypes, currentSportType, fetchSportTypes, fetchSportType } = useSportTypeStore();
+    const { categories, currentCategory, fetchCategories, fetchCategoryById } = useTournamentCategoryStore();
     const { 
         tournamentStats, 
         isTournamentStatsLoading, 
@@ -43,6 +50,12 @@ const TournamentDetailPage: React.FC = () => {
     useEffect(() => {
         loadTournament();
     }, [loadTournament]);
+
+    useEffect(() => {
+        fetchCities(0, 200);
+        fetchSportTypes(0, 200);
+        fetchCategories(true, 0, 200);
+    }, [fetchCities, fetchSportTypes, fetchCategories]);
     
     // Fetch tournament statistics
     useEffect(() => {
@@ -50,43 +63,62 @@ const TournamentDetailPage: React.FC = () => {
             fetchTournamentStatistics(tournamentId);
         }
     }, [tournamentId, fetchTournamentStatistics]);
+
+    useEffect(() => {
+        if (!currentTournament) return;
+        if (currentTournament.cityId && !cities.some(city => city.id === currentTournament.cityId)) {
+            fetchCity(currentTournament.cityId);
+        }
+        if (currentTournament.sportTypeId && !sportTypes.some(sport => sport.id === currentTournament.sportTypeId)) {
+            fetchSportType(currentTournament.sportTypeId);
+        }
+        if (currentTournament.categoryId && !categories.some(category => category.id === currentTournament.categoryId)) {
+            fetchCategoryById(currentTournament.categoryId);
+        }
+    }, [
+        currentTournament,
+        cities,
+        sportTypes,
+        categories,
+        fetchCity,
+        fetchSportType,
+        fetchCategoryById
+    ]);
     
     // Fetch team details
     useEffect(() => {
         let isCancelled = false;
         
         const getTeamDetails = async () => {
-            if (currentTournament && Array.isArray(currentTournament.teams) && currentTournament.teams.length > 0) {
-                // Skip if we already have the teams loaded or if request is cancelled
-                if (tournamentTeams.length > 0 || isCancelled) return;
-                
-                setIsLoadingTeams(true);
-                setTeamError(null);
-                
-                try {
-                    // currentTournament.teams is an array of TournamentTeam objects
+            if (tournamentId <= 0 || isCancelled) return;
+            if (tournamentTeams.length > 0) return;
+
+            setIsLoadingTeams(true);
+            setTeamError(null);
+
+            try {
+                if (currentTournament && Array.isArray(currentTournament.teams) && currentTournament.teams.length > 0) {
                     const teamIds = currentTournament.teams.map(team => team.id);
-                    if (teamIds.length > 0 && !isCancelled) {
-                        const teams = await fetchTeamsByIds(teamIds);
-                        if (!isCancelled) {
-                            setTournamentTeams(teams);
-                        }
-                    } else if (!isCancelled) {
-                        setTournamentTeams([]);
-                    }
-                } catch (error) {
+                    const teams = teamIds.length > 0 ? await fetchTeamsByIds(teamIds) : [];
                     if (!isCancelled) {
-                        console.error('Failed to fetch teams:', error);
-                        setTeamError(t('errors.failedToLoadTeams'));
+                        setTournamentTeams(teams);
                     }
-                } finally {
+                } else {
+                    const response = await teamApi.getAll(0, 200, { tournamentId });
                     if (!isCancelled) {
-                        setIsLoadingTeams(false);
+                        const content = Array.isArray(response.content) ? response.content.filter(Boolean) : [];
+                        setTournamentTeams(content);
                     }
                 }
-            } else if (!isCancelled) {
-                setTournamentTeams([]);
-                setIsLoadingTeams(false);
+            } catch (error) {
+                if (!isCancelled) {
+                    console.error('Failed to fetch teams:', error);
+                    setTeamError(t('errors.failedToLoadTeams'));
+                }
+            } finally {
+                if (!isCancelled) {
+                    setIsLoadingTeams(false);
+                }
             }
         };
 
@@ -95,7 +127,7 @@ const TournamentDetailPage: React.FC = () => {
         return () => {
             isCancelled = true;
         };
-    }, [currentTournament, fetchTeamsByIds, t, tournamentTeams.length]);
+    }, [currentTournament, fetchTeamsByIds, t, tournamentId, tournamentTeams.length]);
 
     const handleUpdate = async (data: UpdateTournamentRequest) => {
         console.log('handleUpdate called with data:', data);
@@ -141,6 +173,13 @@ const TournamentDetailPage: React.FC = () => {
             return dateString;
         }
     };
+
+    const sportTypeName = sportTypes.find(sport => sport && sport.id === currentTournament?.sportTypeId)?.name
+        || (currentSportType && currentSportType.id === currentTournament?.sportTypeId ? currentSportType.name : null);
+    const categoryName = categories.find(category => category && category.id === currentTournament?.categoryId)?.name
+        || (currentCategory && currentCategory.id === currentTournament?.categoryId ? currentCategory.name : null);
+    const cityName = cities.find(city => city && city.id === currentTournament?.cityId)?.name
+        || (currentCity && currentCity.id === currentTournament?.cityId ? currentCity.name : null);
 
     if (tournamentLoading) {
         return (
@@ -216,15 +255,15 @@ const TournamentDetailPage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div>
                         <div className="text-gray-400 text-sm mb-1">{t('tournaments.sportType')}</div>
-                        <div>ID: {currentTournament.sportTypeId}</div>
+                        <div>{sportTypeName || `ID: ${currentTournament.sportTypeId}`}</div>
                     </div>
                     <div>
                         <div className="text-gray-400 text-sm mb-1">{t('tournaments.category')}</div>
-                        <div>ID: {currentTournament.categoryId}</div>
+                        <div>{categoryName || `ID: ${currentTournament.categoryId}`}</div>
                     </div>
                     <div>
                         <div className="text-gray-400 text-sm mb-1">{t('tournaments.city')}</div>
-                        <div>ID: {currentTournament.cityId}</div>
+                        <div>{cityName || `ID: ${currentTournament.cityId}`}</div>
                     </div>
                     <div>
                         <div className="text-gray-400 text-sm mb-1">{t('tournaments.numberOfMatches')}</div>
@@ -255,6 +294,7 @@ const TournamentDetailPage: React.FC = () => {
                 stats={tournamentStats}
                 isLoading={isTournamentStatsLoading}
                 error={tournamentStatsError}
+                teams={tournamentTeams}
             />
 
             {/* Edit Tournament Modal */}

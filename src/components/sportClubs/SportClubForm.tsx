@@ -245,7 +245,7 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
     };
 
     // Age Categories handlers
-    const handleAgeCategoryChange = (index: number, field: keyof AgeCategory, value: string | boolean | number) => {
+    const handleAgeCategoryChange = (index: number, field: keyof AgeCategory, value: string | boolean | number | undefined) => {
         setFormData(prev => ({
             ...prev,
             ageCategories: prev.ageCategories?.map((category, i) => 
@@ -343,52 +343,13 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
     ];
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6 max-h-[80vh] overflow-y-auto">
-            {/* Basic Information */}
-            <div className="space-y-4">
-                <h3 className="text-lg font-medium text-white border-b border-gray-700 pb-2">
-                    {t('sportClubs.basicInfo')}
-                </h3>
-
-                {/* Name */}
-                <div>
-                    <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="name">
-                        {t('sportClubs.name')} *
-                    </label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 focus:ring-gold
-                            ${errors.name ? 'border-red-500' : 'border-gray-700'}`}
-                        placeholder={t('sportClubs.namePlaceholder')}
-                    />
-                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
-                </div>
-
-                {/* Description */}
-                <div>
-                    <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="description">
-                        {t('sportClubs.description')}
-                    </label>
-                    <textarea
-                        id="description"
-                        name="description"
-                        value={formData.description}
-                        onChange={handleChange}
-                        rows={3}
-                        className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold resize-none"
-                        placeholder={t('sportClubs.descriptionPlaceholder')}
-                    />
-                </div>
-
-                {/* Club Images */}
+        <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-hidden bg-card-bg/20">
+            <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6 custom-scrollbar">
+                {/* Section: Images */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Club Avatar */}
-                    <div>
-                        <label className={`block font-medium mb-2 ${isRussian ? 'text-xs' : 'text-sm'}`}>
+                    <div className="bg-darkest-bg/40 p-4 rounded-xl border border-gray-800/50">
+                        <label className={`block font-medium mb-3 text-gold ${isRussian ? 'text-xs uppercase tracking-wider' : 'text-sm'}`}>
                             {t('sportClubs.clubAvatar')}
                         </label>
                         <FileUpload
@@ -408,11 +369,11 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
                             onUploadError={(error) => {
                                 showToast(error, 'error');
                             }}
-                            className="h-32"
+                            className="h-32 rounded-lg border-2 border-dashed border-gray-700 hover:border-gold/50 transition-colors"
                         >
                             <div className="text-center">
                                 <svg className="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                 </svg>
                                 <p className="text-xs text-gray-500">
                                     {t('sportClubs.uploadAvatar')}
@@ -422,8 +383,8 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
                     </div>
 
                     {/* Hero Image */}
-                    <div>
-                        <label className={`block font-medium mb-2 ${isRussian ? 'text-xs' : 'text-sm'}`}>
+                    <div className="bg-darkest-bg/40 p-4 rounded-xl border border-gray-800/50">
+                        <label className={`block font-medium mb-3 text-gold ${isRussian ? 'text-xs uppercase tracking-wider' : 'text-sm'}`}>
                             {t('sportClubs.heroImage')}
                         </label>
                         <FileUpload
@@ -443,11 +404,11 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
                             onUploadError={(error) => {
                                 showToast(error, 'error');
                             }}
-                            className="h-32"
+                            className="h-32 rounded-lg border-2 border-dashed border-gray-700 hover:border-gold/50 transition-colors"
                         >
                             <div className="text-center">
                                 <svg className="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                                 <p className="text-xs text-gray-500">
                                     {t('sportClubs.uploadHero')}
@@ -457,480 +418,534 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
                     </div>
                 </div>
 
-                {/* Club Type and Sport Type */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="clubType">
-                            {t('sportClubs.clubType')} *
-                        </label>
-                        <select
-                            id="clubType"
-                            name="clubType"
-                            value={formData.clubType}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
-                        >
-                            {clubTypeOptions.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                    {option.label}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                {/* Section: Basic Information */}
+                <div className="bg-darkest-bg/40 p-5 rounded-xl border border-gray-800/50 space-y-5">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2 border-b border-gray-800 pb-3">
+                        <span className="w-1.5 h-6 bg-gold rounded-full"></span>
+                        {t('sportClubs.basicInfo')}
+                    </h3>
 
-                    <div>
-                        <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="sportTypeId">
-                            {t('sportTypes.sportType')} *
-                        </label>
-                        <select
-                            id="sportTypeId"
-                            name="sportTypeId"
-                            value={formData.sportTypeId || ''}
-                            onChange={handleChange}
-                            className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 focus:ring-gold
-                                ${errors.sportTypeId ? 'border-red-500' : 'border-gray-700'}`}
-                            disabled={isLoadingSportTypes}
-                        >
-                            <option value="">
-                                {isLoadingSportTypes ? t('common.loading') : t('sportTypes.selectSportType')}
-                            </option>
-                            {sportTypes.map((sportType) => (
-                                <option key={sportType.id} value={sportType.id}>
-                                    {sportType.name}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                        <div className="lg:col-span-2 xl:col-span-2">
+                            <label className={`block font-medium mb-1.5 text-gray-400 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="name">
+                                {t('sportClubs.name')} *
+                            </label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                className={`w-full px-4 py-2.5 bg-darkest-bg border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/20 transition-all
+                                    ${errors.name ? 'border-red-500/50 bg-red-500/5' : 'border-gray-700 focus:border-gold'}`}
+                                placeholder={t('sportClubs.namePlaceholder')}
+                            />
+                            {errors.name && <p className="text-red-500 text-xs mt-1.5 ml-1">{errors.name}</p>}
+                        </div>
+
+                        <div>
+                            <label className={`block font-medium mb-1.5 text-gray-400 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="clubType">
+                                {t('sportClubs.clubType')} *
+                            </label>
+                            <select
+                                id="clubType"
+                                name="clubType"
+                                value={formData.clubType}
+                                onChange={handleChange}
+                                className="w-full px-4 py-2.5 bg-darkest-bg border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold transition-all"
+                            >
+                                {clubTypeOptions.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="lg:col-span-2 xl:col-span-2">
+                            <label className={`block font-medium mb-1.5 text-gray-400 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="description">
+                                {t('sportClubs.description')}
+                            </label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                value={formData.description}
+                                onChange={handleChange}
+                                rows={2}
+                                className="w-full px-4 py-2.5 bg-darkest-bg border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold transition-all resize-none"
+                                placeholder={t('sportClubs.descriptionPlaceholder')}
+                            />
+                        </div>
+
+                        <div>
+                            <label className={`block font-medium mb-1.5 text-gray-400 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="sportTypeId">
+                                {t('sportTypes.sportType')} *
+                            </label>
+                            <select
+                                id="sportTypeId"
+                                name="sportTypeId"
+                                value={formData.sportTypeId || ''}
+                                onChange={handleChange}
+                                className={`w-full px-4 py-2.5 bg-darkest-bg border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/20 transition-all
+                                    ${errors.sportTypeId ? 'border-red-500/50 bg-red-500/5' : 'border-gray-700 focus:border-gold'}`}
+                                disabled={isLoadingSportTypes}
+                            >
+                                <option value="">
+                                    {isLoadingSportTypes ? t('common.loading') : t('sportTypes.selectSportType')}
                                 </option>
-                            ))}
-                        </select>
-                        {errors.sportTypeId && <p className="text-red-500 text-xs mt-1">{errors.sportTypeId}</p>}
+                                {sportTypes.map((sportType) => (
+                                    <option key={sportType.id} value={sportType.id}>
+                                        {sportType.name}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.sportTypeId && <p className="text-red-500 text-xs mt-1.5 ml-1">{errors.sportTypeId}</p>}
+                        </div>
+
+                        <div>
+                            <label className={`block font-medium mb-1.5 text-gray-400 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="establishmentYear">
+                                {t('sportClubs.establishmentYear')}
+                            </label>
+                            <input
+                                type="number"
+                                id="establishmentYear"
+                                name="establishmentYear"
+                                value={formData.establishmentYear}
+                                onChange={handleChange}
+                                min="1800"
+                                max={new Date().getFullYear()}
+                                className="w-full px-4 py-2.5 bg-darkest-bg border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold transition-all"
+                            />
+                        </div>
+
+                        <div>
+                            <label className={`block font-medium mb-1.5 text-gray-400 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="membershipFee">
+                                {t('sportClubs.membershipFee')}
+                            </label>
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm">₸</span>
+                                <input
+                                    type="number"
+                                    id="membershipFee"
+                                    name="membershipFee"
+                                    value={formData.membershipFee}
+                                    onChange={handleChange}
+                                    min="0"
+                                    step="0.01"
+                                    className="w-full pl-8 pr-4 py-2.5 bg-darkest-bg border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold transition-all"
+                                    placeholder="0.00"
+                                />
+                            </div>
+                        </div>
+
+                        {isEdit && (
+                            <div className="flex items-center pt-8">
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        id="active"
+                                        name="active"
+                                        checked={(formData as any).active || false}
+                                        onChange={handleChange}
+                                        className="sr-only peer"
+                                    />
+                                    <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gold/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gold"></div>
+                                    <span className={`ml-3 font-medium text-gray-300 ${isRussian ? 'text-xs' : 'text-sm'}`}>
+                                        {t('sportClubs.active')}
+                                    </span>
+                                </label>
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                {/* Age Categories */}
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h4 className="text-md font-medium text-white">{t('sportClubs.ageCategories')}</h4>
+                {/* Section: Age Categories */}
+                <div className="bg-darkest-bg/40 p-5 rounded-xl border border-gray-800/50 space-y-5">
+                    <div className="flex items-center justify-between border-b border-gray-800 pb-3">
+                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            <span className="w-1.5 h-6 bg-gold rounded-full"></span>
+                            {t('sportClubs.ageCategories')}
+                        </h3>
                         <button
                             type="button"
                             onClick={addAgeCategory}
-                            className="text-gold hover:text-gold/80 text-sm flex items-center gap-1"
+                            className="bg-gold/10 text-gold hover:bg-gold/20 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all border border-gold/20"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                             </svg>
                             {t('sportClubs.addAgeCategory')}
                         </button>
                     </div>
+                    
+                    <p className="text-xs text-gray-500 bg-gold/5 p-3 rounded-lg border border-gold/10">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 inline mr-2 text-gold">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                        </svg>
+                        {t('sportClubs.ageCategoriesHint') || 'Вы можете добавить несколько возрастных групп (U6, U8, U10 и т.д.) в одну секцию'}
+                    </p>
 
-                    {formData.ageCategories?.map((category, index) => (
-                        <div key={index} className="border border-gray-700 rounded-lg p-4 space-y-3">
-                            <div className="flex items-center justify-between">
-                                <h5 className="text-sm font-medium text-gray-300">{t('sportClubs.ageCategory')} {index + 1}</h5>
-                                {formData.ageCategories && formData.ageCategories.length > 1 && (
-                                    <button
-                                        type="button"
-                                        onClick={() => removeAgeCategory(index)}
-                                        className="text-red-400 hover:text-red-300"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                )}
-                            </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-5">
+                        {formData.ageCategories?.map((category, index) => (
+                            <div key={index} className="bg-card-bg/40 border border-gray-800 rounded-xl p-5 space-y-4 relative group hover:border-gray-700 transition-all shadow-sm">
+                                <div className="flex items-center justify-between">
+                                    <h5 className="text-sm font-bold text-gold uppercase tracking-wider">{t('sportClubs.ageCategory')} {index + 1}</h5>
+                                    {formData.ageCategories && formData.ageCategories.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeAgeCategory(index)}
+                                            className="text-gray-500 hover:text-red-500 p-1.5 rounded-full hover:bg-red-500/10 transition-all"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    )}
+                                </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">
-                                        {t('sportClubs.ageCategoryType')}
-                                    </label>
-                                    <select
-                                        value={category.ageCategory}
-                                        onChange={(e) => handleAgeCategoryChange(index, 'ageCategory', e.target.value as AgeCategory['ageCategory'])}
-                                        className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
-                                    >
-                                        <option value="U6">U6</option>
-                                        <option value="U8">U8</option>
-                                        <option value="U10">U10</option>
-                                        <option value="U12">U12</option>
-                                        <option value="U14">U14</option>
-                                        <option value="U16">U16</option>
-                                        <option value="U18">U18</option>
-                                        <option value="U21">U21</option>
-                                        <option value="SENIOR">SENIOR</option>
-                                    </select>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                                            {t('sportClubs.ageCategoryType')}
+                                        </label>
+                                        <select
+                                            value={category.ageCategory}
+                                            onChange={(e) => handleAgeCategoryChange(index, 'ageCategory', e.target.value as AgeCategory['ageCategory'])}
+                                            className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-lg text-sm focus:border-gold focus:outline-none transition-all"
+                                        >
+                                            <option value="U6">U6</option>
+                                            <option value="U8">U8</option>
+                                            <option value="U10">U10</option>
+                                            <option value="U12">U12</option>
+                                            <option value="U15">U15</option>
+                                            <option value="U18">U18</option>
+                                            <option value="U20">U20</option>
+                                            <option value="U23">U23</option>
+                                            <option value="SENIOR">SENIOR</option>
+                                            <option value="MASTERS">MASTERS</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                                            {t('sportClubs.maxParticipants')}
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={category.maxParticipants ?? ''}
+                                            onChange={(e) => {
+                                                const rawValue = e.target.value;
+                                                const parsed = rawValue === '' ? undefined : Number.parseInt(rawValue, 10);
+                                                handleAgeCategoryChange(index, 'maxParticipants', Number.isNaN(parsed as number) ? undefined : parsed);
+                                            }}
+                                            className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-lg text-sm focus:border-gold focus:outline-none transition-all"
+                                        />
+                                    </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">
-                                        {t('sportClubs.maxParticipants')}
+                                    <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                                        {t('sportClubs.categoryDescription')}
                                     </label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        value={category.maxParticipants}
-                                        onChange={(e) => handleAgeCategoryChange(index, 'maxParticipants', parseInt(e.target.value) || 0)}
-                                        className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
+                                    <textarea
+                                        rows={2}
+                                        value={category.categoryDescription || ''}
+                                        onChange={(e) => handleAgeCategoryChange(index, 'categoryDescription', e.target.value)}
+                                        className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-lg text-sm focus:border-gold focus:outline-none transition-all resize-none"
+                                        placeholder={t('sportClubs.categoryDescriptionPlaceholder')}
                                     />
                                 </div>
+
+                                <div className="flex items-center pt-2">
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={category.isActive}
+                                            onChange={(e) => handleAgeCategoryChange(index, 'isActive', e.target.checked)}
+                                            className="sr-only peer"
+                                        />
+                                        <div className="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-gold"></div>
+                                        <span className="ml-2 text-xs font-medium text-gray-400">
+                                            {t('sportClubs.categoryActive')}
+                                        </span>
+                                    </label>
+                                </div>
                             </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-1">
-                                    {t('sportClubs.categoryDescription')}
-                                </label>
-                                <textarea
-                                    rows={2}
-                                    value={category.categoryDescription || ''}
-                                    onChange={(e) => handleAgeCategoryChange(index, 'categoryDescription', e.target.value)}
-                                    className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold resize-none"
-                                    placeholder={t('sportClubs.categoryDescriptionPlaceholder')}
-                                />
-                            </div>
-
-                            <div className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    id={`ageCategory_${index}_active`}
-                                    checked={category.isActive}
-                                    onChange={(e) => handleAgeCategoryChange(index, 'isActive', e.target.checked)}
-                                    className="mr-2"
-                                />
-                                <label htmlFor={`ageCategory_${index}_active`} className="text-sm text-gray-300">
-                                    {t('sportClubs.categoryActive')}
-                                </label>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Establishment Year */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="establishmentYear">
-                            {t('sportClubs.establishmentYear')}
-                        </label>
-                        <input
-                            type="number"
-                            id="establishmentYear"
-                            name="establishmentYear"
-                            value={formData.establishmentYear}
-                            onChange={handleChange}
-                            min="1800"
-                            max={new Date().getFullYear()}
-                            className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
-                        />
-                    </div>
-
-                    <div>
-                        <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="membershipFee">
-                            {t('sportClubs.membershipFee')}
-                        </label>
-                        <input
-                            type="number"
-                            id="membershipFee"
-                            name="membershipFee"
-                            value={formData.membershipFee}
-                            onChange={handleChange}
-                            min="0"
-                            step="0.01"
-                            className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
-                            placeholder="0.00"
-                        />
-                    </div>
-                </div>
-            </div>
-
-            {/* Contact Information */}
-            <div className="space-y-4">
-                <h3 className="text-lg font-medium text-white border-b border-gray-700 pb-2">
-                    {t('sportClubs.contactInfo')}
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="contactEmail">
-                            {t('sportClubs.contactEmail')}
-                        </label>
-                        <input
-                            type="email"
-                            id="contactEmail"
-                            name="contactEmail"
-                            value={formData.contactEmail}
-                            onChange={handleChange}
-                            className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 focus:ring-gold
-                                ${errors.contactEmail ? 'border-red-500' : 'border-gray-700'}`}
-                            placeholder="example@email.com"
-                        />
-                        {errors.contactEmail && <p className="text-red-500 text-xs mt-1">{errors.contactEmail}</p>}
-                    </div>
-
-                    <div>
-                        <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="contactPhone">
-                            {t('sportClubs.contactPhone')}
-                        </label>
-                        <input
-                            type="tel"
-                            id="contactPhone"
-                            name="contactPhone"
-                            value={formData.contactPhone}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
-                            placeholder="+7 (999) 123-45-67"
-                        />
+                        ))}
                     </div>
                 </div>
 
-                <div>
-                    <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="website">
-                        {t('sportClubs.website')}
-                    </label>
-                    <input
-                        type="url"
-                        id="website"
-                        name="website"
-                        value={formData.website}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
-                        placeholder="https://example.com"
-                    />
-                </div>
-            </div>
+                {/* Section: Contact Information */}
+                <div className="bg-darkest-bg/40 p-5 rounded-xl border border-gray-800/50 space-y-5">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2 border-b border-gray-800 pb-3">
+                        <span className="w-1.5 h-6 bg-gold rounded-full"></span>
+                        {t('sportClubs.contactInfo')}
+                    </h3>
 
-            {/* Addresses */}
-            <div className="space-y-4">
-                <h3 className="text-lg font-medium text-white border-b border-gray-700 pb-2">
-                    {t('sportClubs.addresses')}
-                </h3>
-
-                {formData.addresses.map((address, index) => (
-                    <div key={index} className="bg-card-bg p-4 rounded-lg space-y-3">
-                        <div className="flex items-center justify-between">
-                            <h4 className="text-sm font-medium text-gray-300">
-                                {t('sportClubs.address')} {index + 1}
-                                {address.isPrimary && (
-                                    <span className="ml-2 text-xs bg-gold text-darkest-bg px-2 py-1 rounded">
-                                        {t('sportClubs.primary')}
-                                    </span>
-                                )}
-                            </h4>
-                            <div className="flex gap-2">
-                                {!address.isPrimary && (
-                                    <button
-                                        type="button"
-                                        onClick={() => setPrimaryAddress(index)}
-                                        className="text-xs text-gold hover:underline"
-                                    >
-                                        {t('sportClubs.setPrimary')}
-                                    </button>
-                                )}
-                                {formData.addresses.length > 1 && (
-                                    <button
-                                        type="button"
-                                        onClick={() => removeAddress(index)}
-                                        className="text-xs text-red-400 hover:underline"
-                                    >
-                                        {t('common.delete')}
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                                <label className="block text-xs font-medium text-gray-400 mb-1">
-                                    {t('sportClubs.streetLine1')} *
-                                </label>
-                                <input
-                                    type="text"
-                                    value={address.streetLine1}
-                                    onChange={(e) => handleAddressChange(index, 'streetLine1', e.target.value)}
-                                    className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 focus:ring-gold text-sm
-                                        ${errors[`address_${index}_streetLine1`] ? 'border-red-500' : 'border-gray-700'}`}
-                                    placeholder={t('sportClubs.streetLine1Placeholder')}
-                                />
-                                {errors[`address_${index}_streetLine1`] && (
-                                    <p className="text-red-500 text-xs mt-1">{errors[`address_${index}_streetLine1`]}</p>
-                                )}
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-medium text-gray-400 mb-1">
-                                    {t('sportClubs.streetLine2')}
-                                </label>
-                                <input
-                                    type="text"
-                                    value={address.streetLine2}
-                                    onChange={(e) => handleAddressChange(index, 'streetLine2', e.target.value)}
-                                    className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold text-sm"
-                                    placeholder={t('sportClubs.streetLine2Placeholder')}
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-medium text-gray-400 mb-1">
-                                    {t('cities.city')} *
-                                </label>
-                                <select
-                                    value={address.cityId || ''}
-                                    onChange={(e) => handleAddressChange(index, 'cityId', parseInt(e.target.value) || 0)}
-                                    className={`w-full px-3 py-2 bg-darkest-bg border rounded-md focus:outline-none focus:ring-1 focus:ring-gold text-sm
-                                        ${errors[`address_${index}_cityId`] ? 'border-red-500' : 'border-gray-700'}`}
-                                    disabled={isLoadingCities}
-                                >
-                                    <option value="">
-                                        {isLoadingCities ? t('common.loading') : t('cities.selectCity')}
-                                    </option>
-                                    {cities.map((city) => (
-                                        <option key={city.id} value={city.id}>
-                                            {city.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors[`address_${index}_cityId`] && (
-                                    <p className="text-red-500 text-xs mt-1">{errors[`address_${index}_cityId`]}</p>
-                                )}
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-medium text-gray-400 mb-1">
-                                    {t('sportClubs.zipCode')}
-                                </label>
-                                <input
-                                    type="text"
-                                    value={address.zipCode}
-                                    onChange={(e) => handleAddressChange(index, 'zipCode', e.target.value)}
-                                    className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold text-sm"
-                                    placeholder="123456"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Location Picker */}
-                        <div className="space-y-3">
-                            <label className="block text-xs font-medium text-gray-400">
-                                {t('sportClubs.location')}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                        <div>
+                            <label className={`block font-medium mb-1.5 text-gray-400 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="contactEmail">
+                                {t('sportClubs.contactEmail')}
                             </label>
-                            <div className="flex items-center space-x-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setMapPickerState({ isOpen: true, addressIndex: index })}
-                                    className="bg-gold text-darkest-bg px-3 py-2 rounded-md hover:bg-gold/90 transition-colors duration-200 flex items-center text-sm"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                                    </svg>
-                                    {t('sportClubs.selectOnMap')}
-                                </button>
-                                {(address.latitude || address.longitude) && (
-                                    <span className="text-xs text-gray-400">
-                                        {t('sportClubs.coordinates')}: {address.latitude}, {address.longitude}
-                                    </span>
-                                )}
-                            </div>
+                            <input
+                                type="email"
+                                id="contactEmail"
+                                name="contactEmail"
+                                value={formData.contactEmail}
+                                onChange={handleChange}
+                                className={`w-full px-4 py-2.5 bg-darkest-bg border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/20 transition-all
+                                    ${errors.contactEmail ? 'border-red-500/50 bg-red-500/5' : 'border-gray-700 focus:border-gold'}`}
+                                placeholder="example@email.com"
+                            />
+                            {errors.contactEmail && <p className="text-red-500 text-xs mt-1.5 ml-1">{errors.contactEmail}</p>}
                         </div>
 
                         <div>
-                            <label className="block text-xs font-medium text-gray-400 mb-1">
-                                {t('sportClubs.addressDescription')}
+                            <label className={`block font-medium mb-1.5 text-gray-400 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="contactPhone">
+                                {t('sportClubs.contactPhone')}
                             </label>
                             <input
-                                type="text"
-                                value={address.description}
-                                onChange={(e) => handleAddressChange(index, 'description', e.target.value)}
-                                className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold text-sm"
-                                placeholder={t('sportClubs.addressDescriptionPlaceholder')}
+                                type="tel"
+                                id="contactPhone"
+                                name="contactPhone"
+                                value={formData.contactPhone}
+                                onChange={handleChange}
+                                className="w-full px-4 py-2.5 bg-darkest-bg border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold transition-all"
+                                placeholder="+7 (999) 123-45-67"
+                            />
+                        </div>
+
+                        <div>
+                            <label className={`block font-medium mb-1.5 text-gray-400 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="website">
+                                {t('sportClubs.website')}
+                            </label>
+                            <input
+                                type="url"
+                                id="website"
+                                name="website"
+                                value={formData.website}
+                                onChange={handleChange}
+                                className="w-full px-4 py-2.5 bg-darkest-bg border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold transition-all"
+                                placeholder="https://example.com"
                             />
                         </div>
                     </div>
-                ))}
-
-                <button
-                    type="button"
-                    onClick={addAddress}
-                    className="w-full py-2 border border-dashed border-gray-600 rounded-lg text-gray-400 hover:text-white hover:border-gray-500 transition-colors text-sm"
-                >
-                    + {t('sportClubs.addAddress')}
-                </button>
-            </div>
-
-            {/* Additional Information */}
-            <div className="space-y-4">
-                <h3 className="text-lg font-medium text-white border-b border-gray-700 pb-2">
-                    {t('sportClubs.additionalInfo')}
-                </h3>
-
-                <div>
-                    <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="facilities">
-                        {t('sportClubs.facilities')}
-                    </label>
-                    <textarea
-                        id="facilities"
-                        name="facilities"
-                        value={formData.facilities}
-                        onChange={handleChange}
-                        rows={3}
-                        className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold resize-none"
-                        placeholder={t('sportClubs.facilitiesPlaceholder')}
-                    />
                 </div>
 
-                <div>
-                    <label className={`block font-medium mb-1 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="membershipBenefits">
-                        {t('sportClubs.membershipBenefits')}
-                    </label>
-                    <textarea
-                        id="membershipBenefits"
-                        name="membershipBenefits"
-                        value={formData.membershipBenefits}
-                        onChange={handleChange}
-                        rows={3}
-                        className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold resize-none"
-                        placeholder={t('sportClubs.membershipBenefitsPlaceholder')}
-                    />
+                {/* Section: Addresses */}
+                <div className="bg-darkest-bg/40 p-5 rounded-xl border border-gray-800/50 space-y-5">
+                    <div className="flex items-center justify-between border-b border-gray-800 pb-3">
+                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            <span className="w-1.5 h-6 bg-gold rounded-full"></span>
+                            {t('sportClubs.addresses')}
+                        </h3>
+                        <button
+                            type="button"
+                            onClick={addAddress}
+                            className="bg-gold/10 text-gold hover:bg-gold/20 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all border border-gold/20"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            {t('sportClubs.addAddress')}
+                        </button>
+                    </div>
+
+                    <div className="space-y-6">
+                        {formData.addresses.map((address, index) => (
+                            <div key={index} className="bg-card-bg/40 border border-gray-800 rounded-xl p-5 space-y-5 hover:border-gray-700 transition-all">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <h4 className="text-sm font-bold text-gold uppercase tracking-wider">
+                                            {t('sportClubs.address')} {index + 1}
+                                        </h4>
+                                        {address.isPrimary && (
+                                            <span className="text-[10px] bg-gold/20 text-gold px-2 py-0.5 rounded-full border border-gold/30 font-bold uppercase tracking-tight">
+                                                {t('sportClubs.primary')}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        {!address.isPrimary && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setPrimaryAddress(index)}
+                                                className="text-xs text-gold/70 hover:text-gold transition-colors font-medium underline underline-offset-4 decoration-gold/30"
+                                            >
+                                                {t('sportClubs.setPrimary')}
+                                            </button>
+                                        )}
+                                        {formData.addresses.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => removeAddress(index)}
+                                                className="text-gray-500 hover:text-red-500 p-1.5 rounded-full hover:bg-red-500/10 transition-all"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                                    <div className="lg:col-span-2 xl:col-span-2">
+                                        <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                                            {t('sportClubs.streetLine1')} *
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={address.streetLine1}
+                                            onChange={(e) => handleAddressChange(index, 'streetLine1', e.target.value)}
+                                            className={`w-full px-4 py-2.5 bg-darkest-bg border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/20 text-sm transition-all
+                                                ${errors[`address_${index}_streetLine1`] ? 'border-red-500/50 bg-red-500/5' : 'border-gray-700 focus:border-gold'}`}
+                                            placeholder={t('sportClubs.streetLine1Placeholder')}
+                                        />
+                                        {errors[`address_${index}_streetLine1`] && (
+                                            <p className="text-red-500 text-[10px] mt-1.5 ml-1">{errors[`address_${index}_streetLine1`]}</p>
+                                        )}
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                                            {t('cities.city')} *
+                                        </label>
+                                        <select
+                                            value={address.cityId || ''}
+                                            onChange={(e) => handleAddressChange(index, 'cityId', parseInt(e.target.value) || 0)}
+                                            className={`w-full px-4 py-2.5 bg-darkest-bg border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/20 text-sm transition-all
+                                                ${errors[`address_${index}_cityId`] ? 'border-red-500/50 bg-red-500/5' : 'border-gray-700 focus:border-gold'}`}
+                                            disabled={isLoadingCities}
+                                        >
+                                            <option value="">
+                                                {isLoadingCities ? t('common.loading') : t('cities.selectCity')}
+                                            </option>
+                                            {cities.map((city) => (
+                                                <option key={city.id} value={city.id}>
+                                                    {city.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {errors[`address_${index}_cityId`] && (
+                                            <p className="text-red-500 text-[10px] mt-1.5 ml-1">{errors[`address_${index}_cityId`]}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="lg:col-span-2 xl:col-span-2">
+                                        <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                                            {t('sportClubs.streetLine2')}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={address.streetLine2}
+                                            onChange={(e) => handleAddressChange(index, 'streetLine2', e.target.value)}
+                                            className="w-full px-4 py-2.5 bg-darkest-bg border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold text-sm transition-all"
+                                            placeholder={t('sportClubs.streetLine2Placeholder')}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                                            {t('sportClubs.zipCode')}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={address.zipCode}
+                                            onChange={(e) => handleAddressChange(index, 'zipCode', e.target.value)}
+                                            className="w-full px-4 py-2.5 bg-darkest-bg border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold text-sm transition-all"
+                                            placeholder="123456"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col lg:flex-row lg:items-center gap-6 pt-2">
+                                    <div className="flex-1">
+                                        <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                                            {t('sportClubs.addressDescription')}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={address.description}
+                                            onChange={(e) => handleAddressChange(index, 'description', e.target.value)}
+                                            className="w-full px-4 py-2.5 bg-darkest-bg border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold text-sm transition-all"
+                                            placeholder={t('sportClubs.addressDescriptionPlaceholder')}
+                                        />
+                                    </div>
+
+                                    <div className="lg:w-1/3">
+                                        <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                                            {t('sportClubs.location')}
+                                        </label>
+                                        <div className="flex items-center gap-4">
+                                            <button
+                                                type="button"
+                                                onClick={() => setMapPickerState({ isOpen: true, addressIndex: index })}
+                                                className="bg-gold text-darkest-bg px-4 py-2.5 rounded-lg hover:bg-gold/90 transition-all duration-200 flex items-center gap-2 text-xs font-bold"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                                                </svg>
+                                                {t('sportClubs.selectOnMap')}
+                                            </button>
+                                            {(address.latitude || address.longitude) && (
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] text-gray-500 leading-tight">{t('sportClubs.coordinates')}</span>
+                                                    <span className="text-[10px] text-white font-mono leading-tight">{address.latitude.slice(0, 7)}, {address.longitude.slice(0, 7)}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
-                {/* Opening Hours */}
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h4 className="text-md font-medium text-white">{t('sportClubs.openingHours')}</h4>
+                {/* Section: Opening Hours */}
+                <div className="bg-darkest-bg/40 p-5 rounded-xl border border-gray-800/50 space-y-5">
+                    <div className="flex items-center justify-between border-b border-gray-800 pb-3">
+                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            <span className="w-1.5 h-6 bg-gold rounded-full"></span>
+                            {t('sportClubs.openingHours')}
+                        </h3>
                         <button
                             type="button"
                             onClick={addOpeningHours}
-                            className="text-gold hover:text-gold/80 text-sm flex items-center gap-1"
+                            className="bg-gold/10 text-gold hover:bg-gold/20 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all border border-gold/20"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                             </svg>
                             {t('sportClubs.addOpeningHours')}
                         </button>
                     </div>
 
-                    {formData.openingHours?.map((hours, index) => (
-                        <div key={index} className="border border-gray-700 rounded-lg p-4 space-y-3">
-                            <div className="flex items-center justify-between">
-                                <h5 className="text-sm font-medium text-gray-300">{t('sportClubs.day')} {index + 1}</h5>
-                                {formData.openingHours && formData.openingHours.length > 1 && (
-                                    <button
-                                        type="button"
-                                        onClick={() => removeOpeningHours(index)}
-                                        className="text-red-400 hover:text-red-300"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                )}
-                            </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
+                        {formData.openingHours?.map((hours, index) => (
+                            <div key={index} className="bg-card-bg/40 border border-gray-800 rounded-xl p-4 space-y-4 relative group hover:border-gray-700 transition-all">
+                                <div className="flex items-center justify-between">
+                                    <h5 className="text-xs font-bold text-gold uppercase tracking-wider">{t('sportClubs.day')} {index + 1}</h5>
+                                    {formData.openingHours && formData.openingHours.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeOpeningHours(index)}
+                                            className="text-gray-500 hover:text-red-500 p-1 rounded-full hover:bg-red-500/10 transition-all"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    )}
+                                </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">
-                                        {t('sportClubs.dayOfWeek')}
-                                    </label>
+                                <div className="space-y-3">
                                     <select
                                         value={hours.dayOfWeek}
                                         onChange={(e) => handleOpeningHoursChange(index, 'dayOfWeek', e.target.value as OpeningHours['dayOfWeek'])}
-                                        className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
+                                        className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-lg text-xs focus:border-gold focus:outline-none transition-all font-medium"
                                     >
                                         <option value="MONDAY">{t('common.days.monday')}</option>
                                         <option value="TUESDAY">{t('common.days.tuesday')}</option>
@@ -940,94 +955,116 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
                                         <option value="SATURDAY">{t('common.days.saturday')}</option>
                                         <option value="SUNDAY">{t('common.days.sunday')}</option>
                                     </select>
-                                </div>
+                                    
+                                    <div className="flex flex-col sm:flex-row gap-3">
+                                        <div className="flex-1 space-y-1">
+                                            <label className="text-[10px] text-gray-500 uppercase font-bold tracking-tight block whitespace-nowrap">{t('sportClubs.openTime')}</label>
+                                            <input
+                                                type="time"
+                                                value={hours.openTime}
+                                                onChange={(e) => handleOpeningHoursChange(index, 'openTime', e.target.value)}
+                                                disabled={hours.isClosed}
+                                                className="w-full px-2 py-1.5 bg-darkest-bg border border-gray-700 rounded-lg text-xs text-white focus:border-gold disabled:opacity-30 transition-all"
+                                            />
+                                        </div>
+                                        <div className="flex-1 space-y-1">
+                                            <label className="text-[10px] text-gray-500 uppercase font-bold tracking-tight block whitespace-nowrap">{t('sportClubs.closeTime')}</label>
+                                            <input
+                                                type="time"
+                                                value={hours.closeTime}
+                                                onChange={(e) => handleOpeningHoursChange(index, 'closeTime', e.target.value)}
+                                                disabled={hours.isClosed}
+                                                className="w-full px-2 py-1.5 bg-darkest-bg border border-gray-700 rounded-lg text-xs text-white focus:border-gold disabled:opacity-30 transition-all"
+                                            />
+                                        </div>
+                                    </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">
-                                        {t('sportClubs.openTime')}
-                                    </label>
-                                    <input
-                                        type="time"
-                                        value={hours.openTime}
-                                        onChange={(e) => handleOpeningHoursChange(index, 'openTime', e.target.value)}
-                                        disabled={hours.isClosed}
-                                        className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold disabled:opacity-50"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-1">
-                                        {t('sportClubs.closeTime')}
-                                    </label>
-                                    <input
-                                        type="time"
-                                        value={hours.closeTime}
-                                        onChange={(e) => handleOpeningHoursChange(index, 'closeTime', e.target.value)}
-                                        disabled={hours.isClosed}
-                                        className="w-full px-3 py-2 bg-darkest-bg border border-gray-700 rounded-md focus:outline-none focus:ring-1 focus:ring-gold disabled:opacity-50"
-                                    />
-                                </div>
-
-                                <div className="flex items-center justify-center">
-                                    <div className="flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            id={`openingHours_${index}_closed`}
-                                            checked={hours.isClosed}
-                                            onChange={(e) => handleOpeningHoursChange(index, 'isClosed', e.target.checked)}
-                                            className="mr-2"
-                                        />
-                                        <label htmlFor={`openingHours_${index}_closed`} className="text-sm text-gray-300">
-                                            {t('sportClubs.closed')}
+                                    <div className="flex items-center pt-1">
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={hours.isClosed}
+                                                onChange={(e) => handleOpeningHoursChange(index, 'isClosed', e.target.checked)}
+                                                className="sr-only peer"
+                                            />
+                                            <div className="w-8 h-4 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-red-500/50"></div>
+                                            <span className="ml-2 text-[10px] font-bold text-gray-500 uppercase tracking-tighter">
+                                                {t('sportClubs.closed')}
+                                            </span>
                                         </label>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Active status - only for edit mode */}
-                {isEdit && (
-                    <div className="flex items-center">
-                        <input
-                            type="checkbox"
-                            id="active"
-                            name="active"
-                            checked={(formData as any).active || false}
-                            onChange={handleChange}
-                            className="w-4 h-4 text-gold bg-darkest-bg border-gray-700 rounded focus:ring-gold focus:ring-2"
-                        />
-                        <label className={`ml-2 font-medium ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="active">
-                            {t('sportClubs.active')}
-                        </label>
+                        ))}
                     </div>
-                )}
-            </div>
-
-            {/* Teams */}
-            <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-medium text-white border-b border-gray-700 pb-2 flex-1">
-                        {t('sportClubs.teams')}
-                    </h3>
-                    <button
-                        type="button"
-                        onClick={() => setShowTeamSelector(true)}
-                        className="ml-4 bg-gold text-darkest-bg px-3 py-1 rounded text-sm font-medium hover:bg-gold/90 transition-colors"
-                    >
-                        {t('sportClubs.selectTeams')}
-                    </button>
                 </div>
 
-                {selectedTeams.length > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {selectedTeams.map((team) => (
-                            <div key={team.id} className="bg-card-bg p-3 rounded-lg">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h4 className="font-medium text-white text-sm">{team.name}</h4>
-                                        <p className="text-xs text-gray-400">
+                {/* Section: Additional Information */}
+                <div className="bg-darkest-bg/40 p-5 rounded-xl border border-gray-800/50 space-y-5">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2 border-b border-gray-800 pb-3">
+                        <span className="w-1.5 h-6 bg-gold rounded-full"></span>
+                        {t('sportClubs.additionalInfo')}
+                    </h3>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <div>
+                            <label className={`block font-medium mb-1.5 text-gray-400 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="facilities">
+                                {t('sportClubs.facilities')}
+                            </label>
+                            <textarea
+                                id="facilities"
+                                name="facilities"
+                                value={formData.facilities}
+                                onChange={handleChange}
+                                rows={3}
+                                className="w-full px-4 py-2.5 bg-darkest-bg border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold transition-all resize-none text-sm"
+                                placeholder={t('sportClubs.facilitiesPlaceholder')}
+                            />
+                        </div>
+
+                        <div>
+                            <label className={`block font-medium mb-1.5 text-gray-400 ${isRussian ? 'text-xs' : 'text-sm'}`} htmlFor="membershipBenefits">
+                                {t('sportClubs.membershipBenefits')}
+                            </label>
+                            <textarea
+                                id="membershipBenefits"
+                                name="membershipBenefits"
+                                value={formData.membershipBenefits}
+                                onChange={handleChange}
+                                rows={3}
+                                className="w-full px-4 py-2.5 bg-darkest-bg border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold transition-all resize-none text-sm"
+                                placeholder={t('sportClubs.membershipBenefitsPlaceholder')}
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Section: Teams */}
+                <div className="bg-darkest-bg/40 p-5 rounded-xl border border-gray-800/50 space-y-5">
+                    <div className="flex items-center justify-between border-b border-gray-800 pb-3">
+                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            <span className="w-1.5 h-6 bg-gold rounded-full"></span>
+                            {t('sportClubs.teams')}
+                        </h3>
+                        <button
+                            type="button"
+                            onClick={() => setShowTeamSelector(true)}
+                            className="bg-gold text-darkest-bg px-4 py-2 rounded-lg text-sm font-bold hover:bg-gold/90 transition-all flex items-center gap-2 shadow-lg shadow-gold/10"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.998 5.998 0 00-12 0m12 0c0-1.657-1.343-3-3-3m-3 3c0-1.657-1.343-3-3-3m2-2.412a4.488 4.488 0 00-2-3.588m6 3.588a4.488 4.488 0 012-3.588M12 11a3 3 0 100-6 3 3 0 000 6zm6.75 1a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 13.5a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0z" />
+                            </svg>
+                            {t('sportClubs.selectTeams')}
+                        </button>
+                    </div>
+
+                    {selectedTeams.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            {selectedTeams.map((team) => (
+                                <div key={team.id} className="bg-card-bg/60 border border-gray-800 rounded-xl p-4 flex items-center justify-between group hover:border-gold/30 transition-all">
+                                    <div className="flex flex-col">
+                                        <h4 className="font-bold text-white text-sm leading-tight">{team.name}</h4>
+                                        <p className="text-[10px] text-gray-500 uppercase font-bold mt-1 tracking-tight">
                                             {team.players?.length || 0} {t('teams.players').toLowerCase()}
                                         </p>
                                     </div>
@@ -1039,47 +1076,53 @@ const SportClubForm: React.FC<SportClubFormProps> = ({
                                                 teams: prev.teams?.filter(id => id !== team.id) || []
                                             }));
                                         }}
-                                        className="text-red-400 hover:text-red-300 text-xs"
+                                        className="text-gray-500 hover:text-red-500 p-1.5 rounded-full hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
                                     >
-                                        {t('common.remove')}
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
                                     </button>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="py-10 text-center border-2 border-dashed border-gray-800 rounded-xl">
+                            <p className="text-gray-500 text-sm">{t('sportClubs.noTeamsSelected') || 'Команды не выбраны'}</p>
+                        </div>
+                    )}
+                </div>
             </div>
 
-            {/* Form Actions */}
-            <div className="border-t border-gray-700/50 pt-6 mt-6 flex justify-end space-x-4">
+            {/* Sticky Form Actions */}
+            <div className="p-4 lg:p-6 bg-darkest-bg/80 backdrop-blur-md border-t border-gray-800 flex justify-end gap-4 shadow-2xl">
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="px-5 py-2.5 bg-darkest-bg text-gray-300 hover:text-white border border-gray-700 rounded-md hover:bg-card-bg transition-all duration-300"
+                    className="px-6 py-2.5 bg-gray-800 text-gray-300 hover:text-white rounded-lg hover:bg-gray-700 transition-all font-bold text-sm border border-gray-700"
                 >
                     {t('common.cancel')}
                 </button>
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="px-6 py-2.5 bg-gradient-to-r from-gold to-gold/90 text-darkest-bg font-medium rounded-md hover:shadow-lg hover:shadow-gold/20 transition-all duration-300 flex items-center relative overflow-hidden group"
+                    className="px-10 py-2.5 bg-gradient-to-r from-gold to-yellow-500 text-darkest-bg font-bold rounded-lg hover:shadow-xl hover:shadow-gold/20 hover:-translate-y-0.5 transition-all flex items-center gap-3 relative overflow-hidden group disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none"
                 >
                     <span className="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
                     {isLoading ? (
-                        <span className="flex items-center relative">
-                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-darkest-bg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <>
+                            <svg className="animate-spin h-4 w-4 text-darkest-bg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                             {t('common.saving')}
-                        </span>
+                        </>
                     ) : (
-                        <span className="flex items-center relative">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 mr-2">
+                        <>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             {t('common.save')}
-                        </span>
+                        </>
                     )}
                 </button>
             </div>

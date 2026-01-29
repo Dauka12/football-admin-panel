@@ -25,6 +25,33 @@ const SportClubDetailPage: React.FC = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+    const formatTime = (value: unknown): string => {
+        if (typeof value === 'string') return value;
+        if (Array.isArray(value) && value.length >= 2) {
+            const hours = String(value[0]).padStart(2, '0');
+            const minutes = String(value[1]).padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+        return '';
+    };
+
+    const dayKeyByEnum: Record<string, string> = {
+        MONDAY: 'monday',
+        TUESDAY: 'tuesday',
+        WEDNESDAY: 'wednesday',
+        THURSDAY: 'thursday',
+        FRIDAY: 'friday',
+        SATURDAY: 'saturday',
+        SUNDAY: 'sunday'
+    };
+
+    const formatDayOfWeek = (value: unknown): string => {
+        if (typeof value !== 'string') return '';
+        const key = dayKeyByEnum[value];
+        if (!key) return value;
+        return t(`common.days.${key}`);
+    };
+
     useEffect(() => {
         if (clubId > 0) {
             fetchSportClub(clubId);
@@ -85,6 +112,10 @@ const SportClubDetailPage: React.FC = () => {
             </div>
         );
     }
+
+    const website = typeof currentSportClub.website === 'string'
+        ? currentSportClub.website.trim().replace(/`/g, '')
+        : '';
 
     return (
         <div className="space-y-6">
@@ -243,7 +274,9 @@ const SportClubDetailPage: React.FC = () => {
                                 {t('sportClubs.ageRange')}
                             </label>
                             <p className="text-white text-lg">
-                                {currentSportClub.minAge} - {currentSportClub.maxAge} {t('common.years')}
+                                {currentSportClub.ageCategories && currentSportClub.ageCategories.length > 0
+                                    ? currentSportClub.ageCategories.map(cat => cat.ageCategory).join(', ')
+                                    : '-'}
                             </p>
                         </div>
 
@@ -252,7 +285,7 @@ const SportClubDetailPage: React.FC = () => {
                                 <label className="block text-sm font-medium text-gray-400 mb-1">
                                     {t('sportClubs.membershipFee')}
                                 </label>
-                                <p className="text-white text-lg">{currentSportClub.membershipFee} ₽</p>
+                                <p className="text-white text-lg">{currentSportClub.membershipFee} ₸</p>
                             </div>
                         )}
 
@@ -317,18 +350,18 @@ const SportClubDetailPage: React.FC = () => {
                             </div>
                         )}
                         
-                        {currentSportClub.website && (
+                        {website && (
                             <div>
                                 <label className="block text-sm font-medium text-gray-400 mb-1">
                                     {t('sportClubs.website')}
                                 </label>
                                 <a 
-                                    href={currentSportClub.website}
+                                    href={website}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-gold hover:text-gold/80 text-lg transition-colors flex items-center gap-1"
                                 >
-                                    {currentSportClub.website}
+                                    {website}
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                                     </svg>
@@ -378,6 +411,101 @@ const SportClubDetailPage: React.FC = () => {
                                             <p className="text-sm text-gray-400 italic">{address.description}</p>
                                         )}
                                     </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Opening Hours */}
+            {currentSportClub.openingHours && currentSportClub.openingHours.length > 0 && (
+                <div className="bg-card-bg rounded-xl shadow-lg overflow-hidden">
+                    <div className="bg-gradient-to-r from-cyan-600 to-cyan-700 p-4">
+                        <h3 className="text-white font-bold text-lg flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {t('sportClubs.openingHours')}
+                        </h3>
+                    </div>
+                    <div className="p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {currentSportClub.openingHours.map((hours, index) => (
+                                <div key={index} className="bg-darkest-bg p-4 rounded-lg border border-gray-700/60">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="text-white font-medium">
+                                            {formatDayOfWeek(hours.dayOfWeek) || hours.dayOfWeek}
+                                        </div>
+                                        {hours.isClosed && (
+                                            <span className="bg-red-500/20 text-red-300 border border-red-500/30 px-2 py-0.5 rounded-full text-xs font-medium">
+                                                {t('sportClubs.closed')}
+                                            </span>
+                                        )}
+                                    </div>
+                                    {!hours.isClosed && (
+                                        <div className="text-gray-300">
+                                            {formatTime(hours.openTime)} - {formatTime(hours.closeTime)}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Age Categories */}
+            {currentSportClub.ageCategories && currentSportClub.ageCategories.length > 0 && (
+                <div className="bg-card-bg rounded-xl shadow-lg overflow-hidden">
+                    <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 p-4">
+                        <h3 className="text-white font-bold text-lg flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-9h.008v.008H16.5V6.75zm0 3h.008v.008H16.5V9.75zm0 3h.008v.008H16.5v-.008zM4.5 6.75h.008v.008H4.5V6.75zm0 3h.008v.008H4.5V9.75zm0 3h.008v.008H4.5v-.008zM6.75 21h10.5A2.25 2.25 0 0019.5 18.75V5.25A2.25 2.25 0 0017.25 3H6.75A2.25 2.25 0 004.5 5.25v13.5A2.25 2.25 0 006.75 21z" />
+                            </svg>
+                            {t('sportClubs.ageCategories')}
+                        </h3>
+                    </div>
+                    <div className="p-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            {currentSportClub.ageCategories.map((cat, index) => (
+                                <div key={cat.id || index} className="bg-darkest-bg p-4 rounded-lg border border-gray-700/60">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div>
+                                            <div className="text-white font-semibold">
+                                                {cat.ageCategoryDisplayName || cat.ageCategory}
+                                            </div>
+                                            {(cat.minAge !== undefined || cat.maxAge !== undefined) && (
+                                                <div className="text-sm text-gray-400">
+                                                    {cat.minAge ?? '-'} - {cat.maxAge ?? '-'} {t('common.years')}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${
+                                            cat.isActive
+                                                ? 'bg-green-500/20 text-green-300 border-green-500/30'
+                                                : 'bg-gray-500/20 text-gray-300 border-gray-500/30'
+                                        }`}>
+                                            {cat.isActive ? t('common.active') : t('common.inactive')}
+                                        </span>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3 mt-4 text-sm">
+                                        <div className="text-gray-400">
+                                            {t('sportClubs.maxParticipants')}:
+                                            <span className="text-white ml-2">{cat.maxParticipants ?? '-'}</span>
+                                        </div>
+                                        <div className="text-gray-400">
+                                            {t('sportClubs.currentParticipants')}:
+                                            <span className="text-white ml-2">{cat.currentParticipants ?? 0}</span>
+                                        </div>
+                                    </div>
+
+                                    {cat.categoryDescription && (
+                                        <div className="mt-3 text-gray-300 text-sm whitespace-pre-wrap">
+                                            {cat.categoryDescription}
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -455,11 +583,11 @@ const SportClubDetailPage: React.FC = () => {
                 </div>
             )}
 
-            {/* Edit Sport Club Modal */}
             <Modal
                 isOpen={isEditing}
                 onClose={() => setIsEditing(false)}
                 title={t('sportClubs.editSportClub')}
+                maxWidth="7xl"
             >
                 {currentSportClub && (
                     <SportClubForm
@@ -473,21 +601,35 @@ const SportClubDetailPage: React.FC = () => {
                                 cityId: addr.cityId,
                                 zipCode: addr.zipCode,
                                 description: addr.description,
-                                isPrimary: addr.isPrimary
+                                isPrimary: addr.isPrimary,
+                                latitude: addr.latitude,
+                                longitude: addr.longitude
                             })),
-                            minAge: currentSportClub.minAge,
-                            maxAge: currentSportClub.maxAge,
+                            openingHours: (currentSportClub.openingHours || []).map(hours => ({
+                                dayOfWeek: hours.dayOfWeek,
+                                openTime: formatTime(hours.openTime),
+                                closeTime: formatTime(hours.closeTime),
+                                isClosed: hours.isClosed
+                            })),
+                            ageCategories: (currentSportClub.ageCategories || []).map(cat => ({
+                                ageCategory: cat.ageCategory,
+                                isActive: cat.isActive,
+                                maxParticipants: cat.maxParticipants,
+                                categoryDescription: cat.categoryDescription
+                            })),
                             contactEmail: currentSportClub.contactEmail,
                             contactPhone: currentSportClub.contactPhone,
-                            website: currentSportClub.website,
+                            website,
                             facilities: currentSportClub.facilities,
                             membershipFee: currentSportClub.membershipFee,
                             membershipBenefits: currentSportClub.membershipBenefits,
-                            operatingHours: currentSportClub.operatingHours,
                             sportTypeId: currentSportClub.sportTypeId,
                             establishmentYear: currentSportClub.establishmentYear,
                             active: currentSportClub.active, // Добавлено поле active для режима редактирования
-                            teams: currentSportClub.teams?.map(t => t.id) || []
+                            teams: currentSportClub.teams?.map(t => t.id) || [],
+                            imageUrl: currentSportClub.imageUrl,
+                            heroId: currentSportClub.heroId,
+                            heroGif: currentSportClub.heroGif
                         }}
                         onSubmit={handleUpdateSportClub}
                         onCancel={() => setIsEditing(false)}

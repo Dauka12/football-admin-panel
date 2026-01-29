@@ -1241,10 +1241,12 @@ export const ru = {
         
         // Age Categories
         ageCategories: "Возрастные категории",
+        ageCategoriesHint: "Вы можете добавить несколько возрастных групп (U6, U8, U10 и т.д.) в одну секцию",
         addAgeCategory: "Добавить возрастную категорию",
         ageCategory: "Возрастная категория",
         ageCategoryType: "Тип возрастной категории",
         maxParticipants: "Макс. участников",
+        currentParticipants: "Текущие участники",
         categoryDescription: "Описание категории",
         categoryDescriptionPlaceholder: "Описание для этой возрастной категории",
         categoryActive: "Активна",

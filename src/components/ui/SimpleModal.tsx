@@ -50,7 +50,7 @@ const SimpleModal: React.FC<SimpleModalProps> = ({
             {/* Modal */}
             <div className={`
                 relative bg-card-bg rounded-xl shadow-2xl border border-gray-700 
-                w-full max-w-lg max-h-[90vh] flex flex-col
+                w-full max-h-[90vh] flex flex-col
                 transform transition-all duration-300 ease-out
                 ${className}
             `}>

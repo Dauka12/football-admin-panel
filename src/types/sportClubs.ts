@@ -13,16 +13,21 @@ export interface SportClubAddress {
 
 export interface OpeningHours {
     dayOfWeek: 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
-    openTime: string;
-    closeTime: string;
+    openTime: string | number[];
+    closeTime: string | number[];
     isClosed: boolean;
 }
 
 export interface AgeCategory {
-    ageCategory: 'U6' | 'U8' | 'U10' | 'U12' | 'U14' | 'U16' | 'U18' | 'U21' | 'SENIOR';
+    ageCategory: 'U6' | 'U8' | 'U10' | 'U12' | 'U15' | 'U18' | 'U20' | 'U23' | 'SENIOR' | 'MASTERS';
     isActive: boolean;
-    maxParticipants: number;
+    maxParticipants?: number;
     categoryDescription?: string;
+    id?: number;
+    ageCategoryDisplayName?: string;
+    minAge?: number;
+    maxAge?: number;
+    currentParticipants?: number;
 }
 
 export interface SportClubTeam {
@@ -71,6 +76,7 @@ export interface SportClub {
     sportTypeName?: string;
     establishmentYear?: number;
     active: boolean;
+    memberCount?: number;
     teams: SportClubTeam[];
     // Image fields from Swagger
     imageUrl?: number; // File ID for club avatar

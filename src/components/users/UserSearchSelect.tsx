@@ -112,11 +112,21 @@ const UserSearchSelect: React.FC<UserSearchSelectProps> = ({
     };
 
     // Функция для подсветки совпадений
-    const highlightMatch = (text: string, query: string) => {
-        if (!query) return text;
+    const renderHighlightedText = (text: string, query: string) => {
+        if (!query) return <span>{text}</span>;
         
-        const regex = new RegExp(`(${query})`, 'gi');
-        return text.replace(regex, '<mark class="bg-gold text-darkest-bg">$1</mark>');
+        const parts = text.split(new RegExp(`(${query})`, 'gi'));
+        return (
+            <span>
+                {parts.map((part, i) => 
+                    part.toLowerCase() === query.toLowerCase() ? (
+                        <mark key={i} className="bg-gold text-darkest-bg">{part}</mark>
+                    ) : (
+                        part
+                    )
+                )}
+            </span>
+        );
     };
 
     return (
@@ -184,11 +194,7 @@ const UserSearchSelect: React.FC<UserSearchSelectProps> = ({
                                         className="w-full px-4 py-3 text-left hover:bg-gray-700 transition-colors border-b border-gray-600 last:border-b-0"
                                     >
                                         <div className="font-medium text-white">
-                                            <span 
-                                                dangerouslySetInnerHTML={{
-                                                    __html: highlightMatch(`${user.firstname} ${user.lastname}`, searchQuery)
-                                                }}
-                                            />
+                                            {renderHighlightedText(`${user.firstname} ${user.lastname}`, searchQuery)}
                                         </div>
                                         <div className="text-sm text-gray-400">
                                             ID: {user.id} • {user.phone}

@@ -23,12 +23,11 @@ export class ApiService {
         options: RetryOptions = {}
     ): Promise<T> {
         const finalOptions = { ...this.defaultRetryOptions, ...options };
-        let lastError: AppError = ErrorHandler.handle(new Error('Operation failed for unknown reasons'), context);
-        let result: T | null = null;
+        let lastError: AppError = { message: 'Operation failed for unknown reasons', code: 'UNKNOWN_ERROR' };
 
         for (let attempt = 1; attempt <= finalOptions.maxAttempts!; attempt++) {
             try {
-                result = await operation();
+                const result = await operation();
                 
                 // Check for invalid result values and ensure we return valid data
                 if (result === null || result === undefined) {
@@ -56,12 +55,6 @@ export class ApiService {
             }
         }
 
-        // If we've exhausted all retries, return an empty array as a fallback
-        if (context.includes('fetch') || context.includes('get')) {
-            console.warn(`${context}: All retry attempts failed, returning empty array`);
-            return [] as unknown as T;
-        }
-        
         throw lastError;
     }
 
