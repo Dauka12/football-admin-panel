@@ -1,17 +1,20 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TournamentTeamStatistics } from '../../types/statistics';
+import type { TournamentStatisticsResponse } from '../../types/statistics';
+import type { TeamFullResponse } from '../../types/teams';
 
 interface TournamentStatisticsProps {
-    stats: TournamentTeamStatistics[];
+    stats: TournamentStatisticsResponse[];
     isLoading: boolean;
     error: string | null;
+    teams?: TeamFullResponse[];
 }
 
 const TournamentStatistics: React.FC<TournamentStatisticsProps> = ({
     stats,
     isLoading,
-    error
+    error,
+    teams = []
 }) => {
     const { t, i18n } = useTranslation();
     const isRussian = i18n.language === 'ru';
@@ -63,7 +66,33 @@ const TournamentStatistics: React.FC<TournamentStatisticsProps> = ({
         );
     }
 
-    if (!stats || stats.length === 0) {
+    const combinedStats = (() => {
+        const base = stats || [];
+        if (!teams || teams.length === 0) {
+            return base;
+        }
+        const byTeamId = new Map<number, TournamentStatisticsResponse>();
+        base.forEach((item) => byTeamId.set(item.teamId, item));
+        teams.filter(Boolean).forEach((team) => {
+            if (!team || byTeamId.has(team.id)) {
+                return;
+            }
+            byTeamId.set(team.id, {
+                teamId: team.id,
+                teamName: team.name || `Team #${team.id}`,
+                gamesPlayed: 0,
+                wins: 0,
+                draws: 0,
+                losses: 0,
+                goalsFor: 0,
+                goalsAgainst: 0,
+                points: 0
+            });
+        });
+        return Array.from(byTeamId.values());
+    })();
+
+    if (!combinedStats || combinedStats.length === 0) {
         return (
             <div className="bg-card-bg rounded-lg p-6">
                 <h2 className={`font-semibold mb-4 ${isRussian ? 'text-lg' : 'text-xl'}`}>
@@ -75,7 +104,7 @@ const TournamentStatistics: React.FC<TournamentStatisticsProps> = ({
     }
 
     // Сортируем команды по очкам, затем по разности голов
-    const sortedStats = [...stats].sort((a, b) => {
+    const sortedStats = [...combinedStats].sort((a, b) => {
         const pointsDiff = b.points - a.points;
         if (pointsDiff !== 0) return pointsDiff;
         
@@ -84,7 +113,10 @@ const TournamentStatistics: React.FC<TournamentStatisticsProps> = ({
         const goalDiffDiff = goalDiffB - goalDiffA;
         if (goalDiffDiff !== 0) return goalDiffDiff;
         
-        return b.goalsFor - a.goalsFor;
+        const goalsForDiff = b.goalsFor - a.goalsFor;
+        if (goalsForDiff !== 0) return goalsForDiff;
+
+        return a.teamName.localeCompare(b.teamName);
     });
 
     return (
@@ -141,7 +173,7 @@ const TournamentStatistics: React.FC<TournamentStatisticsProps> = ({
                                     </td>
                                     <td className="py-3 px-2">
                                         <div className="font-medium truncate max-w-[120px] sm:max-w-none">
-                                            {team.teamName}
+                                            {team.teamName || `Team #${team.teamId}`}
                                         </div>
                                     </td>
                                     <td className="py-3 px-2 text-center">{team.gamesPlayed}</td>

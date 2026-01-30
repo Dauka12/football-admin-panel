@@ -135,17 +135,21 @@ export const useSportClubStore = create<SportClubState>()((set, get) => ({
         const { currentSportClub } = get();
         if (currentSportClub && currentSportClub.id === id) return;
 
-        set({ isLoading: true, error: null });
+        set({ isLoading: true, error: null, currentSportClub: null });
         try {
             const sportClub = await apiService.execute(
                 () => sportClubApi.getById(id),
                 `fetchSportClub_${id}`,
-                { enableCache: true, cacheTTL: 2 * 60 * 1000 } // Cache for 2 minutes
+                { enableCache: false } // Do not cache details to avoid stale/invalid data
             );
+            if (!sportClub || typeof sportClub !== 'object' || !('id' in (sportClub as any))) {
+                throw new Error('Unexpected API response format');
+            }
             set({ currentSportClub: sportClub, isLoading: false });
         } catch (error: any) {
             const errorMessage = ErrorHandler.handle(error);
             set({
+                currentSportClub: null,
                 error: errorMessage.message,
                 isLoading: false
             });
@@ -161,7 +165,7 @@ export const useSportClubStore = create<SportClubState>()((set, get) => ({
             );
             
             // Clear cache and refresh sport clubs list
-            apiService.clearCache(['fetchSportClubs']);
+            apiService.clearCache(['fetchSportClubs', 'fetchSportClub_']);
             await get().fetchSportClubs(true);
             
             set({ isLoading: false });

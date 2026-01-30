@@ -132,7 +132,7 @@ input[type="datetime-local"] {
 }
 
 .modal-content {
-    @apply bg-card-bg rounded-lg transform scale-95 opacity-0 transition-all duration-300 w-full max-w-lg;
+    @apply bg-card-bg rounded-lg transform scale-95 opacity-0 transition-all duration-300 w-full;
 }
 
 .modal-content.active {

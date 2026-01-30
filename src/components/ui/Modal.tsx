@@ -8,6 +8,7 @@ interface ModalProps {
     className?: string;
     hasDatePicker?: boolean;
     zIndex?: string; // Add zIndex prop
+    maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl' | 'full';
 }
 
 const Modal: React.FC<ModalProps> = ({ 
@@ -17,9 +18,24 @@ const Modal: React.FC<ModalProps> = ({
     children, 
     className = '',
     hasDatePicker = false,
-    zIndex = 'z-50' // Default z-index
+    zIndex = 'z-50', // Default z-index
+    maxWidth = 'lg'
 }) => {
     const [isActive, setIsActive] = useState(false);
+
+    const maxWidthClasses = {
+        'sm': 'max-w-sm',
+        'md': 'max-w-md',
+        'lg': 'max-w-lg',
+        'xl': 'max-w-xl',
+        '2xl': 'max-w-2xl',
+        '3xl': 'max-w-3xl',
+        '4xl': 'max-w-4xl',
+        '5xl': 'max-w-5xl',
+        '6xl': 'max-w-6xl',
+        '7xl': 'max-w-7xl',
+        'full': 'max-w-full mx-4'
+    };
 
     useEffect(() => {
         if (isOpen) {
@@ -46,7 +62,7 @@ const Modal: React.FC<ModalProps> = ({
                 ${className}
                 bg-gradient-to-b from-card-bg to-darkest-bg border border-gray-800/50 
                 rounded-lg shadow-2xl overflow-hidden 
-                mx-3 sm:mx-0 max-h-[90vh] w-full max-w-lg
+                mx-3 sm:mx-0 max-h-[90vh] w-full ${maxWidthClasses[maxWidth]}
             `}>
                 <div className="relative">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-gold via-accent-pink to-gold opacity-50"></div>

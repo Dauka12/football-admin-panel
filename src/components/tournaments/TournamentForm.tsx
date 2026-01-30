@@ -77,6 +77,15 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
         loadData();
     }, []); // Remove dependencies to prevent infinite loops
 
+    useEffect(() => {
+        if (initialData) {
+            setFormData(prev => ({
+                ...prev,
+                ...initialData
+            }));
+        }
+    }, [initialData]);
+
     // Update selected teams when form data changes
     useEffect(() => {
         if (teams.length > 0 && formData.teams.length > 0) {
@@ -93,37 +102,37 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
         
         // Check required fields manually
         if (!formData.name?.trim()) {
-            showToast('Tournament name is required', 'error');
+            showToast(t('tournaments.nameRequired'), 'error');
             return;
         }
         
         if (!formData.startDate) {
-            showToast('Start date is required', 'error');
+            showToast(t('tournaments.startDateRequired'), 'error');
             return;
         }
         
         if (!formData.endDate) {
-            showToast('End date is required', 'error');
+            showToast(t('tournaments.endDateRequired'), 'error');
             return;
         }
         
         if (!formData.cityId || formData.cityId === 0) {
-            showToast('City is required', 'error');
+            showToast(t('tournaments.cityRequired'), 'error');
             return;
         }
         
         if (!formData.sportTypeId || formData.sportTypeId === 0) {
-            showToast('Sport type is required', 'error');
+            showToast(t('tournaments.sportTypeRequired'), 'error');
             return;
         }
         
         if (!formData.categoryId || formData.categoryId === 0) {
-            showToast('Category is required', 'error');
+            showToast(t('tournaments.categoryRequired'), 'error');
             return;
         }
         
         if (!formData.teams || formData.teams.length < 2) {
-            showToast('At least 2 teams are required', 'error');
+            showToast(t('tournaments.minTeamsRequired'), 'error');
             return;
         }
 

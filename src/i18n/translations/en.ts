@@ -1236,10 +1236,12 @@ export const en = {
         
         // Age Categories
         ageCategories: "Age Categories",
+        ageCategoriesHint: "You can add multiple age groups (U6, U8, U10, etc.) to one club section",
         addAgeCategory: "Add Age Category",
         ageCategory: "Age Category",
         ageCategoryType: "Age Category Type",
         maxParticipants: "Max Participants",
+        currentParticipants: "Current Participants",
         categoryDescription: "Category Description",
         categoryDescriptionPlaceholder: "Description for this age category",
         categoryActive: "Active",
